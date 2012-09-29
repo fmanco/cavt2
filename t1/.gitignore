@@ -1,0 +1,7 @@
+# Build files
+YuvShow
+
+# Eclipse
+.settings/*
+.project
+.cproject
