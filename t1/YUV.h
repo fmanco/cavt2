@@ -1,6 +1,7 @@
 #ifndef _YUV_H_
 #define _YUV_H_
 
+#include <cv.h>
 #include <stdio.h>
 
 /* 
@@ -25,6 +26,9 @@ class YUV
 		/** Displays a frame in the screen. Internally uses OpenCV.*/
 		void displayFrame();
 	private:
+		/** Initialization function (no delegating constructors, boooo) **/
+		void init(int nR, int nC, int fps, int type);
+		
 		/** Buffer to store the frame data. */
 		unsigned char *buffer;
 		/** Pointer to the y component. */
@@ -45,5 +49,8 @@ class YUV
 		int bufferSize;
 		/** File pointer to the video file. */
 		FILE *fp;
+		/** Image displayed */
+		IplImage *img;
+		
 };
 #endif

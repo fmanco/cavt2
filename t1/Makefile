@@ -4,7 +4,7 @@ BIN = .
 
 OBJS = YUV.o
 
-TARGETS = YuvShow
+TARGETS = YuvShow YUVTest
 	
 BINS = $(TARGETS:%=$(BIN)/%)
 
