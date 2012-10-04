@@ -28,7 +28,10 @@ class YUV
 	private:
 		/** Initialization function (no delegating constructors, boooo) **/
 		void init(int nR, int nC, int fps, int type);
-		
+
+		/** Utility to read and parse file header */
+		int readFileHeader(char* filename, int* yCols, int* yRows, int* fps,  int* type);
+
 		/** Buffer to store the frame data. */
 		unsigned char *buffer;
 		/** Pointer to the y component. */

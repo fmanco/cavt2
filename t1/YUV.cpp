@@ -11,36 +11,23 @@ YUV::YUV(int nR, int nC, int f, int t)
 
 YUV::YUV(char *filename)
 {
-	char buf[256]; /* auxiliary buffer to parse file header */
-	int yCols, yRows; /* frame dimension */
-	int fps_; /* frames per second */
-	int type_; /* YUV type */
-	
-	fp = fopen(filename, "rb");
-	if(fp == NULL)
-	{
-		fprintf(stderr, "Error opening file\n");
-		//~ this is dumb
-		//~ return -1;
-	}
-	
-	//~ if(!fgets(buf, 256, fp))
-		//~ return -1;
-		
-	fgets(buf, 256, fp);
+	int nR, nC; /* frame dimension */
+	int f;      /* frames per second */
+	int t;      /* YUV type [444, 422, 420] */
 
-	//~ if(sscanf(buf, "%d%d%d%d", &yCols, &yRows, &fps, &type) != 4)
-		//~ return -1;
-		
-	sscanf(buf, "%d%d%d%d", &yCols, &yRows, &fps_, &type_);
-	
-	init(yRows, yCols, fps_, type_);
-	
+	if (readFileHeader(filename, &nC, &nR, &f, &t) != 0)
+		throw new std::runtime_error("Unable to read file header!");
+
+	init(nR, nC, f, t);
 }
 
 YUV::~YUV()
 {
-	//~ free memory son
+	if (fp != NULL)
+		fclose(fp);
+
+	cvDestroyWindow( "YUV" );
+	cvReleaseImage( &img );
 }
 
 void YUV::init(int nR, int nC, int f, int t){
@@ -79,6 +66,34 @@ void YUV::init(int nR, int nC, int f, int t){
 
 	/* create a window */
 	cvNamedWindow( "YUV", CV_WINDOW_AUTOSIZE );
+}
+
+int YUV::readFileHeader(char* filename, int* yCols, int* yRows, int* fps,  int* type) {
+	char buf[256]; /* auxiliary buffer to parse file header */
+
+	fp = fopen(filename, "rb");
+
+	if(fp == NULL)
+	{
+		fprintf(stderr, "Error opening file\n");
+		return -1;
+	}
+
+	if(!fgets(buf, 256, fp))
+	{
+		fclose(fp);
+		fprintf(stderr, "Error reading file header\n");
+		return -1;
+	}
+
+	if(sscanf(buf, "%d%d%d%d", yCols, yRows, fps, type) != 4)
+	{
+		fclose(fp);
+		fprintf(stderr, "Invalid file header\n");
+		return -1;
+	}
+
+	return 0;
 }
 
 int YUV::readFrame()
@@ -131,7 +146,7 @@ void YUV::displayFrame()
 {
 	char inputKey;
 	
-	cvShowImage( "rgb", img );
+	cvShowImage( "YUV", img );
 	/* wait according to the frame rate */
 	inputKey = cvWaitKey(1.0 / fps * 1000);
 }
