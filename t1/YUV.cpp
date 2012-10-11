@@ -164,6 +164,17 @@ void YUV::YUVtoYUV444(unsigned char *buffer) {
 		break;
 
 	case 420:
+		// TODO: Efficiency? What?
+		// Y
+		memcpy(nyBuffer, yBuffer, nRows * nCols);
+
+		// U, V
+		for (int r = 0; r < nRows; r++) {
+			for (int c = 0; c < nCols; c++) {
+				nuBuffer[c + (r * nCols)] = uBuffer[(c / 2) + ((r / 2) * (nCols / 2))];
+				nvBuffer[c + (r * nCols)] = vBuffer[(c / 2) + ((r / 2) * (nCols / 2))];
+			}
+		}
 		break;
 	}
 }
