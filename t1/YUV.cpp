@@ -160,9 +160,9 @@ void YUV::YUVtoRGB(unsigned char *yuvBuffer) {
 	for (unsigned int i = 0, j = 0; i < nRows * nCols; i++, j+=3) {
 
 		/* Accessing to planar information */
-		y = yBuffer[i];
-		u = uBuffer[i];
-		v = vBuffer[i];
+		y = yBuff[i];
+		u = uBuff[i];
+		v = vBuff[i];
 
 		YUVtoRGB(y, u, v, r, g, b);
 
