@@ -20,7 +20,7 @@ class YUV
 		YUV(char *filename);
 		/** Destructor */
 		~YUV();
-		/** Reads a new frame from the file. 
+		/** Reads a new frame from the file.
 			\returns -1 if the read failed. */
 		int readFrame();
 		/** Displays a frame in the screen. Internally uses OpenCV.*/
@@ -31,6 +31,10 @@ class YUV
 
 		/** Utility to read and parse file header */
 		int readFileHeader(char* filename, int* yCols, int* yRows, int* fps,  int* type);
+
+		void convert();
+
+		void YUVtoRGB(int y, int u, int v, int &r, int &b, int &g);
 
 		/** Buffer to store the frame data. */
 		unsigned char *buffer;
@@ -54,6 +58,5 @@ class YUV
 		FILE *fp;
 		/** Image displayed */
 		IplImage *img;
-		
 };
 #endif
