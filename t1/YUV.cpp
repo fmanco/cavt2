@@ -129,7 +129,7 @@ void YUV::displayFrame() {
 
 	if (type != 444) {
 		unsigned char tmp[3 * nRows * nCols];
-//		YUVtoYUV444(tmp);
+		YUVtoYUV444(tmp);
 		YUVtoRGB(tmp);
 	} else {
 		YUVtoRGB(buffer);
@@ -142,6 +142,31 @@ void YUV::displayFrame() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void YUV::YUVtoYUV444(unsigned char *buffer) {
+	uchar *nyBuffer = buffer;
+	uchar *nuBuffer = buffer + (nRows * nCols);
+	uchar *nvBuffer = buffer + (2 * nRows * nCols);
+
+	switch(type) {
+	case 444:
+		break;
+
+	case 422:
+		// Y
+		memcpy(nyBuffer, yBuffer, nRows * nCols);
+
+		// U, V
+		for (int i = 0; i < nRows * nCols; i+=2) {
+			nuBuffer[i + 1] = nuBuffer[i] = uBuffer[i / 2];
+			nvBuffer[i + 1] = nvBuffer[i] = vBuffer[i / 2];
+		}
+		break;
+
+	case 420:
+		break;
+	}
+}
 
 void YUV::YUVtoRGB(unsigned char *yuvBuffer) {
 	unsigned char *imgBuffer; /* openCV image buffer */
