@@ -180,18 +180,12 @@ void inline YUV::YUVtoRGB(int y, int u, int v, int &r, int &g, int &b) {
 	r = (int) (1.164 * (y - 16) + 1.596 * (v - 128));
 
 	// clipping to [0 ... 255]
-	if (r < 0)
-		r = 0;
-	if (g < 0)
-		g = 0;
-	if (b < 0)
-		b = 0;
-	if (r > 255)
-		r = 255;
-	if (g > 255)
-		g = 255;
-	if (b > 255)
-		b = 255;
+	if (r < 0) r = 0;
+	if (g < 0) g = 0;
+	if (b < 0) b = 0;
+	if (r > 255) r = 255;
+	if (g > 255) g = 255;
+	if (b > 255) b = 255;
 
 	// if you need the inverse formulas
 	//y = r *  .299 + g *  .587 + b *  .114 ;
