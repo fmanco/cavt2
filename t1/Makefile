@@ -19,4 +19,4 @@ $(BINS): $(TARGETS:%=%.c) $(OBJS)
 	@g++ $(CFLAGS) -c $< -o $@ 
 
 clean:
-	rm -f $(BINS) *.o
+	rm -f $(BINS) *.o *~
