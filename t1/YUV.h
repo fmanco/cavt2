@@ -7,56 +7,77 @@
 /* 
  *@class YUV to manipulate YUV sequences
  */
-class YUV
-{
-	public:
-		/** Default constructor */
-		YUV();
-		/** Constructor that allows the specification of the video properties */
-		YUV(int nR, int nC, int fps, int type);
-		/** Constructor that uses the information presented in the file header
-			to create the object
-			\param filename The string containing the name of the video file. */
-		YUV(char *filename);
-		/** Destructor */
-		~YUV();
-		/** Reads a new frame from the file.
-			\returns -1 if the read failed. */
-		int readFrame();
-		/** Displays a frame in the screen. Internally uses OpenCV.*/
-		void displayFrame();
-	private:
-		/** Initialization function (no delegating constructors, boooo) **/
-		void init(int nR, int nC, int fps, int type);
+class YUV {
+public:
+	/** Constructor not associated to a file */
+	YUV(uint _nRows, uint _nCols, uint _fps, uint _type);
 
-		/** Utility to read and parse file header */
-		int readFileHeader(char* filename, int* yCols, int* yRows, int* fps,  int* type);
+	/** Constructor for writing to file */
+	YUV(char* filename, uint _nRows, uint _nCols, uint _fps, uint _type);
 
-		void convert();
+	/** Constructor for reading from file
+	 \param filename The string containing the name of the video file. */
+	YUV(char *filename);
 
-		void YUVtoRGB(int y, int u, int v, int &r, int &b, int &g);
+	/** Destructor */
+	~YUV();
 
-		/** Buffer to store the frame data. */
-		unsigned char *buffer;
-		/** Pointer to the y component. */
-		unsigned char *yBuffer;
-		/** Pointer to the u component. */
-		unsigned char *uBuffer;
-		/** Pointer to the v component. */
-		unsigned char *vBuffer;
-		/** Resolution of the video. */
-		int nRows, nCols;
-		/** Frame rate of the video. */
-		int fps;
-		/** Type of the yuv video (444, 422, 420). */
-		int type;
-		/** Resolution of the UV component. */
-		int uvCols, uvRows;
-		/** Buffer size (Y + U + V). */
-		int bufferSize;
-		/** File pointer to the video file. */
-		FILE *fp;
-		/** Image displayed */
-		IplImage *img;
+public:
+	/** Reads a new frame from the file.
+	 \returns -1 if the read failed. */
+	int readFrame();
+
+	/** Write the current frame to the file */
+	int appendFrame();
+
+public:
+	/** Displays a frame in the screen. Internally uses OpenCV.*/
+	void displayFrame();
+
+private:
+	/** Initialization function (no delegating constructors, boooo) **/
+	void init();
+
+	/** Utility to read and parse file header */
+	int readFileHeader(char* filename);
+
+	/** Utility to write file header */
+	int writeFileHeader(char* filename);
+
+	void YUVtoRGB(unsigned char *yuvBuffer);
+
+	/** Convert from YUV422 or YUV420 to YUV444 */
+	void YUVtoYUV444(unsigned char *buffer);
+
+	/** Convert a pixel from YUV to RGB */
+	void inline YUVtoRGB(int y, int u, int v, int &r, int &g, int &b);
+
+private:
+	/** Resolution of the video. */
+	uint nRows, nCols;
+	/** Resolution of the UV component. */
+	uint uvCols, uvRows;
+	/** Frame rate of the video. */
+	uint fps;
+	/** Type of the yuv video (444, 422, 420). */
+	uint type;
+
+	/** Buffer size (Y + U + V). */
+	uint bufferSize;
+	/** Buffer to store the frame data. */
+	unsigned char *buffer;
+	/** Pointer to the y component. */
+	unsigned char *yBuffer;
+	/** Pointer to the u component. */
+	unsigned char *uBuffer;
+	/** Pointer to the v component. */
+	unsigned char *vBuffer;
+
+	/** File pointer to the video file. */
+	FILE *fp;
+
+	/** Image displayed */
+	IplImage *img;
 };
+
 #endif
