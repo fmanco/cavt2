@@ -50,6 +50,7 @@ private:
 	/** Utility to write file header */
 	int writeFileHeader(char* filename);
 
+	/** Convert YUV444 to RGB */
 	void YUVtoRGB(unsigned char *yuvBuffer);
 
 	/** Convert from YUV422 or YUV420 to YUV444 */
