@@ -4,15 +4,15 @@ BIN = .
 
 OBJS = YUV.o
 
-TARGETS = YuvShow YUVTest
+TARGETS = YuvShow
 	
 BINS = $(TARGETS:%=$(BIN)/%)
 
 all: $(BINS)
 
-$(BINS): $(TARGETS:%=%.c) $(OBJS)
+$(BINS): $(TARGETS:%=%.cpp) $(OBJS)
 	@echo "Build bin '$@'"
-	@g++ -o $@ $(@:%=%.c) $(OBJS) $(CFLAGS)
+	@g++ -o $@ $(@:%=%.cpp) $(OBJS) $(CFLAGS)
 
 %.o: %.cpp %.h
 	@echo "Build $(@:%.o=%)"
