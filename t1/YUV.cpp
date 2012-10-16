@@ -54,11 +54,27 @@ void YUV::init() {
 	}
 
 	bufferSize = (nRows * nCols) + (2 * uvRows * uvCols);
-	buffer = new unsigned char[bufferSize];
+	bufferRaw = new unsigned char[bufferSize];
 
-	yBuffer = buffer;
-	uBuffer = buffer + (nRows * nCols);
-	vBuffer = buffer + (nRows * nCols) + (uvRows * uvCols);
+	if (type == 444) {
+		yBufferRaw = bufferRaw;
+		uBufferRaw = bufferRaw + (nRows * nCols);
+		vBufferRaw = bufferRaw + (nRows * nCols) + (uvRows * uvCols);
+
+		yBuffer = yBufferRaw;
+		uBuffer = uBufferRaw;
+		vBuffer = vBufferRaw;
+	} else {
+		buffer = new unsigned char[2 * nRows * nCols];
+
+		yBufferRaw = bufferRaw;
+		uBufferRaw = bufferRaw + (nRows * nCols);
+		vBufferRaw = bufferRaw + (nRows * nCols) + (uvRows * uvCols);
+
+		yBuffer = yBufferRaw;
+		uBuffer = buffer;
+		vBuffer = buffer + (nRows * nCols);
+	}
 
 	// FIXME: coiso
 	/* data structure for the OpenCv image */
@@ -111,14 +127,14 @@ int YUV::writeFileHeader(char* filename) {
 }
 
 int YUV::readFrame() {
-	if (fread(buffer, sizeof(unsigned char), bufferSize, fp) != bufferSize)
+	if (fread(bufferRaw, sizeof(unsigned char), bufferSize, fp) != bufferSize)
 		return -1;
 
 	return 0;
 }
 
 int YUV::appendFrame() {
-	if (fwrite(buffer, sizeof(unsigned char), bufferSize, fp) != bufferSize)
+	if (fwrite(bufferRaw, sizeof(unsigned char), bufferSize, fp) != bufferSize)
 		return -1;
 
 	return 0;
@@ -133,13 +149,8 @@ void YUV::setFps(unsigned int fps) {
 void YUV::displayFrame() {
 	char inputKey;
 
-	if (type != 444) {
-		unsigned char tmp[3 * nRows * nCols];
-		YUVtoYUV444(tmp);
-		YUVtoRGB(tmp);
-	} else {
-		YUVtoRGB(buffer);
-	}
+	YUVtoYUV444();
+	YUVtoRGB();
 
 	cvShowImage("YUV", img);
 
@@ -153,62 +164,46 @@ void YUV::rewind() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void YUV::YUVtoYUV444(unsigned char *buffer) {
-	uchar *nyBuffer = buffer;
-	uchar *nuBuffer = buffer + (nRows * nCols);
-	uchar *nvBuffer = buffer + (2 * nRows * nCols);
-
+void YUV::YUVtoYUV444() {
 	switch(type) {
 	case 444:
 		break;
 
 	case 422:
-		// Y
-		memcpy(nyBuffer, yBuffer, nRows * nCols);
-
 		// U, V
 		for (int i = 0; i < nRows * nCols; i+=2) {
-			nuBuffer[i + 1] = nuBuffer[i] = uBuffer[i / 2];
-			nvBuffer[i + 1] = nvBuffer[i] = vBuffer[i / 2];
+			uBuffer[i + 1] = uBuffer[i] = uBufferRaw[i / 2];
+			vBuffer[i + 1] = vBuffer[i] = vBufferRaw[i / 2];
 		}
 		break;
 
 	case 420:
 		// TODO: Efficiency? What?
-		// Y
-		memcpy(nyBuffer, yBuffer, nRows * nCols);
-
 		// U, V
 		for (int r = 0; r < nRows; r++) {
 			for (int c = 0; c < nCols; c++) {
-				nuBuffer[c + (r * nCols)] = uBuffer[(c / 2) + ((r / 2) * (nCols / 2))];
-				nvBuffer[c + (r * nCols)] = vBuffer[(c / 2) + ((r / 2) * (nCols / 2))];
+				uBuffer[c + (r * nCols)] = uBufferRaw[(c / 2) + ((r / 2) * (nCols / 2))];
+				vBuffer[c + (r * nCols)] = vBufferRaw[(c / 2) + ((r / 2) * (nCols / 2))];
 			}
 		}
 		break;
 	}
 }
 
-void YUV::YUVtoRGB(unsigned char *yuvBuffer) {
+void YUV::YUVtoRGB() {
 	unsigned char *imgBuffer; /* openCV image buffer */
-	unsigned char *yBuff;
-	unsigned char *uBuff;
-	unsigned char *vBuff;
-	int n, r, g, b, y, u, v; /* auxiliary variables */
+	int r, g, b, y, u, v;     /* auxiliary variables */
 
 	/* The video is stored in YUV planar mode but OpenCv uses packed modes */
 	imgBuffer = (uchar*) img->imageData;
-	yBuff = yuvBuffer;
-	uBuff = yuvBuffer + (nRows * nCols);
-	vBuff = yuvBuffer + (2 * nRows * nCols);
 
 	/* YUV444: |yR*yC| yR*yC| yR*yC| */
 	for (unsigned int i = 0, j = 0; i < nRows * nCols; i++, j+=3) {
 
 		/* Accessing to planar information */
-		y = yBuff[i];
-		u = uBuff[i];
-		v = vBuff[i];
+		y = yBuffer[i];
+		u = uBuffer[i];
+		v = vBuffer[i];
 
 		YUVtoRGB(y, u, v, r, g, b);
 

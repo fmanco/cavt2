@@ -50,11 +50,11 @@ private:
 	/** Utility to write file header */
 	int writeFileHeader(char* filename);
 
-	/** Convert YUV444 to RGB */
-	void YUVtoRGB(unsigned char *yuvBuffer);
-
 	/** Convert from YUV422 or YUV420 to YUV444 */
-	void YUVtoYUV444(unsigned char *buffer);
+	void YUVtoYUV444();
+
+	/** Convert YUV444 to RGB */
+	void YUVtoRGB();
 
 	/** Convert a pixel from YUV to RGB */
 	void inline YUVtoRGB(int y, int u, int v, int &r, int &g, int &b);
@@ -69,15 +69,25 @@ private:
 	/** Type of the yuv video (444, 422, 420). */
 	uint type;
 
-	/** Buffer size (Y + U + V). */
+	/** Buffer size (Y + U + V) (for the original YUV format). */
 	uint bufferSize;
-	/** Buffer to store the frame data. */
+
+	/** Buffer to store the frame data in original format. */
+	unsigned char *bufferRaw;
+	/** Pointer to the y component (Original YUV format). */
+	unsigned char *yBufferRaw;
+	/** Pointer to the u component (Original YUV format). */
+	unsigned char *uBufferRaw;
+	/** Pointer to the v component (Original YUV format). */
+	unsigned char *vBufferRaw;
+
+	/** Buffer to store U and V planes in YUV444 format. */
 	unsigned char *buffer;
-	/** Pointer to the y component. */
+	/** Pointer to the y component (YUV444 format). */
 	unsigned char *yBuffer;
-	/** Pointer to the u component. */
+	/** Pointer to the u component (YUV444 format). */
 	unsigned char *uBuffer;
-	/** Pointer to the v component. */
+	/** Pointer to the v component (YUV444 format). */
 	unsigned char *vBuffer;
 
 	/** File pointer to the video file. */
