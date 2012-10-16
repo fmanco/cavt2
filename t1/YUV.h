@@ -37,6 +37,9 @@ public:
 	/** Displays a frame in the screen. Internally uses OpenCV.*/
 	void displayFrame();
 
+	/** Rewind to the first frame */
+	void rewind();
+
 private:
 	/** Initialization function (no delegating constructors, boooo) **/
 	void init();
@@ -78,6 +81,8 @@ private:
 
 	/** File pointer to the video file. */
 	FILE *fp;
+	/** Video start position (for use in rewind) */
+	fpos_t videoStart;
 
 	/** Image displayed */
 	IplImage *img;

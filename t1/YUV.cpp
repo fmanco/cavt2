@@ -23,6 +23,8 @@ YUV::YUV(char *filename) {
 	if (readFileHeader(filename))
 		throw new std::runtime_error("Unable to read file header!");
 
+	fgetpos(fp, &videoStart);
+
 	init();
 }
 
@@ -143,6 +145,10 @@ void YUV::displayFrame() {
 
 	/* wait according to the frame rate */
 	inputKey = cvWaitKey(1.0 / fps * 1000);
+}
+
+void YUV::rewind() {
+	fsetpos(fp, &videoStart);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
