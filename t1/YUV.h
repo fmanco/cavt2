@@ -40,6 +40,16 @@ public:
 	/** Rewind to the first frame */
 	void rewind();
 
+public:
+	void convertToBW();
+	int convertToBW(YUV& output);
+	void invertColors();
+	int invertColors(YUV& output);
+	void changeLuminance(double factor);
+	int changeLuminance(double factor, YUV& output);
+	int subSampling422(YUV& output);
+	int subSampling420(YUV& output);
+
 private:
 	/** Initialization function (no delegating constructors, boooo) **/
 	void init();

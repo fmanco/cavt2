@@ -163,6 +163,102 @@ void YUV::rewind() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void YUV::convertToBW() {
+	// FIXME: Maybe this should be done in readFrame method
+	YUVtoYUV444();
+
+	for (unsigned int i = 0; i < nRows * nCols; i++) {
+		uBuffer[i] = 127;
+		vBuffer[i] = 127;
+	}
+}
+
+int YUV::convertToBW(YUV& output) {
+	// I don't care about the YUV type because
+	// this method will only fill the 444 buffers
+	if (output.nCols != nCols || output.nRows != nRows)
+		return -1;
+
+	// FIXME: Maybe this should be done in readFrame method
+	YUVtoYUV444();
+
+	for (unsigned int i = 0; i < nRows * nCols; i++) {
+		output.yBuffer[i] = yBuffer[i];
+		output.uBuffer[i] = 127;
+		output.vBuffer[i] = 127;
+	}
+
+	return 0;
+}
+
+// TODO: Check this
+void YUV::invertColors() {
+	YUVtoYUV444();
+
+	for (unsigned int i = 0; i < nRows * nCols; i++) {
+		yBuffer[i] = 255 - yBuffer[i];
+		uBuffer[i] = 255 - uBuffer[i];
+		vBuffer[i] = 255 - vBuffer[i];
+	}
+}
+
+int YUV::invertColors(YUV& output) {
+	// I don't care about the YUV type because
+	// this method will only fill the 444 buffers
+	if (output.nCols != nCols || output.nRows != nRows)
+		return -1;
+
+	YUVtoYUV444();
+
+	for (unsigned int i = 0; i < nRows * nCols; i++) {
+		output.yBuffer[i] = 255 - yBuffer[i];
+		output.uBuffer[i] = 255 - uBuffer[i];
+		output.vBuffer[i] = 255 - vBuffer[i];
+	}
+
+	return 0;
+}
+
+void YUV::changeLuminance(double factor) {
+	double value;
+
+	YUVtoYUV444();
+
+	factor += 1.0;
+
+	for (unsigned int i = 0; i < nRows * nCols; i++) {
+		value = factor * yBuffer[i];
+
+		// clamping
+		yBuffer[i] = (value > 255 ? 255 : (value < 0 ? 0 : (unsigned char) value));
+	}
+}
+
+int YUV::changeLuminance(double factor, YUV& output) {
+	// I don't care about the YUV type because
+	// this method will only fill the 444 buffers
+	if (output.nCols != nCols || output.nRows != nRows)
+		return -1;
+
+	double value;
+
+	YUVtoYUV444();
+
+	factor += 1.0;
+
+	for (unsigned int i = 0; i < nRows * nCols; i++) {
+		value = factor * yBuffer[i];
+		// clamping
+		output.yBuffer[i] = (value > 255 ? 255 : (value < 0 ? 0 : (unsigned char) value));
+
+		output.uBuffer[i] = uBuffer[i];
+		output.vBuffer[i] = vBuffer[i];
+	}
+
+	return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 void YUV::YUVtoYUV444() {
 	switch(type) {
