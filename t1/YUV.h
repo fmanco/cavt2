@@ -31,6 +31,9 @@ public:
 	int appendFrame();
 
 public:
+	/** Set a specific frame rate */
+	void setFps(unsigned int fps);
+
 	/** Displays a frame in the screen. Internally uses OpenCV.*/
 	void displayFrame();
 

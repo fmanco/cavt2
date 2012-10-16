@@ -124,6 +124,10 @@ int YUV::appendFrame() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void YUV::setFps(unsigned int fps) {
+	this->fps = fps;
+}
+
 void YUV::displayFrame() {
 	char inputKey;
 
