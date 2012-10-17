@@ -82,6 +82,7 @@ void YUV::init() {
 
 	/* create a window */
 	cvNamedWindow("YUV", CV_WINDOW_AUTOSIZE);
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -130,6 +131,8 @@ int YUV::readFrame() {
 	if (fread(bufferRaw, sizeof(unsigned char), bufferSize, fp) != bufferSize)
 		return -1;
 
+	converted = 0;
+
 	return 0;
 }
 
@@ -153,7 +156,9 @@ void YUV::setFps(unsigned int fps) {
 void YUV::displayFrame() {
 	char inputKey;
 
-	YUVtoYUV444();
+	//~ if(!converted)
+		YUVtoYUV444();
+	
 	YUVtoRGB();
 
 	cvShowImage("YUV", img);
@@ -288,6 +293,7 @@ void YUV::YUVtoYUV444() {
 		}
 		break;
 	}
+	converted = 1;
 }
 
 void YUV::YUVtoRGB() {

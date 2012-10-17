@@ -106,6 +106,9 @@ private:
 	/** Pointer to the v component (YUV444 format). */
 	unsigned char *vBuffer;
 
+	/** Signals if the current frame has been converted to 444*/
+	unsigned int converted;
+
 	/** File pointer to the video file. */
 	FILE *fp;
 	/** Video start position (for use in rewind) */
