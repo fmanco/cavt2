@@ -29,6 +29,9 @@ public:
 
 	/** Write the current frame to the file */
 	int appendFrame();
+	
+	//~ /** Set the current frame, assuming the already specified dimensions and framerate */
+	//~ void setFrame(unsigned char* buffer);
 
 public:
 	/** Set a specific frame rate */
@@ -49,6 +52,9 @@ public:
 	int changeLuminance(double factor, YUV& output);
 	int subSampling422(YUV& output);
 	int subSampling420(YUV& output);
+
+public:
+	friend class YuvResize;
 
 private:
 	/** Initialization function (no delegating constructors, boooo) **/

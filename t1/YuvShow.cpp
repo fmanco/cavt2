@@ -2,6 +2,7 @@
 #include <cv.h>
 #include <highgui.h>
 #include "YUV.h"
+#include "YuvResize.h"
 
 int main( int argc, char** argv )
 {
@@ -40,11 +41,18 @@ int main( int argc, char** argv )
 			loop = 1;
 		}
 	}
-
+	
+	YuvResize res = YuvResize(1, 2);
+	YUV resized = res.prepareCopy(yuv);
+	
 	while(!end)
 	{
 		if (!yuv.readFrame()) {
-			yuv.displayFrame();
+			//yuv.convertToBW();
+			res.apply(yuv, resized);
+			
+			//~ yuv.displayFrame();
+			resized.displayFrame();
 		} else if (loop) {
 			yuv.rewind();
 		} else {

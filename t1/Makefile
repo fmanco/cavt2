@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = `pkg-config --libs --cflags opencv` -O3
 BIN = .
 
-OBJS = YUV.o
+OBJS = YUV.o YuvResize.o
 
 TARGETS = YuvShow
 	

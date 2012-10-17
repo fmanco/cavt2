@@ -146,6 +146,10 @@ void YUV::setFps(unsigned int fps) {
 	this->fps = fps;
 }
 
+//~ void YUV::setFrame(unsigned char* buffer){
+	//~ memcpy(bufferRaw, buffer, bufferSize);
+//~ }
+
 void YUV::displayFrame() {
 	char inputKey;
 
