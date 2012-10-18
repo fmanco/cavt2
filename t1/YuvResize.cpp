@@ -17,6 +17,8 @@ YUV YuvResize::prepareCopy(YUV& orig){
 	int newRows = (type==EXPAND ? orig.nRows*factor : orig.nRows/factor);
 	int newCols = (type==EXPAND ? orig.nCols*factor : orig.nCols/factor);
 	
+	//~ printf("%d: %dx%d -> %dx%d\n", type, orig.nRows, orig.nCols, newRows, newCols);
+	
 	return YUV(newRows, newCols, orig.fps, orig.type);
 }
 

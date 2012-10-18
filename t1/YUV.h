@@ -56,7 +56,7 @@ public:
 public:
 	friend class YuvResize;
 
-private:
+public:
 	/** Initialization function (no delegating constructors, boooo) **/
 	void init();
 
@@ -75,7 +75,7 @@ private:
 	/** Convert a pixel from YUV to RGB */
 	void inline YUVtoRGB(int y, int u, int v, int &r, int &g, int &b);
 
-private:
+public:
 	/** Resolution of the video. */
 	uint nRows, nCols;
 	/** Resolution of the UV component. */
