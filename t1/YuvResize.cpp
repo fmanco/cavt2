@@ -38,10 +38,26 @@ void YuvResize::reduce(YUV& orig, YUV& resized){
 	int i ,j; // pixels created by the resizing
 	int rIdx = 0; // pixel positions original and resized buffers
 
+	int sum;
+	int summed;
 	//Y
 	for(r = 0 ; r < orig.nRows ; r += factor) {
 		for(c = 0 ; c < orig.nCols ; c += factor) {
-			resized.yBufferRaw[rIdx] = orig.yBufferRaw[r*orig.nCols + c];	
+			if (true){
+				sum=0;
+				summed=0;
+				resized.yBufferRaw[rIdx];
+				for (int i=-factor/2; i<factor/2;i++)
+					for (int j=-factor/2; j<factor/2; j++){
+						if (r+i >=0 && r+i<orig.nRows  && c+j>=0 && c+j<=orig.nCols){
+							sum+= orig.yBufferRaw[(r+i)*orig.nCols + (c+j)];
+							summed++;
+						}
+					}
+				resized.yBufferRaw[rIdx]=sum/summed;
+			} else {
+				resized.yBufferRaw[rIdx] = orig.yBufferRaw[r*orig.nCols + c];
+			}
 			rIdx++;
 		}
 	}
