@@ -13,16 +13,34 @@
  */
 float calcMSE(YUV& a, YUV& b, uint component) {
 	
+	//TA MÁL, só ve em Y!
 	//TODO: verify a and b dimensions match
 	
 	int lim = (component == 0 ? (a.nRows*a.nCols) : a.uvRows*a.uvCols);
+	unsigned char *aBuffer, *bBuffer;
+	
+	switch (component){
+		case 0: 
+			aBuffer = a.yBuffer;
+			bBuffer = b.yBuffer;
+			break;
+		case 1: 
+			aBuffer = a.uBuffer;
+			bBuffer = b.uBuffer;
+			break;
+		case 2: 
+			aBuffer = a.vBuffer;
+			bBuffer = b.vBuffer;
+			break;
+	}
+	
 	int sum = 0, i = 0;
 	float mse = 1.0/lim;
 	
 	//~ printf("lim: %d, mse: %f\n", lim, mse);
 	
 	for(i = 0 ; i < lim; i++) {
-		sum += (a.bufferRaw[i] - b.bufferRaw[i])*(a.bufferRaw[i] - b.bufferRaw[i]);
+		sum += (aBuffer[i] - bBuffer[i])*(aBuffer[i] - bBuffer[i]);
 	}
 	
 	mse*=sum;
@@ -30,7 +48,7 @@ float calcMSE(YUV& a, YUV& b, uint component) {
 	return mse;
 }
 
-float calcPSNR(YUV& a, YUV& b, int component){
+float inline calcPSNR(YUV& a, YUV& b, int component){
 	return 10.0 * log10f(255.0*255.0/calcMSE(a,b,component));
 }
 

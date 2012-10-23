@@ -1,4 +1,5 @@
 #include "YUV.h"
+#include "YuvBlock.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <cv.h>
@@ -338,4 +339,11 @@ void inline YUV::YUVtoRGB(int y, int u, int v, int &r, int &g, int &b) {
 	//y = r *  .299 + g *  .587 + b *  .114 ;
 	//u = r * -.169 + g * -.332 + b *  .500  + 128.;
 	//v = r *  .500 + g * -.419 + b * -.0813 + 128.;
+}
+
+YuvBlock* YUV::getBlock(int nRows, int nCols, int x, int y){
+	
+	unsigned char asd ='2';
+	return NULL;
+	//~ return new YuvBlock(nRows, nCols, &asd);
 }

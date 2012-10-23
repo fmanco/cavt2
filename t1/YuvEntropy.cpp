@@ -19,26 +19,29 @@ float frameEntropy(YUV& yuv, uint component){
 	float entropy=0.0;
 	float prob;
 	uint occurrence[255];
+	unsigned char *buffer;
 	
-	//~ memset(occurrence, 0, 255);
+	switch (component){
+		case 0: 
+			buffer = yuv.yBuffer;
+			break;
+		case 1: 
+			buffer = yuv.uBuffer;
+			break;
+		case 2: 
+			buffer = yuv.vBuffer;
+			break;
+	}
+	
+	//~ memset(occurrence, 0, 255); memsets, how do they work?
 	
 	for (i = 0; i < 255; i++){
 		occurrence[i] = 0;
 	}
 	
-	if (component == 0) {
-		for(i = 0 ; i < lim; i++) {
-			occurrence[yuv.yBuffer[i]]++;
-		}
-	} else if (component == 1){
-		for(i = 0 ; i < lim; i++) {
-			occurrence[yuv.uBuffer[i]]++;
-		}
-	} else {
-		for(i = 0 ; i < lim; i++) {
-			occurrence[yuv.vBuffer[i]]++;
-		}
-	}
+	for(i = 0 ; i < lim; i++) {
+		occurrence[buffer[i]]++;
+	}	
 	
 	for (i = 0; i < 255; i++){
 		//if no occurences, no adding is necessary
@@ -47,8 +50,6 @@ float frameEntropy(YUV& yuv, uint component){
 			entropy += prob*log2f(prob);
 		}
 	}
-	
-	
 	
 	return entropy;	
 }

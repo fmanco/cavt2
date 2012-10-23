@@ -3,6 +3,7 @@
 
 #include <cv.h>
 #include <stdio.h>
+#include "YuvBlock.h"
 
 /* 
  *@class YUV to manipulate YUV sequences
@@ -52,6 +53,8 @@ public:
 	int changeLuminance(double factor, YUV& output);
 	int subSampling422(YUV& output);
 	int subSampling420(YUV& output);
+	YuvBlock* getBlock(int nRows, int nCols, int x, int y);
+
 
 public:
 	friend class YuvResize;
