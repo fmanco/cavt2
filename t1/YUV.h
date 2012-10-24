@@ -5,10 +5,16 @@
 #include <stdio.h>
 #include "YuvBlock.h"
 
+
 /* 
  *@class YUV to manipulate YUV sequences
  */
 class YUV {
+public:
+	friend class YuvResize;
+
+////////////////////////////////////////////////////////////////////////////////
+// Constructors and destructor
 public:
 	/** Constructor not associated to a file */
 	YUV(uint _nRows, uint _nCols, uint _fps, uint _type);
@@ -23,12 +29,22 @@ public:
 	/** Destructor */
 	~YUV();
 
+private:
+	/** Initialization function (no delegating constructors, boooo) **/
+	void init();
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Basics
 public:
 	uint getType()  { return type;  }
 	uint getNCols() { return nCols; }
 	uint getNRows() { return nRows; }
 	uint getFps()   { return fps;   }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// File manipulation
 public:
 	/** Reads a new frame from the file.
 	 \returns -1 if the read failed. */
@@ -36,10 +52,17 @@ public:
 
 	/** Write the current frame to the file */
 	int appendFrame();
-	
-	//~ /** Set the current frame, assuming the already specified dimensions and framerate */
-	//~ void setFrame(unsigned char* buffer);
 
+private:
+	/** Utility to read and parse file header */
+	int readFileHeader(char* filename);
+
+	/** Utility to write file header */
+	int writeFileHeader(char* filename);
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Frame display
 public:
 	/** Set a specific frame rate */
 	void setFps(unsigned int fps);
@@ -50,31 +73,29 @@ public:
 	/** Rewind to the first frame */
 	void rewind();
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Frame manipulation
 public:
 	void convertToBW();
 	int convertToBW(YUV& output);
+
 	void invertColors();
 	int invertColors(YUV& output);
+
 	void changeLuminance(double factor);
 	int changeLuminance(double factor, YUV& output);
-	int subSampling422(YUV& output);
-	int subSampling420(YUV& output);
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Others
+public:
 	YuvBlock* getBlock(int nRows, int nCols, int x, int y);
 
 
-public:
-	friend class YuvResize;
-
-public:
-	/** Initialization function (no delegating constructors, boooo) **/
-	void init();
-
-	/** Utility to read and parse file header */
-	int readFileHeader(char* filename);
-
-	/** Utility to write file header */
-	int writeFileHeader(char* filename);
-
+////////////////////////////////////////////////////////////////////////////////
+// Auxiliar methods
+private:
 	/** Convert from YUV422 or YUV420 to YUV444 */
 	void YUVtoYUV444();
 
@@ -84,6 +105,9 @@ public:
 	/** Convert a pixel from YUV to RGB */
 	void inline YUVtoRGB(int y, int u, int v, int &r, int &g, int &b);
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Data
 public:
 	/** Resolution of the video. */
 	uint nRows, nCols;

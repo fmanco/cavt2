@@ -5,45 +5,53 @@
 #include <cv.h>
 #include <highgui.h>
 
+
 ////////////////////////////////////////////////////////////////////////////////
+// Constructors and destructor
 
 YUV::YUV(uint _nRows, uint _nCols, uint _fps, uint _type) :
-		nRows(_nRows), nCols(_nCols), fps(_fps), type(_type), fp(NULL) {
+		nRows(_nRows), nCols(_nCols), fps(_fps), type(_type),
+		fp(NULL) {
+
 	init();
 }
 
 YUV::YUV(char* filename, uint _nRows, uint _nCols, uint _fps, uint _type) :
 		nRows(_nRows), nCols(_nCols), fps(_fps), type(_type) {
-	init();
 
 	if (writeFileHeader(filename))
 		throw new std::runtime_error("Unable to write file header!");
+
+	init();
 }
 
 YUV::YUV(char *filename) {
+
 	if (readFileHeader(filename))
 		throw new std::runtime_error("Unable to read file header!");
-
-	fgetpos(fp, &videoStart);
 
 	init();
 }
 
 YUV::~YUV() {
-	if (fp != NULL)
-		fclose(fp);
-
-	// TODO: Check if image is opened
-	cvDestroyWindow("YUV");
-	cvReleaseImage(&img);
-
+	// Buffer
 	delete[] bufferRaw;
 
 	if (buffer != NULL)
 		delete[] buffer;
+
+	// File
+	if (fp != NULL)
+		fclose(fp);
+
+	// Frame display
+	// TODO: Check if image is opened
+	cvDestroyWindow("YUV");
+	cvReleaseImage(&img);
 }
 
 void YUV::init() {
+	// Create buffer(s)
 	switch (type) {
 	case 444:
 		uvCols = nCols;
@@ -60,6 +68,7 @@ void YUV::init() {
 	}
 
 	bufferSize = (nRows * nCols) + (2 * uvRows * uvCols);
+
 	bufferRaw = new unsigned char[bufferSize];
 
 	if (type == 444) {
@@ -84,16 +93,15 @@ void YUV::init() {
 		vBuffer = buffer + (nRows * nCols);
 	}
 
-	// FIXME: coiso
-	/* data structure for the OpenCv image */
+	// Create the data structures for frame display
+	// TODO: This shouldn't be created so soon but only when needed
 	img = cvCreateImage(cvSize(nCols, nRows), IPL_DEPTH_8U, 3);
-
-	/* create a window */
-	cvNamedWindow("YUV", CV_WINDOW_AUTOSIZE);
-	
+	cvNamedWindow("YUV", CV_WINDOW_AUTOSIZE);	
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
+// File manipulation
 
 int YUV::readFileHeader(char* filename) {
 	char buf[256]; /* auxiliary buffer to parse file header */
@@ -119,6 +127,10 @@ int YUV::readFileHeader(char* filename) {
 		return -1;
 	}
 
+	// File header was read, so now the file position
+	// indicator points to the begining of the video data.
+	fgetpos(fp, &videoStart);
+
 	return 0;
 }
 
@@ -131,6 +143,10 @@ int YUV::writeFileHeader(char* filename) {
 	}
 
 	fprintf(fp, "%u %u %u %u", nCols, nRows, fps, type);
+
+	// File header was written, so now the file position
+	// indicator points to the begining of the video data.
+	fgetpos(fp, &videoStart);
 
 	return 0;
 }
@@ -151,22 +167,22 @@ int YUV::appendFrame() {
 	return 0;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
+// Frame display
 
 void YUV::setFps(unsigned int fps) {
+	if (fps == 0)
+		return;
+
 	this->fps = fps;
 }
-
-//~ void YUV::setFrame(unsigned char* buffer){
-	//~ memcpy(bufferRaw, buffer, bufferSize);
-//~ }
 
 void YUV::displayFrame() {
 	char inputKey;
 
-	//~ if(!converted)
-		YUVtoYUV444();
-	
+	YUVtoYUV444();
+
 	YUVtoRGB();
 
 	cvShowImage("YUV", img);
@@ -176,10 +192,14 @@ void YUV::displayFrame() {
 }
 
 void YUV::rewind() {
-	fsetpos(fp, &videoStart);
+	if (fp != NULL)
+		fsetpos(fp, &videoStart);
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
+// Frame manipulation
+
 void YUV::convertToBW() {
 	// FIXME: Maybe this should be done in readFrame method
 	YUVtoYUV444();
@@ -208,7 +228,6 @@ int YUV::convertToBW(YUV& output) {
 	return 0;
 }
 
-// TODO: Check this
 void YUV::invertColors() {
 	YUVtoYUV444();
 
@@ -276,6 +295,18 @@ int YUV::changeLuminance(double factor, YUV& output) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Others
+
+YuvBlock* YUV::getBlock(int nRows, int nCols, int x, int y){
+	
+	unsigned char asd ='2';
+	return NULL;
+	//~ return new YuvBlock(nRows, nCols, &asd);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Auxiliar methods
 
 void YUV::YUVtoYUV444() {
 	switch(type) {
@@ -346,11 +377,4 @@ void inline YUV::YUVtoRGB(int y, int u, int v, int &r, int &g, int &b) {
 	//y = r *  .299 + g *  .587 + b *  .114 ;
 	//u = r * -.169 + g * -.332 + b *  .500  + 128.;
 	//v = r *  .500 + g * -.419 + b * -.0813 + 128.;
-}
-
-YuvBlock* YUV::getBlock(int nRows, int nCols, int x, int y){
-	
-	unsigned char asd ='2';
-	return NULL;
-	//~ return new YuvBlock(nRows, nCols, &asd);
 }
