@@ -36,6 +36,11 @@ YUV::~YUV() {
 	// TODO: Check if image is opened
 	cvDestroyWindow("YUV");
 	cvReleaseImage(&img);
+
+	delete[] bufferRaw;
+
+	if (buffer != NULL)
+		delete[] buffer;
 }
 
 void YUV::init() {
@@ -58,6 +63,8 @@ void YUV::init() {
 	bufferRaw = new unsigned char[bufferSize];
 
 	if (type == 444) {
+		buffer = NULL;
+
 		yBufferRaw = bufferRaw;
 		uBufferRaw = bufferRaw + (nRows * nCols);
 		vBufferRaw = bufferRaw + (nRows * nCols) + (uvRows * uvCols);
