@@ -24,6 +24,12 @@ public:
 	~YUV();
 
 public:
+	uint getType()  { return type;  }
+	uint getNCols() { return nCols; }
+	uint getNRows() { return nRows; }
+	uint getFps()   { return fps;   }
+
+public:
 	/** Reads a new frame from the file.
 	 \returns -1 if the read failed. */
 	int readFrame();
