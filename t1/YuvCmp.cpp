@@ -63,19 +63,18 @@ int main(int argc, char** argv){
 		return 1;
 	}
 	
-	YuvResize reduce = YuvResize(YuvResize::REDUCE, 2);
-	YuvResize expand = YuvResize(YuvResize::EXPAND, 2);
+	YuvResize resize = YuvResize(2, true);
 
 	YUV orig(argv[argc - 1]);
 	
-	YUV reduced = reduce.prepareCopy(orig);
-	YUV expanded = expand.prepareCopy(reduced);
+	YUV reduced = resize.prepareCopy(orig, YuvResize::REDUCE);
+	YUV expanded = resize.prepareCopy(reduced, YuvResize::EXPAND);
 	
 	//chained conversion
 	while (orig.readFrame()!=-1){
 		
-		reduce.apply(orig, reduced);
-		expand.apply(reduced, expanded);
+		resize.reduce(orig, reduced);
+		resize.expand(reduced, expanded);
 		
 		//~ reduced.displayFrame();
 		expanded.displayFrame();

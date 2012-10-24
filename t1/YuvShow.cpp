@@ -42,14 +42,14 @@ int main( int argc, char** argv )
 		}
 	}
 	
-	YuvResize res = YuvResize(YuvResize::REDUCE, 2);
-	YUV resized = res.prepareCopy(yuv);
+	YuvResize res = YuvResize(2, true);
+	YUV resized = res.prepareCopy(yuv, YuvResize::EXPAND);
 	
 	while(!end)
 	{
 		if (!yuv.readFrame()) {
 			//~ yuv.convertToBW();
-			res.apply(yuv, resized);
+			res.expand(yuv, resized);
 			
 			//~ yuv.displayFrame();
 			resized.displayFrame();
