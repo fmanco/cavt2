@@ -294,6 +294,21 @@ int YUV::changeLuminance(double factor, YUV& output) {
 	return 0;
 }
 
+int YUV::buffCopy(YUV& dst) {
+	if (dst.type != type || dst.nCols != nCols || dst.nRows != nRows)
+		return -1;
+
+	YUVtoYUV444();
+
+	memcpy(dst.bufferRaw, bufferRaw, bufferSize * sizeof(unsigned char));
+
+	if (buffer != NULL)
+		memcpy(dst.buffer, buffer, 2 * nRows * nCols * sizeof(unsigned char));
+
+	dst.converted = converted;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Others
 
