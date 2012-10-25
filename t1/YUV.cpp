@@ -92,7 +92,8 @@ void YUV::init() {
 		vBuffer = buffer + (nRows * nCols);
 	}
 
-	converted = 0;
+	bufferState = 0;
+
 	tempSubSampl = 1;
 	frameCount = 0;
 
@@ -165,12 +166,14 @@ int YUV::readFrame() {
 		frameCount++;
 	}
 
-	converted = 0;
+	bufferRawWriten();
 
 	return 0;
 }
 
 int YUV::appendFrame() {
+	prepareBufferRawRead();
+
 	if (fwrite(bufferRaw, sizeof(unsigned char), bufferSize, fp) != bufferSize)
 		return -1;
 
@@ -191,7 +194,7 @@ void YUV::setFps(unsigned int fps) {
 void YUV::displayFrame() {
 	char inputKey;
 
-	YUVtoYUV444();
+	prepareBufferRead();
 
 	YUVtoRGB();
 
@@ -213,13 +216,12 @@ void YUV::rewind() {
 // Frame manipulation
 
 void YUV::convertToBW() {
-	// FIXME: Maybe this should be done in readFrame method
-	YUVtoYUV444();
-
 	for (unsigned int i = 0; i < nRows * nCols; i++) {
 		uBuffer[i] = 127;
 		vBuffer[i] = 127;
 	}
+
+	bufferWriten();
 }
 
 int YUV::convertToBW(YUV& output) {
@@ -228,26 +230,27 @@ int YUV::convertToBW(YUV& output) {
 	if (output.nCols != nCols || output.nRows != nRows)
 		return -1;
 
-	// FIXME: Maybe this should be done in readFrame method
-	YUVtoYUV444();
-
 	for (unsigned int i = 0; i < nRows * nCols; i++) {
 		output.yBuffer[i] = yBuffer[i];
 		output.uBuffer[i] = 127;
 		output.vBuffer[i] = 127;
 	}
 
+	output.bufferWriten();
+
 	return 0;
 }
 
 void YUV::invertColors() {
-	YUVtoYUV444();
+	prepareBufferRead();
 
 	for (unsigned int i = 0; i < nRows * nCols; i++) {
 		yBuffer[i] = 255 - yBuffer[i];
 		uBuffer[i] = 255 - uBuffer[i];
 		vBuffer[i] = 255 - vBuffer[i];
 	}
+
+	bufferWriten();
 }
 
 int YUV::invertColors(YUV& output) {
@@ -256,7 +259,7 @@ int YUV::invertColors(YUV& output) {
 	if (output.nCols != nCols || output.nRows != nRows)
 		return -1;
 
-	YUVtoYUV444();
+	prepareBufferRead();
 
 	for (unsigned int i = 0; i < nRows * nCols; i++) {
 		output.yBuffer[i] = 255 - yBuffer[i];
@@ -264,13 +267,15 @@ int YUV::invertColors(YUV& output) {
 		output.vBuffer[i] = 255 - vBuffer[i];
 	}
 
+	output.bufferWriten();
+
 	return 0;
 }
 
 void YUV::changeLuminance(double factor) {
 	double value;
 
-	YUVtoYUV444();
+	prepareBufferRead();
 
 	factor += 1.0;
 
@@ -280,6 +285,8 @@ void YUV::changeLuminance(double factor) {
 		// clamping
 		yBuffer[i] = (value > 255 ? 255 : (value < 0 ? 0 : (unsigned char) value));
 	}
+
+	bufferWriten();
 }
 
 int YUV::changeLuminance(double factor, YUV& output) {
@@ -290,7 +297,7 @@ int YUV::changeLuminance(double factor, YUV& output) {
 
 	double value;
 
-	YUVtoYUV444();
+	prepareBufferRead();
 
 	factor += 1.0;
 
@@ -303,6 +310,8 @@ int YUV::changeLuminance(double factor, YUV& output) {
 		output.vBuffer[i] = vBuffer[i];
 	}
 
+	output.bufferWriten();
+
 	return 0;
 }
 
@@ -310,14 +319,11 @@ int YUV::buffCopy(YUV& dst) {
 	if (dst.type != type || dst.nCols != nCols || dst.nRows != nRows)
 		return -1;
 
-	YUVtoYUV444();
+	prepareBufferRawRead();
 
 	memcpy(dst.bufferRaw, bufferRaw, bufferSize * sizeof(unsigned char));
 
-	if (buffer != NULL)
-		memcpy(dst.buffer, buffer, 2 * nRows * nCols * sizeof(unsigned char));
-
-	dst.converted = converted;
+	dst.bufferRawWriten();
 }
 
 
@@ -383,7 +389,32 @@ void YUV::YUVtoYUV444() {
 		}
 		break;
 	}
-	converted = 1;
+}
+
+void YUV::YUV444toYUV() {
+	switch(type) {
+	case 444:
+		break;
+
+	case 422:
+		for (unsigned int i = 0; i < (nRows * nCols) / 2; i++) {
+			uBufferRaw[i] = uBuffer[i * 2];
+			vBufferRaw[i] = vBuffer[i * 2];
+		}
+		break;
+
+	case 420:
+		for (unsigned int l = 0, lr = 0; lr < nRows / 2; l += 2, lr++) {
+			for (unsigned int c = 0, cr = 0; cr < nCols / 2; c += 2, cr++) {
+				unsigned int pos    = c + (l * nCols);
+				unsigned int posRaw = cr + (lr * (nCols / 2));
+
+				uBufferRaw[posRaw] = uBuffer[pos];
+				vBufferRaw[posRaw] = vBuffer[pos];
+			}
+		}
+		break;
+	}
 }
 
 void YUV::YUVtoRGB() {
@@ -430,4 +461,24 @@ void inline YUV::YUVtoRGB(int y, int u, int v, int &r, int &g, int &b) {
 	//v = r *  .500 + g * -.419 + b * -.0813 + 128.;
 }
 
+void YUV::prepareBufferRead() {
+	if (bufferState == 1) {
+		YUVtoYUV444();
+		bufferState = 0;
+	}
+}
 
+void YUV::bufferWriten() {
+	bufferState = 2;
+}
+
+void YUV::prepareBufferRawRead() {
+	if (bufferState == 2) {
+		YUV444toYUV();
+		bufferState = 0;
+	}
+}
+
+void YUV::bufferRawWriten() {
+	bufferState = 1;
+}

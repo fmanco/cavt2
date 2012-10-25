@@ -102,12 +102,18 @@ private:
 	/** Convert from YUV422 or YUV420 to YUV444 */
 	void YUVtoYUV444();
 
+	void YUV444toYUV();
+
 	/** Convert YUV444 to RGB */
 	void YUVtoRGB();
 
 	/** Convert a pixel from YUV to RGB */
 	void inline YUVtoRGB(int y, int u, int v, int &r, int &g, int &b);
 
+	void prepareBufferRead();
+	void bufferWriten();
+	void prepareBufferRawRead();
+	void bufferRawWriten();
 
 ////////////////////////////////////////////////////////////////////////////////
 // Data
@@ -142,8 +148,10 @@ public:
 	/** Pointer to the v component (YUV444 format). */
 	unsigned char *vBuffer;
 
-	/** Signals if the current frame has been converted to 444*/
-	unsigned int converted;
+	// 0 = sync
+	// 1 = raw most recent
+	// 2 = YUV444 most recent
+	unsigned int bufferState;
 
 	unsigned int tempSubSampl;
 
