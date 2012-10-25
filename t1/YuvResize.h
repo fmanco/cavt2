@@ -17,13 +17,15 @@ public:
 	
 public:
 	YUV prepareCopy(YUV& orig, uint type);
+	
+	/** Expand an image, the improved method uses bilinear interpolation*/
 	void expand(YUV& orig, YUV& resized);
+	
+	/** Reduce an image, the improved method uses the average of the reduced pixels*/
 	void reduce(YUV& orig, YUV& resized);
 	
-	
-	/**
-	 * 1D interpolation (along an axis)
-	 */ 
+	/** Linear interpolation of 2 pixels in the same axis*/
+	//static?
 	int interpolate(int a, int aVal, int b, int bVal, int c);
 	
 	

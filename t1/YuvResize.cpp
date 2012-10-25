@@ -103,7 +103,6 @@ void YuvResize::expand(YUV& orig, YUV& resized){
 			rIdx = r*factor*resized.nCols + c*factor;
 			
 			if (improved){
-				
 				val = orig.yBufferRaw[r*orig.nCols + c];
 				
 				rpos = (r+1)*factor;
@@ -136,12 +135,13 @@ void YuvResize::expand(YUV& orig, YUV& resized){
 						resized.yBufferRaw[rIdx + j + i*resized.nCols] = interpolate(c, tival, bpos, bival, c+j);
 					} else {
 						resized.yBufferRaw[rIdx + j + i*resized.nCols] = orig.yBufferRaw[oIdx];	
-						oIdx++;
 					}
 				}
 			}
+			oIdx++;
 		}
 	}
+	
 	
 	//U and V
 	oIdx = 0;
