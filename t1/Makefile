@@ -4,7 +4,7 @@ BIN = .
 
 OBJS = YUV.o YuvResize.o
 
-TARGETS = YuvShow YuvCmp YuvEntropy YuvBlockCopy
+TARGETS = YuvShow YuvCmp YuvEntropy YuvTest
 	
 BINS = $(TARGETS:%=$(BIN)/%)
 

@@ -92,6 +92,11 @@ void YUV::init() {
 		vBuffer = buffer + (nRows * nCols);
 	}
 
+	bufferState = 0;
+
+	tempSubSampl = 1;
+	frameCount = 0;
+
 	// Create the data structures for frame display
 	// TODO: This shouldn't be created so soon but only when needed
 	img = cvCreateImage(cvSize(nCols, nRows), IPL_DEPTH_8U, 3);
@@ -141,7 +146,7 @@ int YUV::writeFileHeader(char* filename) {
 		return -1;
 	}
 
-	fprintf(fp, "%u %u %u %u", nCols, nRows, fps, type);
+	fprintf(fp, "%u %u %u %u\n", nCols, nRows, fps, type);
 
 	// File header was written, so now the file position
 	// indicator points to the begining of the video data.
@@ -154,12 +159,21 @@ int YUV::readFrame() {
 	if (fread(bufferRaw, sizeof(unsigned char), bufferSize, fp) != bufferSize)
 		return -1;
 
-	converted = 0;
+	frameCount++;
+
+	while ((frameCount % tempSubSampl) != 0) {
+		fread(bufferRaw, sizeof(unsigned char), bufferSize, fp);
+		frameCount++;
+	}
+
+	bufferRawWriten();
 
 	return 0;
 }
 
 int YUV::appendFrame() {
+	prepareBufferRawRead();
+
 	if (fwrite(bufferRaw, sizeof(unsigned char), bufferSize, fp) != bufferSize)
 		return -1;
 
@@ -180,19 +194,21 @@ void YUV::setFps(unsigned int fps) {
 void YUV::displayFrame() {
 	char inputKey;
 
-	YUVtoYUV444();
+	prepareBufferRead();
 
 	YUVtoRGB();
 
 	cvShowImage("YUV", img);
 
 	/* wait according to the frame rate */
-	inputKey = cvWaitKey(1.0 / fps * 1000);
+	inputKey = cvWaitKey(1.0 / (fps / tempSubSampl) * 1000);
 }
 
 void YUV::rewind() {
 	if (fp != NULL)
 		fsetpos(fp, &videoStart);
+
+	frameCount = 0;
 }
 
 
@@ -200,13 +216,12 @@ void YUV::rewind() {
 // Frame manipulation
 
 void YUV::convertToBW() {
-	// FIXME: Maybe this should be done in readFrame method
-	YUVtoYUV444();
-
 	for (unsigned int i = 0; i < nRows * nCols; i++) {
 		uBuffer[i] = 127;
 		vBuffer[i] = 127;
 	}
+
+	bufferWriten();
 }
 
 int YUV::convertToBW(YUV& output) {
@@ -215,26 +230,27 @@ int YUV::convertToBW(YUV& output) {
 	if (output.nCols != nCols || output.nRows != nRows)
 		return -1;
 
-	// FIXME: Maybe this should be done in readFrame method
-	YUVtoYUV444();
-
 	for (unsigned int i = 0; i < nRows * nCols; i++) {
 		output.yBuffer[i] = yBuffer[i];
 		output.uBuffer[i] = 127;
 		output.vBuffer[i] = 127;
 	}
 
+	output.bufferWriten();
+
 	return 0;
 }
 
 void YUV::invertColors() {
-	YUVtoYUV444();
+	prepareBufferRead();
 
 	for (unsigned int i = 0; i < nRows * nCols; i++) {
 		yBuffer[i] = 255 - yBuffer[i];
 		uBuffer[i] = 255 - uBuffer[i];
 		vBuffer[i] = 255 - vBuffer[i];
 	}
+
+	bufferWriten();
 }
 
 int YUV::invertColors(YUV& output) {
@@ -243,7 +259,7 @@ int YUV::invertColors(YUV& output) {
 	if (output.nCols != nCols || output.nRows != nRows)
 		return -1;
 
-	YUVtoYUV444();
+	prepareBufferRead();
 
 	for (unsigned int i = 0; i < nRows * nCols; i++) {
 		output.yBuffer[i] = 255 - yBuffer[i];
@@ -251,13 +267,15 @@ int YUV::invertColors(YUV& output) {
 		output.vBuffer[i] = 255 - vBuffer[i];
 	}
 
+	output.bufferWriten();
+
 	return 0;
 }
 
 void YUV::changeLuminance(double factor) {
 	double value;
 
-	YUVtoYUV444();
+	prepareBufferRead();
 
 	factor += 1.0;
 
@@ -267,6 +285,8 @@ void YUV::changeLuminance(double factor) {
 		// clamping
 		yBuffer[i] = (value > 255 ? 255 : (value < 0 ? 0 : (unsigned char) value));
 	}
+
+	bufferWriten();
 }
 
 int YUV::changeLuminance(double factor, YUV& output) {
@@ -277,7 +297,7 @@ int YUV::changeLuminance(double factor, YUV& output) {
 
 	double value;
 
-	YUVtoYUV444();
+	prepareBufferRead();
 
 	factor += 1.0;
 
@@ -290,8 +310,22 @@ int YUV::changeLuminance(double factor, YUV& output) {
 		output.vBuffer[i] = vBuffer[i];
 	}
 
+	output.bufferWriten();
+
 	return 0;
 }
+
+int YUV::buffCopy(YUV& dst) {
+	if (dst.type != type || dst.nCols != nCols || dst.nRows != nRows)
+		return -1;
+
+	prepareBufferRawRead();
+
+	memcpy(dst.bufferRaw, bufferRaw, bufferSize * sizeof(unsigned char));
+
+	dst.bufferRawWriten();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Others
@@ -320,6 +354,10 @@ void YUV::getBlock(uint blockCols, uint blockRows, uint x, uint y, uint componen
 			bIdx++;
 		}
 	}
+}
+
+void YUV::setTempSubSampling(unsigned int factor) {
+	tempSubSampl = factor;
 }
 
 void YUV::fillBlock(uint blockCols, uint blockRows, uint x, uint y, uint component, unsigned char* blockBuffer){
@@ -373,10 +411,36 @@ void YUV::YUVtoYUV444() {
 				uBuffer[c + (r * nCols)] = uBufferRaw[(c / 2) + ((r / 2) * (nCols / 2))];
 				vBuffer[c + (r * nCols)] = vBufferRaw[(c / 2) + ((r / 2) * (nCols / 2))];
 			}
+
 		}
 		break;
 	}
-	converted = 1;
+}
+
+void YUV::YUV444toYUV() {
+	switch(type) {
+	case 444:
+		break;
+
+	case 422:
+		for (unsigned int i = 0; i < (nRows * nCols) / 2; i++) {
+			uBufferRaw[i] = uBuffer[i * 2];
+			vBufferRaw[i] = vBuffer[i * 2];
+		}
+		break;
+
+	case 420:
+		for (unsigned int l = 0, lr = 0; lr < nRows / 2; l += 2, lr++) {
+			for (unsigned int c = 0, cr = 0; cr < nCols / 2; c += 2, cr++) {
+				unsigned int pos    = c + (l * nCols);
+				unsigned int posRaw = cr + (lr * (nCols / 2));
+
+				uBufferRaw[posRaw] = uBuffer[pos];
+				vBufferRaw[posRaw] = vBuffer[pos];
+			}
+		}
+		break;
+	}
 }
 
 void YUV::YUVtoRGB() {
@@ -423,4 +487,24 @@ void inline YUV::YUVtoRGB(int y, int u, int v, int &r, int &g, int &b) {
 	//v = r *  .500 + g * -.419 + b * -.0813 + 128.;
 }
 
+void YUV::prepareBufferRead() {
+	if (bufferState == 1) {
+		YUVtoYUV444();
+		bufferState = 0;
+	}
+}
 
+void YUV::bufferWriten() {
+	bufferState = 2;
+}
+
+void YUV::prepareBufferRawRead() {
+	if (bufferState == 2) {
+		YUV444toYUV();
+		bufferState = 0;
+	}
+}
+
+void YUV::bufferRawWriten() {
+	bufferState = 1;
+}

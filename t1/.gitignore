@@ -1,6 +1,8 @@
 # Build files
 YuvShow
-YUVTest
+YuvTest
+YuvCmp
+YuvEntropy
 
 # Eclipse
 .settings/*
