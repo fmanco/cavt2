@@ -331,7 +331,6 @@ int YUV::buffCopy(YUV& dst) {
 // Others
 
 void YUV::getBlock(uint blockCols, uint blockRows, uint x, uint y, uint component, unsigned char* blockBuffer){
-
 	
 	//~ unsigned char blockBuffer[blockRows*blockCols];
 	uint r,c, bIdx=0;
@@ -360,6 +359,33 @@ void YUV::getBlock(uint blockCols, uint blockRows, uint x, uint y, uint componen
 void YUV::setTempSubSampling(unsigned int factor) {
 	tempSubSampl = factor;
 }
+
+void YUV::fillBlock(uint blockCols, uint blockRows, uint x, uint y, uint component, unsigned char* blockBuffer){
+	
+	//~ unsigned char blockBuffer[blockRows*blockCols];
+	uint r,c, bIdx=0;
+	unsigned char *cpBuffer;
+	
+	switch (component){
+		case 0: 
+			cpBuffer = yBufferRaw;
+			break;
+		case 1: 
+			cpBuffer = uBufferRaw;
+			break;
+		case 2: 
+			cpBuffer = vBufferRaw;
+			break;
+	}
+	
+	for (r = y; r < nRows && r < y + blockRows; r++) {
+		for (c = x; c < nCols && c < x + blockCols; c++) {
+			cpBuffer[r*nCols+c]=blockBuffer[bIdx];
+			bIdx++;
+		}
+	}
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliar methods

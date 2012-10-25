@@ -12,8 +12,6 @@
  * 	V = 2 
  */
 float calcMSE(YUV& a, YUV& b, uint component) {
-	
-	//TA MÁL, só ve em Y!
 	//TODO: verify a and b dimensions match
 	
 	int lim = (component == 0 ? (a.nRows*a.nCols) : a.uvRows*a.uvCols);
@@ -59,32 +57,45 @@ int main(int argc, char** argv){
 	float sumPNSR_V = 0.0f;
 
 	if( argc < 2 ) {
-		fprintf( stderr, "Usage: YuvCmp filename\n" );
+		fprintf( stderr, "Usage: YuvCmp filename\n or YuvCmp filename filename" );
 		return 1;
 	}
-	
-	YuvResize resize = YuvResize(2, true);
 
-	YUV orig(argv[argc - 1]);
+	YUV orig(argv[1]);
 	
-	YUV reduced = resize.prepareCopy(orig, YuvResize::REDUCE);
-	YUV expanded = resize.prepareCopy(reduced, YuvResize::EXPAND);
-	
-	//chained conversion
-	while (orig.readFrame()!=-1){
+	if (argc == 2) {
 		
-		resize.reduce(orig, reduced);
-		resize.expand(reduced, expanded);
-		
-		//~ reduced.displayFrame();
-		expanded.displayFrame();
-		
-		sumPNSR_Y += calcPSNR(orig, expanded, 0);
-		sumPNSR_U += calcPSNR(orig, expanded, 1);
-		sumPNSR_V += calcPSNR(orig, expanded, 2);
-		
-		frames++;
+		YuvResize resize = YuvResize(2, true);
+		YUV reduced = resize.prepareCopy(orig, YuvResize::REDUCE);
+		YUV expanded = resize.prepareCopy(reduced, YuvResize::EXPAND);
+
+		//chained conversion
+		while (orig.readFrame()!=-1){
+			
+			resize.reduce(orig, reduced);
+			resize.expand(reduced, expanded);
+			
+			expanded.displayFrame();
+			
+			sumPNSR_Y += calcPSNR(orig, expanded, 0);
+			sumPNSR_U += calcPSNR(orig, expanded, 1);
+			sumPNSR_V += calcPSNR(orig, expanded, 2);
+			
+			frames++;
+		}
+	} else {
+		YUV orig2(argv[2]);
+		while (orig.readFrame()!=-1 && orig2.readFrame()!=-1){
+			
+			
+			sumPNSR_Y += calcPSNR(orig, orig2, 0);
+			sumPNSR_U += calcPSNR(orig, orig2, 1);
+			sumPNSR_V += calcPSNR(orig, orig2, 2);
+			
+			frames++;
+		}
 	}
+	
 	printf("Y: %f, U:%f, V:%f\n", sumPNSR_Y/(float)frames, sumPNSR_U/(float)frames, sumPNSR_V/(float)frames);
 	
 	return 0;
