@@ -37,10 +37,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // Basics
 public:
-	uint getType()  { return type;  }
+	uint getType()  { return type; }
 	uint getNCols() { return nCols; }
 	uint getNRows() { return nRows; }
-	uint getFps()   { return fps;   }
+	uint getFps()   { return fps / tempSubSampl; }
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,11 +86,15 @@ public:
 	void changeLuminance(double factor);
 	int changeLuminance(double factor, YUV& output);
 
+	int buffCopy(YUV& dst);
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Others
 public:
 	YuvBlock* getBlock(int nRows, int nCols, int x, int y);
+
+	void setTempSubSampling(unsigned int factor);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +145,10 @@ public:
 
 	/** Signals if the current frame has been converted to 444*/
 	unsigned int converted;
+
+	unsigned int tempSubSampl;
+
+	unsigned int frameCount;
 
 	/** File pointer to the video file. */
 	FILE *fp;

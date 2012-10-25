@@ -93,6 +93,10 @@ void YUV::init() {
 		vBuffer = buffer + (nRows * nCols);
 	}
 
+	converted = 0;
+	tempSubSampl = 1;
+	frameCount = 0;
+
 	// Create the data structures for frame display
 	// TODO: This shouldn't be created so soon but only when needed
 	img = cvCreateImage(cvSize(nCols, nRows), IPL_DEPTH_8U, 3);
@@ -155,6 +159,13 @@ int YUV::readFrame() {
 	if (fread(bufferRaw, sizeof(unsigned char), bufferSize, fp) != bufferSize)
 		return -1;
 
+	frameCount++;
+
+	while ((frameCount % tempSubSampl) != 0) {
+		fread(bufferRaw, sizeof(unsigned char), bufferSize, fp);
+		frameCount++;
+	}
+
 	converted = 0;
 
 	return 0;
@@ -188,12 +199,14 @@ void YUV::displayFrame() {
 	cvShowImage("YUV", img);
 
 	/* wait according to the frame rate */
-	inputKey = cvWaitKey(1.0 / fps * 1000);
+	inputKey = cvWaitKey(1.0 / (fps / tempSubSampl) * 1000);
 }
 
 void YUV::rewind() {
 	if (fp != NULL)
 		fsetpos(fp, &videoStart);
+
+	frameCount = 0;
 }
 
 
@@ -319,6 +332,9 @@ YuvBlock* YUV::getBlock(int nRows, int nCols, int x, int y){
 	//~ return new YuvBlock(nRows, nCols, &asd);
 }
 
+void YUV::setTempSubSampling(unsigned int factor) {
+	tempSubSampl = factor;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliar methods
@@ -344,6 +360,7 @@ void YUV::YUVtoYUV444() {
 				uBuffer[c + (r * nCols)] = uBufferRaw[(c / 2) + ((r / 2) * (nCols / 2))];
 				vBuffer[c + (r * nCols)] = vBufferRaw[(c / 2) + ((r / 2) * (nCols / 2))];
 			}
+
 		}
 		break;
 	}
