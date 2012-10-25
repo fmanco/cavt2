@@ -90,6 +90,7 @@ public:
 // Others
 public:
 	void getBlock(uint nRows, uint nCols, uint x, uint y, uint component, unsigned char* blockBuffer);
+	void fillBlock(uint nRows, uint nCols, uint x, uint y, uint component, unsigned char* blockBuffer);
 
 
 ////////////////////////////////////////////////////////////////////////////////
