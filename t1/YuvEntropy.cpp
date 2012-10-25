@@ -23,13 +23,13 @@ float frameEntropy(YUV& yuv, uint component){
 	
 	switch (component){
 		case 0: 
-			buffer = yuv.yBuffer;
+			buffer = yuv.yBufferRaw;
 			break;
 		case 1: 
-			buffer = yuv.uBuffer;
+			buffer = yuv.uBufferRaw;
 			break;
 		case 2: 
-			buffer = yuv.vBuffer;
+			buffer = yuv.vBufferRaw;
 			break;
 	}
 	

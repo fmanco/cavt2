@@ -3,7 +3,6 @@
 
 #include <cv.h>
 #include <stdio.h>
-#include "YuvBlock.h"
 
 
 /* 
@@ -92,7 +91,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Others
 public:
-	YuvBlock* getBlock(int nRows, int nCols, int x, int y);
+	void getBlock(uint nRows, uint nCols, uint x, uint y, uint component, unsigned char* blockBuffer);
 
 	void setTempSubSampling(unsigned int factor);
 
