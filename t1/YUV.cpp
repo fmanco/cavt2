@@ -145,7 +145,7 @@ int YUV::writeFileHeader(char* filename) {
 		return -1;
 	}
 
-	fprintf(fp, "%u %u %u %u", nCols, nRows, fps, type);
+	fprintf(fp, "%u %u %u %u\n", nCols, nRows, fps, type);
 
 	// File header was written, so now the file position
 	// indicator points to the begining of the video data.
