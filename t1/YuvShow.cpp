@@ -42,17 +42,20 @@ int main( int argc, char** argv )
 		}
 	}
 	
-	YuvResize res = YuvResize(2, true);
-	YUV resized = res.prepareCopy(yuv, YuvResize::EXPAND);
-	
+	//YuvResize res = YuvResize(2, true);
+	//YUV resized = res.prepareCopy(yuv, YuvResize::EXPAND);
+	//yuv.setTempSubSampling(8);
+
 	while(!end)
 	{
 		if (!yuv.readFrame()) {
 			//~ yuv.convertToBW();
-			res.expand(yuv, resized);
-			
+			//res.expand(yuv, resized);
+
 			//~ yuv.displayFrame();
-			resized.displayFrame();
+			//resized.displayFrame();
+
+			yuv.displayFrame();
 		} else if (loop) {
 			yuv.rewind();
 		} else {
