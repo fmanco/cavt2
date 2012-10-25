@@ -57,9 +57,11 @@ float frameEntropy(YUV& yuv, uint component){
 
 int main(int argc, char** argv){
 	uint frames = 0;
-	float entropy_Y = 0.0f;
-	float entropy_U = 0.0f;
-	float entropy_V = 0.0f;
+	float t_Y, entropy_Y = 0.0f;
+	float t_U, entropy_U = 0.0f;
+	float t_V, entropy_V = 0.0f;
+	
+	FILE* fp = fopen("output", "wb");
 
 	if( argc < 2 ) {
 		fprintf( stderr, "Usage: YuvEntropy filename\n" );
@@ -77,12 +79,19 @@ int main(int argc, char** argv){
 		//~ reduced.displayFrame();
 		//~ expanded.displayFrame();
 		
-		entropy_Y += frameEntropy(yuv, 0);
-		entropy_U += frameEntropy(yuv, 1);
-		entropy_V += frameEntropy(yuv, 2);
+		t_Y = frameEntropy(yuv, 0);
+		t_U = frameEntropy(yuv, 1);
+		t_V = frameEntropy(yuv, 2);
 		
+		fprintf(fp,"%f %f %f\n", t_Y, t_V, t_V);
+		
+		entropy_Y += t_Y;
+		entropy_U += t_U;
+		entropy_V += t_V;
 		frames++;
 	}
+	
+	fclose(fp);
 	printf("Y: %f, U:%f, V:%f\n", entropy_Y/(float)frames, entropy_U/(float)frames, entropy_V/(float)frames);
 	
 	return 0;
