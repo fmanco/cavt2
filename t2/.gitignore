@@ -1,0 +1,10 @@
+# Build files
+YuvShow
+YuvTest
+YuvCmp
+YuvEntropy
+
+# Eclipse
+.settings/*
+.project
+.cproject
