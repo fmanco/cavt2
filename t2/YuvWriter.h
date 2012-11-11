@@ -1,33 +1,30 @@
 //==============================================================================
-// YuvReader.h
+// YuvWriter.h
 //
 // Authors : Filipe Manco <filipe.manco@ua.pt>
 // Authors : Frederico Honório <fredericohonorio@ua.pt>
 //==============================================================================
 
-#ifndef __YUVREADER_H__
-#define __YUVREADER_H__
+#ifndef __YUVWRITER_H__
+#define __YUVWRITER_H__
 
 
 //==============================================================================
 
 #include <base.h>
-#include "YuvFrame.h"
 
 
 //==============================================================================
 
-class YuvReader {
+class YuvWriter {
 public:
-	YuvReader  ( char* filename );
-	~YuvReader (  );
+	YuvWriter  ( char* filename, uint _nRows, uint _nCols, uint _type, uint _fps );
+	~YuvWriter (  );
 
 public:
 	int open        ( void );
-	int readHeader  ( void );            // TODO: Should this be automatic?
-	int readFrame   ( YuvFrame& frame );
-	int ignoreFrame ( void );
-	int rewind      ( void );
+	int writeHeader ( void );           // TODO: Should this be automatic?
+	int writeFrame  ( const YuvFrame& frame );
 	int close       ( void );
 
 	uint getNFrames ( void ) const { return nFrames; }
@@ -38,7 +35,6 @@ public:
 
 private:
 	FILE *fp;
-	fpos_t video;
 
 	uint nFrames;
 	uint nRows;
@@ -49,4 +45,4 @@ private:
 
 
 //==============================================================================
-#endif /* __YUVREADER_H__ */
+#endif /* __YUVWRITER_H__ */
