@@ -13,6 +13,7 @@
 
 #include "base.h"
 #include "Block.h"
+#include <cstdio>
 
 
 //==============================================================================
@@ -45,20 +46,29 @@ public:
 	//====================
 	// Get buffers' pointers
 	//
-	uchar* getBuff_444  ( void );
-	uchar* getyBuff_444 ( void );
-	uchar* getuBuff_444 ( void );
-	uchar* getvBuff_444 ( void );
+	uchar* get_read_yBuff_444 ( void );
+	uchar* get_read_uBuff_444 ( void );
+	uchar* get_read_vBuff_444 ( void );
 
-	uchar* getBuff_422  ( void );
-	uchar* getyBuff_422 ( void );
-	uchar* getuBuff_422 ( void );
-	uchar* getvBuff_422 ( void );
+	uchar* get_read_yBuff_422 ( void );
+	uchar* get_read_uBuff_422 ( void );
+	uchar* get_read_vBuff_422 ( void );
 
-	uchar* getBuff_420  ( void );
-	uchar* getyBuff_420 ( void );
-	uchar* getuBuff_420 ( void );
-	uchar* getvBuff_420 ( void );
+	uchar* get_read_yBuff_420 ( void );
+	uchar* get_read_uBuff_420 ( void );
+	uchar* get_read_vBuff_420 ( void );
+
+	uchar* get_write_yBuff_444 ( void );
+	uchar* get_write_uBuff_444 ( void );
+	uchar* get_write_vBuff_444 ( void );
+
+	uchar* get_write_yBuff_422 ( void );
+	uchar* get_write_uBuff_422 ( void );
+	uchar* get_write_vBuff_422 ( void );
+
+	uchar* get_write_yBuff_420 ( void );
+	uchar* get_write_uBuff_420 ( void );
+	uchar* get_write_vBuff_420 ( void );
 
 
 private:
@@ -72,12 +82,27 @@ private:
 	void read_420  ( void );
 	void write_420 ( void );
 
+	void aloc_444 ( void );
+	void aloc_422 ( void );
+	void aloc_420 ( void );
+
+	void convert_444_422 ( void );
+	void convert_444_420 ( void );
+
+	void convert_422_444 ( void );
+	void convert_422_420 ( void );
+
+	void convert_420_444 ( void );
+	void convert_420_422 ( void );
+
 private:
 	// Video resolution
 	uint nRows;
 	uint nCols;
 
 	// Buffers
+	uchar* yBuff;
+
 	uchar* buff_444;
 	uchar* yBuff_444;
 	uchar* uBuff_444;
@@ -93,10 +118,10 @@ private:
 	uchar* uBuff_420;
 	uchar* vBuff_420;
 
-	// Buffer synchronization info
-	uint buffer_444;
-	uint buffer_422;
-	uint buffer_420;
+	// Buffer synchronization info (isUpdated)
+	bool sync_buff_444;
+	bool sync_buff_422;
+	bool sync_buff_420;
 };
 
 
