@@ -37,7 +37,10 @@ public:
 	uint getFps     ( void ) const { return fps; }
 
 private:
-	FILE *fp;
+	bool inited;
+
+	char*  filename;
+	FILE*  fp;
 	fpos_t video;
 
 	uint nFrames;
