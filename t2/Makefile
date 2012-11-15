@@ -1,14 +1,19 @@
 CC = g++
-CFLAGS = `pkg-config --libs --cflags opencv` -O3
+CFLAGS = `pkg-config --libs --cflags opencv` -O3 -Wall
 BIN = .
 
-OBJS = YuvFrame.o                                \
-       YuvReader.o                               \
-       YuvEffects.o                              \
-       YuvWriter.o BitStream.o YuvDisplay.o      \
-       TSubSampler.o Block.o
+OBJS =
+OBJS += YuvFrame.o
+OBJS += YuvReader.o
+OBJS += YuvDisplay.o
+#OBJS += YuvEffects.o
+#OBJS += YuvWriter.o
+#OBJS += BitStream.o
+#OBJS += TSubSampler.o
+#OBJS += Block.o
 
-TARGETS = a
+TARGETS =
+TARGETS += YuvShow
 
 BINS = $(TARGETS:%=$(BIN)/%)
 
