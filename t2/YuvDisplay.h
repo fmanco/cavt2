@@ -12,6 +12,7 @@
 //==============================================================================
 
 #include "base.h"
+#include "YuvFrame.h"
 #include <cv.h>
 #include <highgui.h>
 
@@ -21,11 +22,11 @@
 class YuvDisplay
 {
 public:
-	YuvDisplay  ( char* _windowName, uint _fps );
+	YuvDisplay ( char* _windowName, uint _fps, uint _nRows, uint _nCols );
 	~YuvDisplay (  );
 
 	void start        ( void );
-	void displayFrame ( const YuvFrame& frame);
+	void displayFrame ( YuvFrame& frame);
 	void stop         ( void );
 
 	uint getFps ( void ) const { return fps; }
@@ -33,14 +34,17 @@ public:
 
 
 private:
-	void YUVtoRGB ( const YuvFrame& frame );
+	void YUVtoRGB ( YuvFrame& frame );
 	void YUVtoRGB ( int y, int u, int v, int &r, int &g, int &b );
 
 private:
+	char* windowName;
+
 	uint fps;
+	uint nRows;
+	uint nCols;
 
 	IplImage* img;
-	char* windowName;
 };
 
 
