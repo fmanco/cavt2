@@ -19,6 +19,7 @@
 //==============================================================================
 
 class YuvFrame {
+public:
 	YuvFrame  ( uint _nRows, uint _nCols );
 	~YuvFrame (  );
 

@@ -127,10 +127,10 @@ void YuvFrame::read_444 ( void )
 
 	if (!sync_buff_444) {
 		if (sync_buff_422) {
-			// TODO: convert from 422 to 444
+			convert_422_444();
 			sync_buff_444 = true;
 		} else if (sync_buff_420) {
-			// TODO: convert from 420 to 444
+			convert_420_444();
 			sync_buff_444 = true;
 		}
 	}
@@ -151,7 +151,7 @@ void YuvFrame::read_422 ( void )
 
 	if (!sync_buff_422) {
 		if (sync_buff_444) {
-			// TODO: convert from 444 to 422
+			convert_444_422();
 			sync_buff_422 = true;
 		} else if (sync_buff_420) {
 			// TODO: convert from 420 to 422
@@ -175,7 +175,7 @@ void YuvFrame::read_420 ( void )
 
 	if (!sync_buff_420) {
 		if (sync_buff_444) {
-			// TODO: convert from 444 to 420
+			convert_444_420();
 			sync_buff_420 = true;
 		} else if (sync_buff_422) {
 			// TODO: convert from 422 to 420
@@ -265,7 +265,7 @@ void YuvFrame::convert_444_420 ( void )
 
 void YuvFrame::convert_422_444 ( void )
 {
-	for (int i = 0; i < nRows * nCols; i+=2) {
+	for (uint i = 0; i < nRows * nCols; i+=2) {
 		// yBuff is allways the same
 		uBuff_444[i + 1] = uBuff_444[i] = uBuff_422[i / 2];
 		vBuff_444[i + 1] = vBuff_444[i] = vBuff_422[i / 2];
@@ -288,8 +288,8 @@ void YuvFrame::convert_422_420 ( void )
 
 void YuvFrame::convert_420_444 ( void )
 {
-	for (int r = 0; r < nRows; r++) {
-		for (int c = 0; c < nCols; c++) {
+	for (uint r = 0; r < nRows; r++) {
+		for (uint c = 0; c < nCols; c++) {
 			uBuff_444[c + (r * nCols)] = uBuff_420[(c / 2) + ((r / 2) * (nCols / 2))];
 			vBuff_444[c + (r * nCols)] = vBuff_420[(c / 2) + ((r / 2) * (nCols / 2))];
 		}
@@ -298,8 +298,8 @@ void YuvFrame::convert_420_444 ( void )
 
 void YuvFrame::convert_420_422 ( void )
 {
-	for (int r = 0; r < nRows; r++) {
-		for (int c = 0; c < nCols / 2; c++) {
+	for (uint r = 0; r < nRows; r++) {
+		for (uint c = 0; c < nCols / 2; c++) {
 			uBuff_422[c + (r * nCols)] = uBuff_420[(c / 2) + ((r / 2) * (nCols / 2))];
 			vBuff_422[c + (r * nCols)] = vBuff_420[(c / 2) + ((r / 2) * (nCols / 2))];
 		}
