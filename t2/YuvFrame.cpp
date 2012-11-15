@@ -127,10 +127,10 @@ void YuvFrame::read_444 ( void )
 
 	if (!sync_buff_444) {
 		if (sync_buff_422) {
-			// TODO: convert from 422 to 444
+			convert_422_444();
 			sync_buff_444 = true;
 		} else if (sync_buff_420) {
-			// TODO: convert from 420 to 444
+			convert_420_444();
 			sync_buff_444 = true;
 		}
 	}
@@ -151,7 +151,7 @@ void YuvFrame::read_422 ( void )
 
 	if (!sync_buff_422) {
 		if (sync_buff_444) {
-			// TODO: convert from 444 to 422
+			convert_444_422();
 			sync_buff_422 = true;
 		} else if (sync_buff_420) {
 			// TODO: convert from 420 to 422
@@ -175,7 +175,7 @@ void YuvFrame::read_420 ( void )
 
 	if (!sync_buff_420) {
 		if (sync_buff_444) {
-			// TODO: convert from 444 to 420
+			convert_444_420();
 			sync_buff_420 = true;
 		} else if (sync_buff_422) {
 			// TODO: convert from 422 to 420
