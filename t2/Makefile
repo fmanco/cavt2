@@ -8,7 +8,7 @@ OBJS += YuvReader.o
 OBJS += YuvDisplay.o
 #OBJS += YuvEffects.o
 #OBJS += YuvWriter.o
-#OBJS += BitStream.o
+OBJS += BitStream.o
 #OBJS += TSubSampler.o
 #OBJS += Block.o
 

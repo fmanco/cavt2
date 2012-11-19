@@ -27,21 +27,23 @@ public:
 	~BitStream (  );
 
 public:
-	void writeBit  ( uint8_t bit );
-	void writeBits ( uint8_t bits, uint nb );
+	int writeBit  ( uchar bit );
+	int writeBits ( uchar bits, uint nb );
 
-	uint8_t readBit  ( uint pos );
-	uint8_t readBits ( uint pos, uint nb );
+	int readBit  ( uchar* bit );
+	int readBits ( uint nb, uchar* bits );
 
-	void flush ( void );
-	void close ( void );
+	int open  ( void );
+	int flush ( void );
+	int close ( void );
 
 private:
-	FILE*    fp;
-	Type     type;
+	char* filename;
+	FILE* fp;
+	Type  type;
 
-	uint8_t* buffer;
-	uint     pos;
+	uchar buffer;
+	uint  pos;
 };
 
 
