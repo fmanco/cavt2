@@ -25,6 +25,9 @@ BitStream::~BitStream (  )
 
 int BitStream::open ( void )
 {
+	if (fp != NULL)
+		return -1;
+
 	if (type == READ) {
 		fp = std::fopen(filename, "rb");
 	} else {
