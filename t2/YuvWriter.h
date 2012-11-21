@@ -25,19 +25,22 @@ public:
 public:
 	int open        ( void );
 	int writeHeader ( void );           // TODO: Should this be automatic?
-	int writeFrame  ( const YuvFrame& frame );
+	int writeFrame  ( YuvFrame& frame );
 	int close       ( void );
 
-	uint getNFrames ( void ) const { return nFrames; }
+	// uint getNFrames ( void ) const { return nFrames; }
 	uint getNRows   ( void ) const { return nRows; }
 	uint getNCols   ( void ) const { return nCols; }
 	uint getType    ( void ) const { return type; }
 	uint getFps     ( void ) const { return fps; }
 
 private:
-	FILE *fp;
+	bool inited;
 
-	uint nFrames;
+	char* filename;
+	FILE* fp;
+
+	// uint nFrames;
 	uint nRows;
 	uint nCols;
 	uint type;
