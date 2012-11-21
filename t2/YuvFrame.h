@@ -40,9 +40,9 @@ public:
 	void putUBlock ( const Block &b, uint r, uint c );
 	void putVBlock ( const Block &b, uint r, uint c );
 
-	uchar getYPixel ( uint x, uint y ) const;
-	uchar getUPixel ( uint x, uint y ) const;
-	uchar getVPixel ( uint x, uint y ) const;
+	uchar getYPixel ( uint r, uint c ) const;
+	uchar getUPixel ( uint r, uint c ) const;
+	uchar getVPixel ( uint r, uint c ) const;
 	uchar putYPixel ( uint r, uint c, uchar pixel );
 	uchar putUPixel ( uint r, uint c, uchar pixel );
 	uchar putVPixel ( uint r, uint c, uchar pixel );
