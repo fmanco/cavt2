@@ -43,6 +43,9 @@ public:
 	uchar getYPixel ( uint x, uint y ) const;
 	uchar getUPixel ( uint x, uint y ) const;
 	uchar getVPixel ( uint x, uint y ) const;
+	uchar putYPixel ( uint r, uint c, uchar pixel );
+	uchar putUPixel ( uint r, uint c, uchar pixel );
+	uchar putVPixel ( uint r, uint c, uchar pixel );
 
 	//====================
 	// Get buffers' pointers

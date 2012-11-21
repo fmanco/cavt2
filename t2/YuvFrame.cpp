@@ -91,6 +91,45 @@ uchar YuvFrame::getVPixel ( uint r, uint c ) const
 	}
 }
 
+uchar YuvFrame::putYPixel ( uint r, uint c, uchar pixel )
+{
+	if (sync_buff_444) {
+		yBuff_444[(r * nCols) + c] = pixel;
+	} else if (sync_buff_422) {
+		yBuff_422[(r * (nCols / 2)) + (c / 2)] = pixel;
+	} else if (sync_buff_420) {
+		yBuff_420[((r / 2) * (nCols / 2)) + (c / 2)] = pixel;
+	} else {
+		return 0;
+	}
+}
+
+uchar YuvFrame::putUPixel ( uint r, uint c, uchar pixel )
+{
+	if (sync_buff_444) {
+		uBuff_444[(r * nCols) + c] = pixel;
+	} else if (sync_buff_422) {
+		uBuff_422[(r * (nCols / 2)) + (c / 2)] = pixel;
+	} else if (sync_buff_420) {
+		uBuff_420[((r / 2) * (nCols / 2)) + (c / 2)] = pixel;
+	} else {
+		return 0;
+	}
+}
+
+uchar YuvFrame::putVPixel ( uint r, uint c, uchar pixel )
+{
+	if (sync_buff_444) {
+		vBuff_444[(r * nCols) + c] = pixel;
+	} else if (sync_buff_422) {
+		vBuff_422[(r * (nCols / 2)) + (c / 2)] = pixel;
+	} else if (sync_buff_420) {
+		vBuff_420[((r / 2) * (nCols / 2)) + (c / 2)] = pixel;
+	} else {
+		return 0;
+	}
+}
+
 
 //==============================================================================
 
