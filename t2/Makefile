@@ -11,9 +11,10 @@ OBJS += YuvDisplay.o
 OBJS += BitStream.o
 #OBJS += TSubSampler.o
 #OBJS += Block.o
+OBJS += Golomb.o
 
 TARGETS =
-TARGETS += YuvShow
+TARGETS += YuvShow GolombTest
 
 BINS = $(TARGETS:%=$(BIN)/%)
 

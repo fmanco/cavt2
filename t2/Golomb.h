@@ -11,15 +11,16 @@
 
 //==============================================================================
 
-#include <base.h>
+#include "base.h"
 #include "BitStream.h"
 
 //==============================================================================
 
 class Golomb{
 
-	int static Golomb::decode(uint m, BitStream& bs);
-	int static Golomb::encode(uint m, int value, BitStream& bs);
+public:
+	int static decode(uint m, BitStream& bs);
+	void static encode(uint m, int value, BitStream& bs);
 
 };
 
