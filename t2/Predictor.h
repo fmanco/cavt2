@@ -12,11 +12,12 @@
 //==============================================================================
 
 #include "base.h"
+#include "YuvFrame.h"
 
 class Predictor{
 
 public:
-	static int predict(YuvFrame& frame, int r, int c, int mode /*enum/object*/);
+	static void predict(YuvFrame& frame, int r, int c, int mode /*enum/object*/, int* y, int* u, int* v);
 };
 
 
