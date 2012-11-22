@@ -3,6 +3,9 @@ YuvShow
 YuvTest
 YuvCmp
 YuvEntropy
+TestBitStream
+TestGolomb
+TestCoder
 
 # Eclipse
 .settings/*
