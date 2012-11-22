@@ -10,11 +10,11 @@
 #include "YuvFrame.h"
 #include "Predictor.h"
 #include "Golomb.h"
-  
+
 #define M 5
   //==============================================================================
-  
-  
+
+
 int IntraCoder::encode(YuvFrame& frame, BitStream& bs){
 
 	int pY, pU, pV; //pixel values
@@ -24,7 +24,7 @@ int IntraCoder::encode(YuvFrame& frame, BitStream& bs){
 
 	for (r = 0; r < frame.getNRows(); r++){
 		for (c = 0; c < frame.getNCols(); c++)
-		{	
+		{
 			pY = frame.getYPixel(r, c);
 			pU = frame.getUPixel(r, c);
 			pV = frame.getVPixel(r, c);
@@ -45,7 +45,7 @@ int IntraCoder::encode(YuvFrame& frame, BitStream& bs){
 	}
 	return 0;
 }
-  
+
 int IntraCoder::decode(BitStream& bs, YuvFrame& frame){
 
 	int dY, dU, dV; //difference values
@@ -56,18 +56,17 @@ int IntraCoder::decode(BitStream& bs, YuvFrame& frame){
 	for (r = 0; r < frame.getNRows(); r++) {
 		for (c = 0; c < frame.getNCols(); c++)
 		{
-			printf("r %d, c %d \n", r, c);
-			Predictor::predict(frame, r, c, 1, &predY, &predU, &predV);				
-			
+			Predictor::predict(frame, r, c, 1, &predY, &predU, &predV);
 
-			printf("1\n");
 
 			if ((err = Golomb::decode(M, &dY, bs)) != 0){
 				return err;
 			}
+
 			if ((err = Golomb::decode(M, &dU, bs)) != 0){
 				return err;
 			}
+
 			if ((err = Golomb::decode(M, &dV, bs)) != 0){
 				return err;
 			}

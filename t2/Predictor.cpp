@@ -33,7 +33,7 @@ void Predictor::predict(YuvFrame& frame, int r, int c, int mode, int* y, int* u,
 	// bY = frame.getYPixel(c, r-1);
 	// bU = frame.getUPixel(c, r-1);
 	// bV = frame.getVPixel(c, r-1);
-	
+
 	// cY = frame.getYPixel(c-1, r-1);
 	// cU = frame.getUPixel(c-1, r-1);
 	// cV = frame.getVPixel(c-1, r-1);
@@ -54,7 +54,7 @@ void Predictor::predict(YuvFrame& frame, int r, int c, int mode, int* y, int* u,
 			*u=cU;
 			*v=cV;
 			break;
-	
+
 		//TODO: others
 	}
 }

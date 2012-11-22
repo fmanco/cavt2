@@ -19,7 +19,7 @@ int Golomb::decode(uint m, int *value, BitStream& bs){
 	int nbits = (int) floor(log2(m)) + 1;
 	int err;
 	uchar bit;
-	
+
 
 	do {
 		if ((err=bs.readBit(&bit)) != 0)
@@ -31,13 +31,11 @@ int Golomb::decode(uint m, int *value, BitStream& bs){
 	} while(true);
 
 
-	printf("hey!\n");
-
-	if ((err = bs.readBits(nbits, &bit)) != 0) 
+	if ((err = bs.readBits(nbits, &bit)) != 0)
 		return err;
 
 	r = (int) bit;
- 
+
 	v = q * m + r;
 	if (v % 2 == 0)
 		*value =  v/2;
@@ -57,16 +55,13 @@ int Golomb::encode(uint m, int value, BitStream& bs){
 	{
 		value = 2*abs(value) - 1;
 	}
-	else 
+	else
 	{
 		value *= 2;
 	}
 
 	q = value/m;
 	r = value%m;
-	
-
-	// printf("value=%d m=%d q=%d r=%d nBits=%d\n", value, m, q, r, nbits);
 
 
 	for(i=0; i<q;i++)
@@ -75,7 +70,7 @@ int Golomb::encode(uint m, int value, BitStream& bs){
 			return err;
 	}
 
-	
+
 	if ((err = bs.writeBit(0))!= 0)
 		return err;
 
