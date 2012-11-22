@@ -4,7 +4,7 @@
 
 int main( int argc, char** argv ){
 
-	char* file = "file"; //BACK OFF
+	char* file = (char*)"file"; //BACK OFF
 
 	BitStream bs = BitStream(file, BitStream::WRITE);
 
@@ -15,7 +15,7 @@ int main( int argc, char** argv ){
 	bs.close();
 
 
-	BitStream bs1 = BitStream(file, BitStream::READ);	
+	BitStream bs1 = BitStream(file, BitStream::READ);
 
 	bs1.open();
 	printf("%d\n", Golomb::decode(15, bs1));

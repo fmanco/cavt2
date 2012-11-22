@@ -14,7 +14,9 @@ OBJS += Block.o
 OBJS += Golomb.o
 
 TARGETS =
-TARGETS += YuvShow GolombTest
+TARGETS += YuvShow
+TARGETS += TestBitStream
+TARGETS += TestGolomb
 
 BINS = $(TARGETS:%=$(BIN)/%)
 
