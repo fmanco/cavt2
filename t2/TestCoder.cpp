@@ -9,44 +9,58 @@ int main( int argc, char** argv ){
 	char* file = "file"; //BACK OFF
 
 	int nFrames;
+	uint rows, cols, fps, type;
 
 	BitStream bs = BitStream(file, BitStream::WRITE);
-
-
 
 	YuvReader reader("../ducks_take_off-1280x720-50-444.yuv");
 	printf("%d\n", reader.open());
 	printf("%d\n", reader.readHeader());
 
+	rows = reader.getNRows();
+	cols = reader.getNCols();
+	fps = reader.getFps();
+	type = reader.getType();
+
+	printf("%d, %d, %d, %d\n", cols, rows, fps, type);
+
 	printf("%d\n", bs.open());
 
-	YuvFrame frame(reader.getNRows(), reader.getNCols());
+	YuvFrame frame1(rows, cols);
 
-	printf("fps: %d, nFrames:%d , type: %d\n, nCols: %d, nRows: %d", reader.getFps(), reader.getNFrames(), reader.getType(), reader.getNCols(), reader.getNRows());
+	IntraCoder::writeHeader(rows, cols, fps, type, bs);
 
-	while (reader.readFrame(frame) == 0){
-
+	while (reader.readFrame(frame1) == 0){
 		printf("frame #%d\n",nFrames++);
-		IntraCoder::encode(frame, bs);
+		IntraCoder::encode(frame1, bs);
 	}
 
 	bs.close();
 
 	printf("Done! %d frames!\n",nFrames);
 
+	nFrames = rows = cols = fps = type = 0;
 
 	BitStream bs1 = BitStream(file, BitStream::READ);
-
 	printf("%d\n", bs1.open());
 
-	YuvDisplay display((char*)"YuvShow", reader.getFps(), reader.getNRows(), reader.getNCols());
+	printf("%d\n", IntraCoder::readHeader(bs1, &rows, &cols, &fps, &type));
+	YuvFrame frame2(rows, cols);
+
+	//THIS!
+	frame2.get_write_yBuff_444();
+	frame2.get_write_uBuff_444();
+	frame2.get_write_vBuff_444();
+
+	YuvDisplay display((char*)"YuvShow", fps, rows, cols);
+
+	printf("%d, %d, %d, %d\n", cols, rows, fps, type);
 
 	display.start();
 
-	nFrames=0;
-	while (IntraCoder::decode(bs1, frame) == 0){
+	while (IntraCoder::decode(bs1, frame2) == 0){
 		printf("frame #%d\n",nFrames++);
-		display.displayFrame(frame);
+		display.displayFrame(frame2);
 	}
 
 	bs1.close();
