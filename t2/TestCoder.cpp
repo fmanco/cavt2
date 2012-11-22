@@ -12,7 +12,7 @@ int main( int argc, char** argv ){
 
 	BitStream bs = BitStream(file, BitStream::WRITE);
 
-	
+
 	YuvReader reader("../ducks_take_off-1280x720-50-444.yuv");
 	reader.open();
 	reader.readHeader();
@@ -34,7 +34,7 @@ int main( int argc, char** argv ){
 	printf("Done! %d frames!\n",nFrames);
 
 
-	BitStream bs1 = BitStream(file, BitStream::READ);	
+	BitStream bs1 = BitStream(file, BitStream::READ);
 
 	bs1.open();
 
@@ -54,6 +54,6 @@ int main( int argc, char** argv ){
 
 	// printf("%d\n", Golomb::decode(15, bs1));
 	// printf("%d\n", Golomb::decode(16, bs1));
-	
+
 	return 0;
 }

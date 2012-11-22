@@ -19,7 +19,7 @@ TARGETS =
 TARGETS += YuvShow
 TARGETS += TestBitStream
 #TARGETS += TestGolomb
-TARGETS += CoderTest
+TARGETS += TestCoder
 
 BINS = $(TARGETS:%=$(BIN)/%)
 
