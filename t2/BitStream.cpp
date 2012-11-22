@@ -104,14 +104,16 @@ int BitStream::writeBits ( uchar bits, uint nb )
 
 int BitStream::readBit ( uchar* bit )
 {
+	int temp;
 	if (fp == NULL || type != READ)
 		return -1;
 
 	if(pos == 0x100 || pos == 0)
 	{
-		if((buffer = fgetc(fp)) == EOF)
+		if((temp = fgetc(fp)) == EOF)
 			return EOF;
 
+		buffer = (char)temp;
 		pos = 1;
 	}
 
