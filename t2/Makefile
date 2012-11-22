@@ -10,7 +10,7 @@ OBJS += YuvDisplay.o
 OBJS += YuvWriter.o
 OBJS += BitStream.o
 #OBJS += TSubSampler.o
-#OBJS += Block.o
+OBJS += Block.o
 OBJS += Golomb.o
 
 TARGETS =

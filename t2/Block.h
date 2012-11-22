@@ -19,8 +19,20 @@
 class Block
 {
 public:
-	Block  ( uint bs );
+	Block  ( uint _nRows, uint _nCols );
+	Block  ( uint size );
 	~Block (  );
+
+public:
+	uint getnRows  ( void );
+	uint getnCols  ( void );
+	uchar* getBuff ( void );
+
+private:
+	uint nRows;
+	uint nCols;
+
+	uchar* buff;
 };
 
 
