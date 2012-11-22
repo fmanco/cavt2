@@ -67,12 +67,9 @@ int BitStream::close ( void )
 
 int BitStream::writeBit ( uchar bit )
 {
-//printf("a %d %d\n", type, WRITE);
-
 	if (fp == NULL || type != WRITE)
 		return -1;
 
-//printf("b\n");
 	if (pos == 0) {
 		pos = 1;
 	}
@@ -94,6 +91,9 @@ int BitStream::writeBit ( uchar bit )
 
 int BitStream::writeBits ( uchar bits, uint nb )
 {
+	if (fp == NULL || type != WRITE)
+		return -1;
+
 	while(nb--) {
 		if (writeBit((bits >> nb) & 1))
 			return -1;
@@ -104,6 +104,9 @@ int BitStream::writeBits ( uchar bits, uint nb )
 
 int BitStream::readBit ( uchar* bit )
 {
+	if (fp == NULL || type != READ)
+		return -1;
+
 	if(pos == 0x100 || pos == 0)
 	{
 		if((buffer = fgetc(fp)) == EOF)
@@ -120,6 +123,9 @@ int BitStream::readBit ( uchar* bit )
 
 int BitStream::readBits ( uint nb, uchar* bits )
 {
+	if (fp == NULL || type != READ)
+		return -1;
+
 	uchar bit;
 
 	(*bits) = 0;
