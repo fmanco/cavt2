@@ -19,8 +19,8 @@
 class Golomb{
 
 public:
-	int static decode(uint m, BitStream& bs);
-	void static encode(uint m, int value, BitStream& bs);
+	int static decode(uint m, int* value, BitStream& bs);
+	int static encode(uint m, int value, BitStream& bs);
 
 };
 

@@ -14,39 +14,44 @@
 //encodes signed values by assigning negative values to odd numbers, and positive to even numbers
 
 
-int Golomb::decode(uint m, BitStream& bs){
-	int q = 0, r, value;
+int Golomb::decode(uint m, int *value, BitStream& bs){
+	int q = 0, r, v;
 	int nbits = (int) floor(log2(m)) + 1;
+	int err;
 	uchar bit;
 	
 
-
-	// while (bs.readBit()!=0){
-	// 	q++;
-	// }
-
 	do {
-		bs.readBit(&bit); //ugly
-		if (bit == 0 )
+		if ((err=bs.readBit(&bit)) != 0)
+			return err;
+
+		if (bit == 0)
 			break;
 		q++;
 	} while(true);
 
 
-	bs.readBits(nbits, &bit); //ugly
+	printf("hey!\n");
+
+	if ((err = bs.readBits(nbits, &bit)) != 0) 
+		return err;
+
 	r = (int) bit;
  
-	value = q * m + r;
-	if (value % 2 == 0)
-		return value/2;
+	v = q * m + r;
+	if (v % 2 == 0)
+		*value =  v/2;
 	else
-		return -(value+1)/2;
+		*value = -(v+1)/2;
+
+	return 0;
 }
 
 
-void Golomb::encode(uint m, int value, BitStream& bs){
+int Golomb::encode(uint m, int value, BitStream& bs){
 	int q, r, i;
 	int nbits = (int) floor(log2(m)) + 1;
+	int err;
 
 	if (value < 0 )
 	{
@@ -66,11 +71,19 @@ void Golomb::encode(uint m, int value, BitStream& bs){
 
 	for(i=0; i<q;i++)
 	{
-		bs.writeBit(1);
+		if ((err = bs.writeBit(1))!= 0)
+			return err;
 	}
 
-	bs.writeBit(0);
-	bs.writeBits(r, nbits);
+	
+	if ((err = bs.writeBit(0))!= 0)
+		return err;
+
+	if ((err = bs.writeBits(r, nbits))!= 0){
+		return err;
+	}
+
+	return 0;
 }
 
 

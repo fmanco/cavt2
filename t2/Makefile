@@ -12,11 +12,14 @@ OBJS += BitStream.o
 #OBJS += TSubSampler.o
 OBJS += Block.o
 OBJS += Golomb.o
+OBJS += Predictor.o
+OBJS += IntraCoder.o
 
 TARGETS =
 TARGETS += YuvShow
 TARGETS += TestBitStream
-TARGETS += TestGolomb
+#TARGETS += TestGolomb
+TARGETS += CoderTest
 
 BINS = $(TARGETS:%=$(BIN)/%)
 

@@ -67,12 +67,12 @@ int BitStream::close ( void )
 
 int BitStream::writeBit ( uchar bit )
 {
-printf("a %d %d\n", type, WRITE);
+//printf("a %d %d\n", type, WRITE);
 
 	if (fp == NULL || type != WRITE)
 		return -1;
 
-printf("b\n");
+//printf("b\n");
 	if (pos == 0) {
 		pos = 1;
 	}

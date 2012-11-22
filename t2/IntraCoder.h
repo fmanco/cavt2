@@ -10,15 +10,16 @@
 
 //==============================================================================
 
-#include <base.h>
+#include "base.h"
+#include "YuvFrame.h"
 #include "BitStream.h"
 
 //==============================================================================
 
 class IntraCoder{
 public:
-	void static encode(YuvFrame& frame, BitStream& bs);
-	void static decode(BitStream& bs, YuvFrame& frame);
+	int static encode(YuvFrame& frame, BitStream& bs);
+	int static decode(BitStream& bs, YuvFrame& frame);
 };
 
 //==============================================================================
