@@ -14,12 +14,14 @@ OBJS += Block.o
 OBJS += Golomb.o
 OBJS += Predictor.o
 OBJS += IntraCoder.o
+#OBJS += HybCoder.o
 
 TARGETS =
 TARGETS += YuvShow
-TARGETS += TestBitStream
+#TARGETS += TestBitStream
 #TARGETS += TestGolomb
-TARGETS += TestCoder
+#TARGETS += TestCoder
+#TARGETS += TestBlocks
 
 BINS = $(TARGETS:%=$(BIN)/%)
 

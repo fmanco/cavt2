@@ -52,6 +52,51 @@ YuvFrame::~YuvFrame (  )
 
 //==============================================================================
 
+void YuvFrame::getYBlock ( Block &b, uint r, uint c )
+{
+	read_444();
+
+	getBlock(b, r, c, yBuff_444);
+}
+
+void YuvFrame::getUBlock ( Block &b, uint r, uint c )
+{
+	read_444();
+
+	getBlock(b, r, c, uBuff_444);
+}
+
+void YuvFrame::getVBlock ( Block &b, uint r, uint c )
+{
+	read_444();
+
+	getBlock(b, r, c, vBuff_444);
+}
+
+void YuvFrame::putYBlock ( const Block &b, uint r, uint c )
+{
+	write_444();
+
+	putBlock(b, r, c, yBuff_444);
+}
+
+void YuvFrame::putUBlock ( const Block &b, uint r, uint c )
+{
+	write_444();
+
+	putBlock(b, r, c, uBuff_444);
+}
+
+void YuvFrame::putVBlock ( const Block &b, uint r, uint c )
+{
+	write_444();
+
+	putBlock(b, r, c, vBuff_444);
+}
+
+
+//==============================================================================
+
 uchar YuvFrame::getYPixel ( uint r, uint c ) const
 {
 	if (sync_buff_444) {
@@ -338,5 +383,56 @@ void YuvFrame::convert_420_422 ( void )
 		}
 	}
 }
+
+void YuvFrame::getBlock ( Block& b , uint r, uint c, uchar* frameBuff )
+{
+	uint  bRows = b.getNRows();
+	uint  bCols = b.getNCols();
+	uchar* buff = b.getBuff();
+
+	uint br; // Buffer row index
+	uint bc; // Buffer column index
+	uint fr; // Frame row index
+	uint fc; // Frame column index
+	uint er = ((r + bRows) > nRows ? (nRows) : (r + bRows)); // Last frame row
+	uint ec = ((c + bCols) > nCols ? (nCols) : (c + bCols)); // Last frame column
+
+	for (br = 0, fr = r; fr < er; br++, fr++) {
+		for (bc = 0, fc = c; fc < ec; bc++, fc++) {
+			buff[(br * bCols) + bc] = frameBuff[(fr * nCols) + fc];
+		}
+
+		for (; bc < bCols; bc++) {
+			buff[(br * bCols) + bc] = 0;
+		}
+	}
+
+	for (; br < bRows; br++) {
+		for (bc = 0; bc < bCols; bc++) {
+			buff[(br * bCols) + bc] = 0;
+		}
+	}
+}
+
+void YuvFrame::putBlock ( const Block& b , uint r, uint c, uchar* frameBuff )
+{
+	uint  bRows = b.getNRows();
+	uint  bCols = b.getNCols();
+	uchar* buff = b.getBuff();
+
+	uint br; // Buffer row index
+	uint bc; // Buffer column index
+	uint fr; // Frame row index
+	uint fc; // Frame column index
+	uint er = ((r + bRows) > nRows ? (nRows) : (r + bRows)); // Last frame row
+	uint ec = ((c + bCols) > nCols ? (nCols) : (c + bCols)); // Last frame column
+
+	for (br = 0, fr = r; fr < er; br++, fr++) {
+		for (bc = 0, fc = c; fc < ec; bc++, fc++) {
+			frameBuff[(fr * nCols) + fc] = buff[(br * bCols) + bc];
+		}
+	}
+}
+
 
 // EOF =========================================================================

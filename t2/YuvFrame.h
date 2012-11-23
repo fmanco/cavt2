@@ -33,9 +33,9 @@ public:
 	//====================
 	// Get and Put blocks and pixels in YUV444 mode
 	//
-	void getYBlock ( Block &b, uint r, uint c ) const;
-	void getUBlock ( Block &b, uint r, uint c ) const;
-	void getVBlock ( Block &b, uint r, uint c ) const;
+	void getYBlock ( Block &b, uint r, uint c );
+	void getUBlock ( Block &b, uint r, uint c );
+	void getVBlock ( Block &b, uint r, uint c );
 	void putYBlock ( const Block &b, uint r, uint c );
 	void putUBlock ( const Block &b, uint r, uint c );
 	void putVBlock ( const Block &b, uint r, uint c );
@@ -98,6 +98,10 @@ private:
 
 	void convert_420_444 ( void );
 	void convert_420_422 ( void );
+
+	void getBlock ( Block& b , uint r, uint c, uchar* frameBuff );
+	void putBlock ( const Block& b , uint r, uint c, uchar* frameBuff );
+
 
 private:
 	// Video resolution
