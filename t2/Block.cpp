@@ -31,17 +31,17 @@ Block::~Block (  )
 
 //==============================================================================
 
-uint Block::getnRows ( void )
+uint Block::getNRows ( void ) const
 {
 	return nRows;
 }
 
-uint Block::getnCols ( void )
+uint Block::getNCols ( void ) const
 {
 	return nCols;
 }
 
-uchar* Block::getBuff ( void )
+uchar* Block::getBuff ( void ) const
 {
 	return buff;
 }

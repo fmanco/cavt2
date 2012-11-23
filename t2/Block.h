@@ -24,9 +24,9 @@ public:
 	~Block (  );
 
 public:
-	uint getnRows  ( void );
-	uint getnCols  ( void );
-	uchar* getBuff ( void );
+	uint getNRows  ( void ) const;
+	uint getNCols  ( void ) const;
+	uchar* getBuff ( void ) const;
 
 private:
 	uint nRows;
