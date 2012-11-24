@@ -20,7 +20,15 @@
 
 class YuvFrame {
 public:
+	enum Type {
+		YUV444 ,
+		YUV422 ,
+		YUV420 ,
+	};
+
+public:
 	YuvFrame  ( uint _nRows, uint _nCols );
+	YuvFrame  ( Type _type, uint _nRows, uint _nCols );
 	YuvFrame  ( const YuvFrame& obj );
 	~YuvFrame (  );
 
@@ -28,6 +36,8 @@ public:
 	//====================
 	// Basic Getters
 	//
+	Type getType   ( void ) const { return type;  }
+	void setType   ( Type _type ) { type = _type; }
 	uint getNRows  ( void ) const { return nRows; }
 	uint getNCols  ( void ) const { return nCols; }
 
@@ -100,11 +110,16 @@ private:
 	void convert_420_444 ( void );
 	void convert_420_422 ( void );
 
-	void getBlock ( Block& b , uint r, uint c, uchar* frameBuff );
-	void putBlock ( const Block& b , uint r, uint c, uchar* frameBuff );
+	void getBlock ( Block& blk , uint r, uint c,
+	                uchar* frame, uint fRows, uint fCols );
+	void putBlock ( uchar* fBuff, uint fRows, uint fCols,
+	                const Block& blk, uint r, uint c );
 
 
 private:
+	// Type of the frame
+	Type type;
+
 	// Video resolution
 	uint nRows;
 	uint nCols;

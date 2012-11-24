@@ -14,7 +14,32 @@
 //==============================================================================
 
 YuvFrame::YuvFrame ( uint _nRows, uint _nCols )
-	: nRows(_nRows), nCols(_nCols)
+	: type(YUV444), nRows(_nRows), nCols(_nCols)
+{
+	yBuff     = NULL;
+
+	buff_444  = NULL;
+	yBuff_444 = NULL;
+	uBuff_444 = NULL;
+	vBuff_444 = NULL;
+
+	buff_422  = NULL;
+	yBuff_422 = NULL;
+	uBuff_422 = NULL;
+	vBuff_422 = NULL;
+
+	buff_420  = NULL;
+	yBuff_420 = NULL;
+	uBuff_420 = NULL;
+	vBuff_420 = NULL;
+
+	sync_buff_444 = false;
+	sync_buff_422 = false;
+	sync_buff_420 = false;
+}
+
+YuvFrame::YuvFrame ( Type _type, uint _nRows, uint _nCols )
+	: type(_type), nRows(_nRows), nCols(_nCols)
 {
 	yBuff     = NULL;
 
@@ -40,6 +65,8 @@ YuvFrame::YuvFrame ( uint _nRows, uint _nCols )
 
 YuvFrame::YuvFrame ( const YuvFrame& obj )
 {
+	type = obj.type;
+
 	nRows = obj.nRows;
 	nCols = obj.nCols;
 
@@ -108,44 +135,131 @@ YuvFrame::~YuvFrame (  )
 
 void YuvFrame::getYBlock ( Block &b, uint r, uint c )
 {
-	read_444();
+	switch (type) {
+		case YUV444:
+			read_444();
+			getBlock(b, r, c, yBuff_444, nRows, nCols);
+			break;
 
-	getBlock(b, r, c, yBuff_444);
+		case YUV422:
+			read_422();
+			getBlock(b, r, c, yBuff_422, nRows, nCols);
+			break;
+
+		case YUV420:
+			read_420();
+			getBlock(b, r, c, yBuff_420, nRows, nCols);
+			break;
+	}
 }
 
 void YuvFrame::getUBlock ( Block &b, uint r, uint c )
 {
-	read_444();
+	switch (type) {
+		case YUV444:
+			read_444();
+			getBlock(b, r, c, uBuff_444, nRows, nCols);
+			break;
 
-	getBlock(b, r, c, uBuff_444);
+		case YUV422:
+			read_422();
+			getBlock(b, r, c, uBuff_422, nRows, nCols / 2);
+			break;
+
+		case YUV420:
+			read_420();
+			getBlock(b, r, c, uBuff_420, nRows / 2, nCols / 2);
+			break;
+	}
 }
 
 void YuvFrame::getVBlock ( Block &b, uint r, uint c )
 {
-	read_444();
+	switch (type) {
+		case YUV444:
+			read_444();
+			getBlock(b, r, c, vBuff_444, nRows, nCols);
+			break;
 
-	getBlock(b, r, c, vBuff_444);
+		case YUV422:
+			read_422();
+			getBlock(b, r, c, vBuff_422, nRows, nCols / 2);
+			break;
+
+		case YUV420:
+			read_420();
+			getBlock(b, r, c, vBuff_420, nRows / 2, nCols / 2);
+			break;
+	}
 }
 
 void YuvFrame::putYBlock ( const Block &b, uint r, uint c )
 {
-	write_444();
+	switch (type) {
+		case YUV444:
+			read_444();
+			write_444();
+			putBlock(yBuff_444, nRows, nCols, b, r, c);
+			break;
 
-	putBlock(b, r, c, yBuff_444);
+		case YUV422:
+			read_422();
+			write_422();
+			putBlock(yBuff_422, nRows, nCols, b, r, c);
+			break;
+
+		case YUV420:
+			read_420();
+			write_420();
+			putBlock(yBuff_420, nRows, nCols, b, r, c);
+			break;
+	}
 }
 
 void YuvFrame::putUBlock ( const Block &b, uint r, uint c )
 {
-	write_444();
+	switch (type) {
+		case YUV444:
+			read_444();
+			write_444();
+			putBlock(uBuff_444, nRows, nCols, b, r, c);
+			break;
 
-	putBlock(b, r, c, uBuff_444);
+		case YUV422:
+			read_422();
+			write_422();
+			putBlock(uBuff_422, nRows, nCols / 2, b, r, c);
+			break;
+
+		case YUV420:
+			read_420();
+			write_420();
+			putBlock(uBuff_420, nRows / 2, nCols / 2, b, r, c);
+			break;
+	}
 }
 
 void YuvFrame::putVBlock ( const Block &b, uint r, uint c )
 {
-	write_444();
+	switch (type) {
+		case YUV444:
+			read_444();
+			write_444();
+			putBlock(vBuff_444, nRows, nCols, b, r, c);
+			break;
 
-	putBlock(b, r, c, vBuff_444);
+		case YUV422:
+			read_422();
+			write_422();
+			putBlock(vBuff_422, nRows, nCols / 2, b, r, c);
+			break;
+
+		case YUV420:
+			read_420();
+			write_420();
+			putBlock(vBuff_420, nRows / 2, nCols / 2, b, r, c);
+			break;
+	}
 }
 
 
@@ -457,52 +571,48 @@ void YuvFrame::convert_420_422 ( void )
 	}
 }
 
-void YuvFrame::getBlock ( Block& b , uint r, uint c, uchar* frameBuff )
+void YuvFrame::getBlock ( Block& blk , uint r, uint c, uchar* fBuff, uint fRows, uint fCols )
 {
-	uint  bRows = b.getNRows();
-	uint  bCols = b.getNCols();
-	uchar* buff = b.getBuff();
+	uint br; // Block row index
+	uint bc; // Block column index
 
-	uint br; // Buffer row index
-	uint bc; // Buffer column index
 	uint fr; // Frame row index
 	uint fc; // Frame column index
-	uint er = ((r + bRows) > nRows ? (nRows) : (r + bRows)); // Last frame row
-	uint ec = ((c + bCols) > nCols ? (nCols) : (c + bCols)); // Last frame column
+
+	uint er = ((r + blk.nRows) > fRows ? (fRows) : (r + blk.nRows)); // Last frame row
+	uint ec = ((c + blk.nCols) > fCols ? (fCols) : (c + blk.nCols)); // Last frame column
 
 	for (br = 0, fr = r; fr < er; br++, fr++) {
 		for (bc = 0, fc = c; fc < ec; bc++, fc++) {
-			buff[(br * bCols) + bc] = frameBuff[(fr * nCols) + fc];
+			blk.buff[(br * blk.nCols) + bc] = fBuff[(fr * fCols) + fc];
 		}
 
-		for (; bc < bCols; bc++) {
-			buff[(br * bCols) + bc] = 0;
-		}
+		for (; bc < blk.nCols; bc++) {              // Fill the remaining
+			blk.buff[(br * blk.nCols) + bc] = 0;        //  block columns with zeros
+		}                                         //  if there are any
 	}
 
-	for (; br < bRows; br++) {
-		for (bc = 0; bc < bCols; bc++) {
-			buff[(br * bCols) + bc] = 0;
+	for (; br < blk.nRows; br++) {                  // Fill the remaining
+		for (bc = 0; bc < blk.nCols; bc++) {        //  block rows with zeros
+			blk.buff[(br * blk.nCols) + bc] = 0;        //  if there are any
 		}
 	}
 }
 
-void YuvFrame::putBlock ( const Block& b , uint r, uint c, uchar* frameBuff )
+void YuvFrame::putBlock ( uchar* fBuff, uint fRows, uint fCols, const Block& blk, uint r, uint c )
 {
-	uint  bRows = b.getNRows();
-	uint  bCols = b.getNCols();
-	uchar* buff = b.getBuff();
+	uint br; // Block row index
+	uint bc; // Block column index
 
-	uint br; // Buffer row index
-	uint bc; // Buffer column index
 	uint fr; // Frame row index
 	uint fc; // Frame column index
-	uint er = ((r + bRows) > nRows ? (nRows) : (r + bRows)); // Last frame row
-	uint ec = ((c + bCols) > nCols ? (nCols) : (c + bCols)); // Last frame column
+
+	uint er = ((r + blk.nRows) > fRows ? (fRows) : (r + blk.nRows)); // Last frame row
+	uint ec = ((c + blk.nCols) > fCols ? (fCols) : (c + blk.nCols)); // Last frame column
 
 	for (br = 0, fr = r; fr < er; br++, fr++) {
 		for (bc = 0, fc = c; fc < ec; bc++, fc++) {
-			frameBuff[(fr * nCols) + fc] = buff[(br * bCols) + bc];
+			fBuff[(fr * fCols) + fc] = blk.buff[(br * blk.nCols) + bc];
 		}
 	}
 }

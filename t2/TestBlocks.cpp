@@ -14,42 +14,49 @@
 
 int main ( int argc, char** argv )
 {
-	YuvFrame frame(90, 80);
-	Block    block(13, 9);
-	uchar*   fBuff;
-	uchar*   bBuff;
-	uint count;
+	YuvFrame frame (YuvFrame::YUV420, 10, 10);
+	Block    block(4, 4);
 
-	fBuff = frame.get_write_yBuff_444();
+	uchar* fBuff;
+	uchar* bBuff;
+
+	fBuff = frame.get_write_uBuff_444();
 	bBuff = block.getBuff();
 
-	count = 0;
-	for (uint r = 0; r < 90; r++) {
-		for (uint c = 0; c < 80; c++) {
-			fBuff[(r * 80) + c] = count;
+	for (uint r = 0, count = 0; r < 10; r++) {
+		for (uint c = 0; c < 10; c++) {
+			fBuff[(r * 10) + c] = (10 * r) + c;
 			count++;
 		}
-		count = 0;
 	}
 
-	frame.getYBlock(block, 2, 2);
+	printf("\n");
+	for (uint r = 0; r < 10; r++) {
+		for (uint c = 0; c < 10; c++) {
+			printf("%02hhd ", fBuff[(r * 10) + c]);
+		}
+		printf("\n");
+	}
 
-	for (uint r = 0; r < 13; r++) {
-		for (uint c = 0; c < 9; c++) {
-			printf("%02hhd ", bBuff[(r * 9) + c]);
-			bBuff[(r * 9) + c] = 55;
+	frame.getUBlock(block, 0, 0);
+
+	printf("\n");
+	for (uint r = 0; r < 4; r++) {
+		for (uint c = 0; c < 4; c++) {
+			printf("%02hhd ", bBuff[(r * 4) + c]);
+			bBuff[(r * 4) + c] = (10 * r) + c;
 		}
 
 		printf("\n");
 	}
 
-	frame.putYBlock(block, 76, 60);
+	frame.putUBlock(block, 3, 3);
 
-	printf("\n\n");
-
-	for (uint r = 70; r < 90; r++) {
-		for (uint c = 60; c < 80; c++) {
-			printf("%02hhd ", fBuff[(r * 80) + c]);
+	fBuff = frame.get_read_uBuff_444();
+	printf("\n");
+	for (uint r = 0; r < 10; r++) {
+		for (uint c = 0; c < 10; c++) {
+			printf("%02hhd ", fBuff[(r * 10) + c]);
 		}
 		printf("\n");
 	}
