@@ -8,6 +8,7 @@
 #include "base.h"
 #include "YuvFrame.h"
 #include <cstdlib>
+#include <cstring>
 
 
 //==============================================================================
@@ -35,6 +36,59 @@ YuvFrame::YuvFrame ( uint _nRows, uint _nCols )
 	sync_buff_444 = false;
 	sync_buff_422 = false;
 	sync_buff_420 = false;
+}
+
+YuvFrame::YuvFrame ( const YuvFrame& obj )
+{
+	nRows = obj.nRows;
+	nCols = obj.nCols;
+
+	yBuff     = NULL;
+
+	buff_444  = NULL;
+	yBuff_444 = NULL;
+	uBuff_444 = NULL;
+	vBuff_444 = NULL;
+
+	buff_422  = NULL;
+	yBuff_422 = NULL;
+	uBuff_422 = NULL;
+	vBuff_422 = NULL;
+
+	buff_420  = NULL;
+	yBuff_420 = NULL;
+	uBuff_420 = NULL;
+	vBuff_420 = NULL;
+
+	sync_buff_444 = obj.sync_buff_444;
+	sync_buff_422 = obj.sync_buff_422;
+	sync_buff_420 = obj.sync_buff_420;
+
+
+	if (sync_buff_444) {
+		aloc_444();
+
+		std::memcpy(uBuff_444, obj.uBuff_444, nRows * nCols * sizeof(uchar));
+		std::memcpy(vBuff_444, obj.vBuff_444, nRows * nCols * sizeof(uchar));
+	}
+
+	if (sync_buff_422) {
+		aloc_422();
+
+		std::memcpy(uBuff_422, obj.uBuff_422, nRows * (nCols / 2) * sizeof(uchar));
+		std::memcpy(vBuff_422, obj.vBuff_422, nRows * (nCols / 2) * sizeof(uchar));
+	}
+
+	if (sync_buff_420) {
+		aloc_420();
+
+		std::memcpy(uBuff_420, obj.uBuff_420, (nRows / 2) * (nCols / 2) * sizeof(uchar));
+		std::memcpy(vBuff_420, obj.vBuff_420, (nRows / 2) * (nCols / 2) * sizeof(uchar));
+	}
+
+	if (yBuff) {
+		std::memcpy(yBuff, obj.yBuff, nRows * nCols * sizeof(uchar));
+	}
 }
 
 YuvFrame::~YuvFrame (  )

@@ -18,6 +18,7 @@ OBJS += IntraCoder.o
 
 TARGETS =
 TARGETS += YuvShow
+#TARGETS += TestFrame
 #TARGETS += TestBitStream
 #TARGETS += TestGolomb
 #TARGETS += TestCoder

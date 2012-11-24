@@ -3,6 +3,7 @@ YuvShow
 YuvTest
 YuvCmp
 YuvEntropy
+TestFrame
 TestBitStream
 TestGolomb
 TestCoder

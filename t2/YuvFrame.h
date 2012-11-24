@@ -21,6 +21,7 @@
 class YuvFrame {
 public:
 	YuvFrame  ( uint _nRows, uint _nCols );
+	YuvFrame  ( const YuvFrame& obj );
 	~YuvFrame (  );
 
 public:
