@@ -202,6 +202,9 @@ void YuvFrame::putYPixel ( uint r, uint c, uchar pixel )
 
 	if (sync_buff_444 || sync_buff_422 || sync_buff_420) {
 		yBuff[(r * nCols) + c] = pixel;
+	} else {
+		write_444();
+		yBuff[(r * nCols) + c] = pixel;
 	}
 }
 
@@ -216,6 +219,9 @@ void YuvFrame::putUPixel ( uint r, uint c, uchar pixel )
 		uBuff_422[(r * (nCols / 2)) + (c / 2)] = pixel;
 	} else if (sync_buff_420) {
 		uBuff_420[((r / 2) * (nCols / 2)) + (c / 2)] = pixel;
+	} else {
+		write_444();
+		uBuff_444[(r * nCols) + c] = pixel;
 	}
 }
 
@@ -230,6 +236,9 @@ void YuvFrame::putVPixel ( uint r, uint c, uchar pixel )
 		vBuff_422[(r * (nCols / 2)) + (c / 2)] = pixel;
 	} else if (sync_buff_420) {
 		vBuff_420[((r / 2) * (nCols / 2)) + (c / 2)] = pixel;
+	} else {
+		write_444();
+		vBuff_444[(r * nCols) + c] = pixel;
 	}
 }
 
