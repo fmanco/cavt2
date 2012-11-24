@@ -99,12 +99,8 @@ void YuvFrame::putVBlock ( const Block &b, uint r, uint c )
 
 uchar YuvFrame::getYPixel ( uint r, uint c ) const
 {
-	if (sync_buff_444) {
-		return yBuff_444[(r * nCols) + c];
-	} else if (sync_buff_422) {
-		return yBuff_422[(r * (nCols / 2)) + (c / 2)];
-	} else if (sync_buff_420) {
-		return yBuff_420[((r / 2) * (nCols / 2)) + (c / 2)];
+	if (sync_buff_444 | sync_buff_422 | sync_buff_420) {
+		return yBuff[(r * nCols) + c];
 	} else {
 		return 0;
 	}
@@ -138,12 +134,8 @@ uchar YuvFrame::getVPixel ( uint r, uint c ) const
 
 void YuvFrame::putYPixel ( uint r, uint c, uchar pixel )
 {
-	if (sync_buff_444) {
-		yBuff_444[(r * nCols) + c] = pixel;
-	} else if (sync_buff_422) {
-		yBuff_422[(r * (nCols / 2)) + (c / 2)] = pixel;
-	} else if (sync_buff_420) {
-		yBuff_420[((r / 2) * (nCols / 2)) + (c / 2)] = pixel;
+	if (sync_buff_444 || sync_buff_422 || sync_buff_420) {
+		yBuff[(r * nCols) + c] = pixel;
 	}
 }
 
