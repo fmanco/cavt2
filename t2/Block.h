@@ -16,8 +16,16 @@
 
 //==============================================================================
 
+class YuvFrame; // Forward declaration because of friendship
+
+
+//==============================================================================
+
 class Block
 {
+private:
+friend class YuvFrame;
+
 public:
 	Block  ( uint _nRows, uint _nCols );
 	Block  ( uint size );
