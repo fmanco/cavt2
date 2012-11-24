@@ -99,6 +99,9 @@ void YuvFrame::putVBlock ( const Block &b, uint r, uint c )
 
 uchar YuvFrame::getYPixel ( uint r, uint c ) const
 {
+	if (r >= nRows || c >= nCols)
+		return 0;
+
 	if (sync_buff_444 | sync_buff_422 | sync_buff_420) {
 		return yBuff[(r * nCols) + c];
 	} else {
@@ -108,6 +111,9 @@ uchar YuvFrame::getYPixel ( uint r, uint c ) const
 
 uchar YuvFrame::getUPixel ( uint r, uint c ) const
 {
+	if (r >= nRows || c >= nCols)
+		return 0;
+
 	if (sync_buff_444) {
 		return uBuff_444[(r * nCols) + c];
 	} else if (sync_buff_422) {
@@ -121,6 +127,9 @@ uchar YuvFrame::getUPixel ( uint r, uint c ) const
 
 uchar YuvFrame::getVPixel ( uint r, uint c ) const
 {
+	if (r >= nRows || c >= nCols)
+		return 0;
+
 	if (sync_buff_444) {
 		return vBuff_444[(r * nCols) + c];
 	} else if (sync_buff_422) {
@@ -134,6 +143,9 @@ uchar YuvFrame::getVPixel ( uint r, uint c ) const
 
 void YuvFrame::putYPixel ( uint r, uint c, uchar pixel )
 {
+	if (r >= nRows || c >= nCols)
+		return;
+
 	if (sync_buff_444 || sync_buff_422 || sync_buff_420) {
 		yBuff[(r * nCols) + c] = pixel;
 	}
@@ -141,6 +153,9 @@ void YuvFrame::putYPixel ( uint r, uint c, uchar pixel )
 
 void YuvFrame::putUPixel ( uint r, uint c, uchar pixel )
 {
+	if (r >= nRows || c >= nCols)
+		return;
+
 	if (sync_buff_444) {
 		uBuff_444[(r * nCols) + c] = pixel;
 	} else if (sync_buff_422) {
@@ -152,6 +167,9 @@ void YuvFrame::putUPixel ( uint r, uint c, uchar pixel )
 
 void YuvFrame::putVPixel ( uint r, uint c, uchar pixel )
 {
+	if (r >= nRows || c >= nCols)
+		return;
+
 	if (sync_buff_444) {
 		vBuff_444[(r * nCols) + c] = pixel;
 	} else if (sync_buff_422) {
