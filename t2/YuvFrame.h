@@ -36,10 +36,18 @@ public:
 	//====================
 	// Basic Getters
 	//
-	Type getType   ( void ) const { return type;  }
-	void setType   ( Type _type ) { type = _type; }
-	uint getNRows  ( void ) const { return nRows; }
-	uint getNCols  ( void ) const { return nCols; }
+	Type getType   ( void ) const;
+	void setType   ( Type _type );
+
+	uint getNRows  ( void ) const;
+	uint getNCols  ( void ) const;
+
+	uint getYRows  ( void ) const;
+	uint getYCols  ( void ) const;
+	uint getURows  ( void ) const;
+	uint getUCols  ( void ) const;
+	uint getVRows  ( void ) const;
+	uint getVCols  ( void ) const;
 
 	//====================
 	// Get and Put blocks and pixels in YUV444 mode

@@ -130,6 +130,102 @@ YuvFrame::~YuvFrame (  )
 		delete[] buff_420;
 }
 
+//==============================================================================
+
+YuvFrame::Type YuvFrame::getType ( void ) const
+{
+	return type;
+}
+
+void YuvFrame::setType ( Type _type )
+{
+	type = _type;
+}
+
+uint YuvFrame::getNRows ( void ) const
+{
+	return nRows;
+}
+
+uint YuvFrame::getNCols ( void ) const
+{
+	return nCols;
+}
+
+uint YuvFrame::getYRows ( void ) const
+{
+	return nRows;
+}
+
+uint YuvFrame::getYCols ( void ) const
+{
+	return nCols;
+}
+
+uint YuvFrame::getURows ( void ) const
+{
+	switch(type) {
+		case YUV444:
+			return nRows;
+
+		case YUV422:
+			return nRows;
+
+		case YUV420:
+			return (nRows / 2);
+	}
+
+	return 0;
+}
+
+uint YuvFrame::getUCols ( void ) const
+{
+	switch(type) {
+		case YUV444:
+			return nCols;
+
+		case YUV422:
+			return (nCols / 2);
+
+		case YUV420:
+			return (nCols / 2);
+	}
+
+	return 0;
+}
+
+uint YuvFrame::getVRows ( void ) const
+{
+	switch(type) {
+		case YUV444:
+			return nRows;
+
+		case YUV422:
+			return nRows;
+
+		case YUV420:
+			return (nRows / 2);
+	}
+
+	return 0;
+}
+
+uint YuvFrame::getVCols ( void ) const
+{
+	switch(type) {
+		case YUV444:
+			return nCols;
+
+		case YUV422:
+			return (nCols / 2);
+
+		case YUV420:
+			return (nCols / 2);
+	}
+
+	return 0;
+}
+
 
 //==============================================================================
 
