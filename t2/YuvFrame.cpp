@@ -265,94 +265,183 @@ void YuvFrame::putVBlock ( const Block &b, uint r, uint c )
 
 //==============================================================================
 
-uchar YuvFrame::getYPixel ( uint r, uint c ) const
+uchar YuvFrame::getYPixel ( uint r, uint c )
 {
-	if (r >= nRows || c >= nCols)
-		return 0;
+	switch (type) {
+		case YUV444:
+			if (r >= nRows || c >= nCols)
+				return 0;
 
-	if (sync_buff_444 | sync_buff_422 | sync_buff_420) {
-		return yBuff[(r * nCols) + c];
-	} else {
-		return 0;
+			read_444();
+			return yBuff_444[(r * nCols) + c];
+
+		case YUV422:
+			if (r >= nRows || c >= nCols)
+				return 0;
+
+			read_422();
+			return yBuff_422[(r * nCols) + c];
+
+		case YUV420:
+			if (r >= nRows || c >= nCols)
+				return 0;
+
+			read_420();
+			return yBuff_420[(r * nCols) + c];
 	}
+
+	return 0; // The compiler is complaining. But this should never get here.
 }
 
-uchar YuvFrame::getUPixel ( uint r, uint c ) const
+uchar YuvFrame::getUPixel ( uint r, uint c )
 {
-	if (r >= nRows || c >= nCols)
-		return 0;
+	switch (type) {
+		case YUV444:
+			if (r >= nRows || c >= nCols)
+				return 0;
 
-	if (sync_buff_444) {
-		return uBuff_444[(r * nCols) + c];
-	} else if (sync_buff_422) {
-		return uBuff_422[(r * (nCols / 2)) + (c / 2)];
-	} else if (sync_buff_420) {
-		return uBuff_420[((r / 2) * (nCols / 2)) + (c / 2)];
-	} else {
-		return 0;
+			read_444();
+			return uBuff_444[(r * nCols) + c];
+
+		case YUV422:
+			if (r >= nRows || c >= (nCols / 2))
+				return 0;
+
+			read_422();
+			return uBuff_422[(r * (nCols / 2)) + c];
+
+		case YUV420:
+			if (r >= (nRows / 2) || c >= (nCols / 2))
+				return 0;
+
+			read_420();
+			return uBuff_420[(r * (nCols / 2)) + c];
 	}
+
+	return 0; // The compiler is complaining. But this should never get here.
 }
 
-uchar YuvFrame::getVPixel ( uint r, uint c ) const
+uchar YuvFrame::getVPixel ( uint r, uint c )
 {
-	if (r >= nRows || c >= nCols)
-		return 0;
+	switch (type) {
+		case YUV444:
+			if (r >= nRows || c >= nCols)
+				return 0;
 
-	if (sync_buff_444) {
-		return vBuff_444[(r * nCols) + c];
-	} else if (sync_buff_422) {
-		return vBuff_422[(r * (nCols / 2)) + (c / 2)];
-	} else if (sync_buff_420) {
-		return vBuff_420[((r / 2) * (nCols / 2)) + (c / 2)];
-	} else {
-		return 0;
+			read_444();
+			return vBuff_444[(r * nCols) + c];
+
+		case YUV422:
+			if (r >= nRows || c >= (nCols / 2))
+				return 0;
+
+			read_422();
+			return vBuff_422[(r * (nCols / 2)) + c];
+
+		case YUV420:
+			if (r >= (nRows / 2) || c >= (nCols / 2))
+				return 0;
+
+			read_420();
+			return vBuff_420[(r * (nCols / 2)) + c];
 	}
+
+	return 0; // The compiler is complaining. But this should never get here.
 }
 
 void YuvFrame::putYPixel ( uint r, uint c, uchar pixel )
 {
-	if (r >= nRows || c >= nCols)
-		return;
+	switch (type) {
+		case YUV444:
+			if (r >= nRows || c >= nCols)
+				return;
 
-	if (sync_buff_444 || sync_buff_422 || sync_buff_420) {
-		yBuff[(r * nCols) + c] = pixel;
-	} else {
-		write_444();
-		yBuff[(r * nCols) + c] = pixel;
+			read_444();
+			write_444();
+			yBuff_444[(r * nCols) + c] = pixel;
+			break;
+
+		case YUV422:
+			if (r >= nRows || c >= nCols)
+				return;
+
+			read_422();
+			write_422();
+			yBuff_422[(r * nCols) + c] = pixel;
+			break;
+
+		case YUV420:
+			if (r >= nRows || c >= nCols)
+				return;
+
+			read_420();
+			write_420();
+			yBuff_420[(r * nCols) + c] = pixel;
+			break;
 	}
 }
 
 void YuvFrame::putUPixel ( uint r, uint c, uchar pixel )
 {
-	if (r >= nRows || c >= nCols)
-		return;
+	switch (type) {
+		case YUV444:
+			if (r >= nRows || c >= nCols)
+				return;
 
-	if (sync_buff_444) {
-		uBuff_444[(r * nCols) + c] = pixel;
-	} else if (sync_buff_422) {
-		uBuff_422[(r * (nCols / 2)) + (c / 2)] = pixel;
-	} else if (sync_buff_420) {
-		uBuff_420[((r / 2) * (nCols / 2)) + (c / 2)] = pixel;
-	} else {
-		write_444();
-		uBuff_444[(r * nCols) + c] = pixel;
+			read_444();
+			write_444();
+			uBuff_444[(r * nCols) + c] = pixel;
+			break;
+
+		case YUV422:
+			if (r >= nRows || c >= (nCols / 2))
+				return;
+
+			read_422();
+			write_422();
+			uBuff_422[(r * (nCols / 2)) + c] = pixel;
+			break;
+
+		case YUV420:
+			if (r >= (nRows / 2) || c >= (nCols / 2))
+				return;
+
+			read_420();
+			write_420();
+			uBuff_420[(r * (nCols / 2)) + c] = pixel;
+			break;
 	}
 }
 
 void YuvFrame::putVPixel ( uint r, uint c, uchar pixel )
 {
-	if (r >= nRows || c >= nCols)
-		return;
+	switch (type) {
+		case YUV444:
+			if (r >= nRows || c >= nCols)
+				return;
 
-	if (sync_buff_444) {
-		vBuff_444[(r * nCols) + c] = pixel;
-	} else if (sync_buff_422) {
-		vBuff_422[(r * (nCols / 2)) + (c / 2)] = pixel;
-	} else if (sync_buff_420) {
-		vBuff_420[((r / 2) * (nCols / 2)) + (c / 2)] = pixel;
-	} else {
-		write_444();
-		vBuff_444[(r * nCols) + c] = pixel;
+			read_444();
+			write_444();
+			vBuff_444[(r * nCols) + c] = pixel;
+			break;
+
+		case YUV422:
+			if (r >= nRows || c >= (nCols / 2))
+				return;
+
+			read_422();
+			write_422();
+			vBuff_422[(r * (nCols / 2)) + c] = pixel;
+			break;
+
+		case YUV420:
+			if (r >= (nRows / 2) || c >= (nCols / 2))
+				return;
+
+			read_420();
+			write_420();
+			vBuff_420[(r * (nCols / 2)) + c] = pixel;
+			break;
 	}
 }
 
