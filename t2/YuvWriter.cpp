@@ -114,6 +114,8 @@ int YuvWriter::close ( void )
 	if (fp == NULL)
 		return -1;
 
+	fputc(0x0a, fp);
+
 	fclose(fp);
 	fp = NULL;
 
