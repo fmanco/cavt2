@@ -57,11 +57,12 @@ int HybCoder::encode ( YuvFrame& frame )
 
 int HybCoder::decode ( YuvFrame& frame )
 {
+	currFrame = &frame;
 	if (counter % keyFrameT == 0) {
-		if (intraDecode(frame))
+		if (intraDecode())
 			return -1;
 	} else {
-		if (interDecode(frame))
+		if (interDecode())
 			return -1;
 	}
 
@@ -93,22 +94,15 @@ int HybCoder::interEncode ( YuvFrame& frame )
 		return -1; // \todo What to do here?
 
 	currFrame = &frame;
-// printf(">>1\n");
 	for (uint r = 0; r < frame.getYRows(); r += bsize) {
 		for (uint c = 0; c < frame.getYCols(); c += bsize) {
-// printf(">>1-1  %u\n", c);
 			currFrame->getYBlock(currBlock, r, c);
-// printf(">>1-2\n");
 			findBestYBlock(r, c);
-// printf(">>1-3\n");
 			prevFrame->getYBlock(prevBlock, r + dr, c + dc);
-// printf(">>1-4\n");
 			encodeDiff();
-// printf(">>1-5\n");
 		}
 	}
 
-// printf(">>2\n");
 	for (uint r = 0; r < frame.getURows(); r += bsize) {
 		for (uint c = 0; c < frame.getUCols(); c += bsize) {
 			currFrame->getUBlock(currBlock, r, c);
@@ -118,7 +112,6 @@ int HybCoder::interEncode ( YuvFrame& frame )
 		}
 	}
 
-// printf(">>3\n");
 	for (uint r = 0; r < frame.getVRows(); r += bsize) {
 		for (uint c = 0; c < frame.getVCols(); c += bsize) {
 			currFrame->getVBlock(currBlock, r, c);
@@ -128,25 +121,23 @@ int HybCoder::interEncode ( YuvFrame& frame )
 		}
 	}
 
-
-// printf(">>4\n");
 	return 0;
 }
 
-int HybCoder::intraDecode ( YuvFrame& frame )
+int HybCoder::intraDecode ( void )
 {
-	if (bsize > frame.getNRows() || bsize > frame.getNCols())
+	if (bsize > currFrame->getNRows() || bsize > currFrame->getNCols())
 		return -1; // \todo What to do here?
 
-	IntraCoder::decode(bs, frame);
+	IntraCoder::decode(bs, *currFrame);
 
 	return 0;
 }
 
-int HybCoder::interDecode ( YuvFrame& frame )
+int HybCoder::interDecode ( void )
 {
-	for (uint r = 0; r < frame.getYRows(); r += bsize) {
-		for (uint c = 0; c < frame.getYCols(); c += bsize) {
+	for (uint r = 0; r < currFrame->getYRows(); r += bsize) {
+		for (uint c = 0; c < currFrame->getYCols(); c += bsize) {
 			Golomb::decode(32, &dr, bs);
 			Golomb::decode(32, &dc, bs);
 
@@ -159,8 +150,8 @@ int HybCoder::interDecode ( YuvFrame& frame )
 		}
 	}
 
-	for (uint r = 0; r < frame.getURows(); r += bsize) {
-		for (uint c = 0; c < frame.getUCols(); c += bsize) {
+	for (uint r = 0; r < currFrame->getURows(); r += bsize) {
+		for (uint c = 0; c < currFrame->getUCols(); c += bsize) {
 			Golomb::decode(32, &dr, bs);
 			Golomb::decode(32, &dc, bs);
 
@@ -173,8 +164,8 @@ int HybCoder::interDecode ( YuvFrame& frame )
 		}
 	}
 
-	for (uint r = 0; r < frame.getVRows(); r += bsize) {
-		for (uint c = 0; c < frame.getVCols(); c += bsize) {
+	for (uint r = 0; r < currFrame->getVRows(); r += bsize) {
+		for (uint c = 0; c < currFrame->getVCols(); c += bsize) {
 			Golomb::decode(32, &dr, bs);
 			Golomb::decode(32, &dc, bs);
 

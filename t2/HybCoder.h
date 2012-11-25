@@ -34,8 +34,8 @@ public:
 private:
 	int intraEncode ( YuvFrame& frame );
 	int interEncode ( YuvFrame& frame );
-	int intraDecode ( YuvFrame& frame );
-	int interDecode ( YuvFrame& frame );
+	int intraDecode ( void );
+	int interDecode ( void );
 
 	void findBestYBlock ( uint sr, uint sc );
 	void findBestUBlock ( uint sr, uint sc );
