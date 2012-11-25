@@ -1,5 +1,5 @@
 //==============================================================================
-// <source>.cpp
+// TestHyb.cpp
 //
 // Authors : Filipe Manco <filipe.manco@ua.pt>
 // Authors : Frederico Honório <fredericohonorio@ua.pt>
@@ -9,16 +9,17 @@
 #include "YuvFrame.h"
 #include "YuvDisplay.h"
 #include "YuvReader.h"
+#include "YuvWriter.h"
 #include "HybCoder.h"
 #include "BitStream.h"
-
+#include <cstdio>
 
 //==============================================================================
 
 int main ( int argc, char** argv )
 {
 	if (argc != 2) {
-		printf("USAGE: %s <input>", argv[0]);
+		printf("USAGE: %s <input>\n", argv[0]);
 		return -1;
 	}
 
@@ -44,20 +45,27 @@ int main ( int argc, char** argv )
 
 
 	BitStream bs_in((char*)"file", BitStream::READ);
-	printf("Coiso: %d\n", bs_in.open());
+	bs_in.open();
 
 	HybCoder decoder(10, 2, 6, bs_in);
 
 	YuvDisplay disp((char*)"Hybrid Encoder", reader.getFps(), reader.getNRows(), reader.getNCols());
+	YuvWriter writer((char*)"output.yuv", reader.getNRows(), reader.getNCols(), reader.getType(), reader.getFps());
 
 	reader.close();
 	disp.start();
 
+	writer.open();
+	writer.writeHeader();
+
 	while(decoder.decode(frame) == 0) {
 		disp.displayFrame(frame);
+		writer.writeFrame(frame);
 	}
 
 	bs_in.close();
+	writer.close();
+	disp.stop();
 
 	return 0;
 }
