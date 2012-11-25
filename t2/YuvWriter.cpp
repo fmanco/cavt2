@@ -38,7 +38,15 @@ int YuvWriter::open ( void )
 
 int YuvWriter::writeHeader ( void )
 {
-	return (fprintf(fp, "%u %u %u %u\n", nCols, nRows, fps, type) <= 0);
+	if (fp == NULL)
+		return -1;
+
+	if (fprintf(fp, "%u %u %u %u\n", nCols, nRows, fps, type) <= 0) {
+		return -1;
+	} else {
+		inited = true;
+		return 0;
+	}
 }
 
 int YuvWriter::writeFrame ( YuvFrame& frame )
