@@ -8,6 +8,7 @@ TestBitStream
 TestGolomb
 TestCoder
 TestBlocks
+TestHyb
 
 # Eclipse
 .settings/*

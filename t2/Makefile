@@ -14,7 +14,7 @@ OBJS += Block.o
 OBJS += Golomb.o
 OBJS += Predictor.o
 OBJS += IntraCoder.o
-#OBJS += HybCoder.o
+OBJS += HybCoder.o
 
 TARGETS =
 TARGETS += YuvShow
@@ -23,6 +23,7 @@ TARGETS += YuvShow
 #TARGETS += TestGolomb
 #TARGETS += TestCoder
 #TARGETS += TestBlocks
+#TARGETS += TestHyb
 
 BINS = $(TARGETS:%=$(BIN)/%)
 
