@@ -162,4 +162,17 @@ int YuvReader::rewind ( void ) {
 	return 0;
 }
 
+int YuvReader::close ( void )
+{
+	if (fp) {
+		fclose(fp);
+		fp = NULL;
+	}
+
+	inited = false;
+
+	return 0;
+}
+
+
 // EOF =========================================================================
