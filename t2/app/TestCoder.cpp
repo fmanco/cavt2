@@ -10,6 +10,7 @@ int main( int argc, char** argv ){
 
 	int nFrames;
 	uint rows, cols, fps, type;
+	uint quant = 3;
 
 	BitStream bs = BitStream(file, BitStream::WRITE);
 
@@ -28,11 +29,11 @@ int main( int argc, char** argv ){
 
 	YuvFrame frame1(rows, cols);
 
-	IntraCoder::writeHeader(rows, cols, fps, type, bs);
+	IntraCoder::writeHeader(rows, cols, fps, type, quant, bs);
 
 	while (reader.readFrame(frame1) == 0){
 		printf("frame #%d\n",nFrames++);
-		IntraCoder::encode(frame1, bs);
+		IntraCoder::encode(frame1, bs, quant);
 	}
 
 	bs.close();
@@ -44,13 +45,13 @@ int main( int argc, char** argv ){
 	BitStream bs1 = BitStream(file, BitStream::READ);
 	printf("%d\n", bs1.open());
 
-	printf("%d\n", IntraCoder::readHeader(bs1, &rows, &cols, &fps, &type));
-	YuvFrame frame2(rows, cols);
+	printf("%d\n", IntraCoder::readHeader(bs1, &rows, &cols, &fps, &type, &quant));
+	YuvFrame frame2(YuvFrame::YUV444, rows, cols);
 
 	//THIS!
-	frame2.get_write_yBuff_444();
-	frame2.get_write_uBuff_444();
-	frame2.get_write_vBuff_444();
+	// frame2.get_write_yBuff_444();
+	// frame2.get_write_uBuff_444();
+	// frame2.get_write_vBuff_444();
 
 	YuvDisplay display((char*)"YuvShow", fps, rows, cols);
 
@@ -58,7 +59,7 @@ int main( int argc, char** argv ){
 
 	display.start();
 
-	while (IntraCoder::decode(bs1, frame2) == 0){
+	while (IntraCoder::decode(bs1, frame2, quant) == 0){
 		printf("frame #%d\n",nFrames++);
 		display.displayFrame(frame2);
 	}

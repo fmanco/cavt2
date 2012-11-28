@@ -21,14 +21,16 @@ public:
 	/**
 	 * Writes a bitsream header for a video.
 	 */
-	int static writeHeader(uint rows, uint cols, uint fps, uint type, BitStream& bs); 
-	int static encode(YuvFrame& frame, BitStream& bs);
+	int static writeHeader(uint rows, uint cols, uint fps, uint type, uint quantization, BitStream& bs); 
+
+	int static encode(YuvFrame& frame, BitStream& bs, uint quantization = 1);
 
 	/**
 	 * Reads a bitstream header for a video.
 	 */
-	int static readHeader(BitStream& bs, uint *rows, uint *cols, uint *fps, uint *type); 
-	int static decode(BitStream& bs, YuvFrame& frame);
+	int static readHeader(BitStream& bs, uint *rows, uint *cols, uint *fps, uint *type, uint *quantization); 
+
+	int static decode(BitStream& bs, YuvFrame& frame, uint quantization = 1);
 };
 
 //==============================================================================
