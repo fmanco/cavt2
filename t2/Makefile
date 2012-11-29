@@ -34,7 +34,6 @@ LIBS += HybCoder.o
 
 APPS    := $(patsubst %,$(APP_BASE_DIR)/%,$(APPS))
 LIBS    := $(patsubst %.o,$(LIB_BASE_DIR)/%.o,$(LIBS))
-HEADERS := $(patsubst %.o,$(INC_BASE_DIR)/%.o,$(HEADERS))
 
 
 all: $(APPS)
