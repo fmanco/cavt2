@@ -9,6 +9,7 @@ TestGolomb
 TestCoder
 TestBlocks
 TestHyb
+TestDCT
 
 # Eclipse
 .settings/*
