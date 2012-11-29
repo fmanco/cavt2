@@ -61,7 +61,7 @@ int IntraCoder::writeHeader(uint rows, uint cols, uint fps, uint type, uint pred
 	return 0;
 }
 
-int IntraCoder::encode(YuvFrame& frame, BitStream& bs, uint mode, uint quantY, uint quantU, uint quantV){
+int IntraCoder::encode(YuvFrame& frame, BitStream& bs, uint mode, uint quantY = 1, uint quantU = 1, uint quantV = 1){
 	//TODO: validate quantization
 
 	int pY, pU, pV; //pixel values
@@ -187,7 +187,7 @@ int IntraCoder::readHeader(BitStream& bs, uint *rows, uint *cols, uint *fps, uin
 	return 0;
 }
 
-int IntraCoder::decode(BitStream& bs, YuvFrame& frame, uint mode, uint quantY, uint quantU, uint quantV){
+int IntraCoder::decode(BitStream& bs, YuvFrame& frame, uint mode, uint quantY = 1, uint quantU = 1, uint quantV = 1){
 	//TODO: validate quantization
 
 	int dY, dU, dV; //difference values
