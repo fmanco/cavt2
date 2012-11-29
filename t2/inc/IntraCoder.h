@@ -25,14 +25,14 @@ public:
 	 */
 	int static writeHeader(uint rows, uint cols, uint fps, uint type, uint predMode, uint quantY, uint quantU, uint quantV, BitStream& bs);
 
-	int static encode(YuvFrame& frame, BitStream& bs, uint mode = 0, uint quantY = 0, uint quantU = 0, uint quantV = 0);
+	int static encode(YuvFrame& frame, BitStream& bs, uint mode = 0, uint quantY = 1, uint quantU = 1, uint quantV = 1);
 
 	/**
 	 * Reads a bitstream header for a video.
 	 */
-	int static readHeader(BitStream& bs, uint *rows, uint *cols, uint *fps, uint *type, uint *predMode, uint *quantY, uint *quantU, uint *quantV); 
+	int static readHeader(BitStream& bs, uint *rows, uint *cols, uint *fps, uint *type, uint *predMode, uint *quantY, uint *quantU, uint *quantV);
 
-	int static decode(BitStream& bs, YuvFrame& frame, uint mode = 0, uint quantY = 0, uint quantU = 0, uint quantV = 0);
+	int static decode(BitStream& bs, YuvFrame& frame, uint mode = 0, uint quantY = 1, uint quantU = 1, uint quantV = 1);
 };
 
 //==============================================================================

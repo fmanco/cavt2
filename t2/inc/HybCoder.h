@@ -21,17 +21,17 @@
 
 class HybCoder
 {
-public:
-	HybCoder  ( uint _bsize, uint _area, uint _keyFrameT, BitStream& _bs );
+protected:
+	HybCoder  ( BitStream& _bs );
 	~HybCoder (  );
 
 public:
-	void writeHeader ( uint nRows, uint nCols, uint fps, YuvFrame::Type type );
+	uint getNRows   ( void ) const { return nRows; }
+	uint getNCols   ( void ) const { return nCols; }
+	uint getType    ( void ) const { return type; }
+	uint getFps     ( void ) const { return fps; }
 
-	int encode ( YuvFrame& frame );
-	int decode ( YuvFrame& frame );
-
-private:
+protected:
 	int intraEncode ( YuvFrame& frame );
 	int interEncode ( YuvFrame& frame );
 	int intraDecode ( void );
@@ -49,7 +49,14 @@ private:
 	void encodeDiff ( void );
 	int  decodeDiff ( void );
 
-private:
+protected:
+	bool inited;
+
+	uint nRows;
+	uint nCols;
+	uint type;
+	uint fps;
+
 	uint bsize;
 	uint area;
 	uint keyFrameT;
@@ -62,10 +69,41 @@ private:
 	YuvFrame* currFrame;
 	YuvFrame* prevFrame;
 
-	Block currBlock;
-	Block prevBlock;
+	Block* currBlock;
+	Block* prevBlock;
 
 	BitStream& bs;
+};
+
+
+class HybEncoder : public HybCoder {
+public:
+	HybEncoder  ( BitStream& _bs );
+	~HybEncoder (  );
+
+public:
+	int init   ( uint nRows, uint nCols, uint fps, uint type,
+	             uint _bsize, uint _area, uint _keyFrameT );
+	int encode ( YuvFrame& frame );
+
+private:
+	int writeHeader ( uint nRows, uint nCols, uint type, uint fps,
+	                  uint bsize, uint area, uint keyFrameT );
+};
+
+
+class HybDecoder : public HybCoder {
+public:
+	HybDecoder  ( BitStream& _bs );
+	~HybDecoder (  );
+
+public:
+	int init   ( void );
+	int decode ( YuvFrame& frame );
+
+private:
+	int readHeader ( uint* nRows, uint* nCols, uint* type, uint* fps,
+	                 uint* bsize, uint* area, uint* keyFrameT );
 };
 
 

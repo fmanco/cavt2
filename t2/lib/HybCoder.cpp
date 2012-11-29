@@ -18,10 +18,25 @@
 
 //==============================================================================
 
-HybCoder::HybCoder ( uint _bsize, uint _area, uint _keyFrameT, BitStream& _bs )
-	: bsize(_bsize), area(_area), keyFrameT(_keyFrameT),
-	  dr(0), dc(0), counter(0), currFrame(NULL), prevFrame(NULL),
-	  currBlock(bsize), prevBlock(bsize), bs(_bs)
+#define ROW_M 100
+#define COL_M 100
+#define FPS_M 10
+#define TYPE_M 400
+#define BSIZE_M 400
+#define AREA_M 400
+#define KFT_M 400
+
+
+//==============================================================================
+
+HybCoder::HybCoder ( BitStream& _bs )
+	: inited(false),
+	  nRows(0), nCols(0), type(0), fps(0),
+	  bsize(0), area(0), keyFrameT(1),
+	  dr(0), dc(0), counter(0),
+	  currFrame(NULL), prevFrame(NULL),
+	  currBlock(NULL), prevBlock(NULL),
+	  bs(_bs)
 { }
 
 HybCoder::~HybCoder (  )
@@ -29,18 +44,75 @@ HybCoder::~HybCoder (  )
 	if (prevFrame != NULL) {
 		delete prevFrame;
 	}
+
+	if (currBlock != NULL) {
+		delete currBlock;
+	}
+
+	if (prevBlock != NULL) {
+		delete prevBlock;
+	}
+}
+
+HybEncoder::HybEncoder ( BitStream& _bs )
+	: HybCoder(_bs)
+{
+	// \todo Should assert bs is in write mode
+}
+
+HybEncoder::~HybEncoder ( )
+{
+
+}
+
+HybDecoder::HybDecoder ( BitStream& _bs )
+	: HybCoder(_bs)
+{
+	// \todo Should assert bs is in write mode
+}
+
+HybDecoder::~HybDecoder ( )
+{
+
 }
 
 
 //==============================================================================
 
-// void HybCoder::writeHeader ()
-// {
-// 	// \todo Implement this
-// }
-
-int HybCoder::encode ( YuvFrame& frame )
+int HybEncoder::init ( uint _nRows, uint _nCols, uint _type, uint _fps,
+	                   uint _bsize, uint _area, uint _keyFrameT )
 {
+	int err = -1;
+
+	if (inited)
+		return -1;
+
+	nRows     = _nRows;
+	nCols     = _nCols;
+	type      = _type;
+	fps       = _fps;
+
+	bsize     = _bsize;
+	area      = _area;
+	keyFrameT = _keyFrameT;
+
+	prevBlock = new Block(bsize);
+	currBlock = new Block(bsize);
+
+	err = writeHeader(nRows, nCols, type, fps, bsize, area, keyFrameT);
+
+	if (err == 0) {
+		inited = true;
+	}
+
+	return err;
+}
+
+int HybEncoder::encode ( YuvFrame& frame )
+{
+	if (!inited)
+		return -1;
+
 	if (counter % keyFrameT == 0) {
 		intraEncode(frame);
 	} else {
@@ -55,8 +127,27 @@ int HybCoder::encode ( YuvFrame& frame )
 	return 0;
 }
 
-int HybCoder::decode ( YuvFrame& frame )
+
+int HybDecoder::init ( void )
 {
+	int err  = -1;
+
+	err = readHeader(&nRows, &nCols, &type, &fps, &bsize, &area, &keyFrameT);
+
+	if (err == 0) {
+		prevBlock = new Block(bsize);
+		currBlock = new Block(bsize);
+		inited = true;
+	}
+
+	return err;
+}
+
+int HybDecoder::decode ( YuvFrame& frame )
+{
+	if (!inited)
+		return -1;
+
 	currFrame = &frame;
 	if (counter % keyFrameT == 0) {
 		if (intraDecode())
@@ -74,6 +165,94 @@ int HybCoder::decode ( YuvFrame& frame )
 	return 0;
 }
 
+
+//==============================================================================
+
+int HybEncoder::writeHeader ( uint nRows, uint nCols, uint type, uint fps,
+	                          uint bsize, uint area, uint keyFrameT )
+{
+	int err = 0;
+
+	err = Golomb::encode(ROW_M, nRows, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::encode(COL_M, nCols, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::encode(TYPE_M, type, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::encode(FPS_M, fps, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::encode(BSIZE_M, bsize, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::encode(AREA_M, area, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::encode(KFT_M, keyFrameT, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	return 0;
+}
+
+int HybDecoder::readHeader ( uint* nRows, uint* nCols, uint* type, uint* fps,
+	                         uint* bsize, uint* area, uint* keyFrameT )
+{
+	int err = 0;
+
+	err = Golomb::decode(ROW_M, (int*) nRows, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::decode(COL_M, (int*) nCols, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::decode(TYPE_M, (int*) type, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::decode(FPS_M, (int*) fps, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::decode(BSIZE_M, (int*) bsize, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::decode(AREA_M, (int*) area, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::decode(KFT_M, (int*) keyFrameT, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	return 0;
+}
 
 //==============================================================================
 
@@ -96,27 +275,27 @@ int HybCoder::interEncode ( YuvFrame& frame )
 	currFrame = &frame;
 	for (uint r = 0; r < frame.getYRows(); r += bsize) {
 		for (uint c = 0; c < frame.getYCols(); c += bsize) {
-			currFrame->getYBlock(currBlock, r, c);
+			currFrame->getYBlock(*currBlock, r, c);
 			findBestYBlock(r, c);
-			prevFrame->getYBlock(prevBlock, r + dr, c + dc);
+			prevFrame->getYBlock(*prevBlock, r + dr, c + dc);
 			encodeDiff();
 		}
 	}
 
 	for (uint r = 0; r < frame.getURows(); r += bsize) {
 		for (uint c = 0; c < frame.getUCols(); c += bsize) {
-			currFrame->getUBlock(currBlock, r, c);
+			currFrame->getUBlock(*currBlock, r, c);
 			findBestUBlock(r, c);
-			prevFrame->getUBlock(prevBlock, r + dr, c + dc);
+			prevFrame->getUBlock(*prevBlock, r + dr, c + dc);
 			encodeDiff();
 		}
 	}
 
 	for (uint r = 0; r < frame.getVRows(); r += bsize) {
 		for (uint c = 0; c < frame.getVCols(); c += bsize) {
-			currFrame->getVBlock(currBlock, r, c);
+			currFrame->getVBlock(*currBlock, r, c);
 			findBestVBlock(r, c);
-			prevFrame->getVBlock(prevBlock, r + dr, c + dc);
+			prevFrame->getVBlock(*prevBlock, r + dr, c + dc);
 			encodeDiff();
 		}
 	}
@@ -141,12 +320,12 @@ int HybCoder::interDecode ( void )
 			Golomb::decode(32, &dr, bs);
 			Golomb::decode(32, &dc, bs);
 
-			prevFrame->getYBlock(prevBlock, r + dr, c + dc);
+			prevFrame->getYBlock(*prevBlock, r + dr, c + dc);
 
 			if (decodeDiff())
 				return -1;
 
-			currFrame->putYBlock(currBlock, r, c);
+			currFrame->putYBlock(*currBlock, r, c);
 		}
 	}
 
@@ -155,12 +334,12 @@ int HybCoder::interDecode ( void )
 			Golomb::decode(32, &dr, bs);
 			Golomb::decode(32, &dc, bs);
 
-			prevFrame->getUBlock(prevBlock, r + dr, c + dc);
+			prevFrame->getUBlock(*prevBlock, r + dr, c + dc);
 
 			if (decodeDiff())
 				return -1;
 
-			currFrame->putUBlock(currBlock, r, c);
+			currFrame->putUBlock(*currBlock, r, c);
 		}
 	}
 
@@ -169,12 +348,12 @@ int HybCoder::interDecode ( void )
 			Golomb::decode(32, &dr, bs);
 			Golomb::decode(32, &dc, bs);
 
-			prevFrame->getVBlock(prevBlock, r + dr, c + dc);
+			prevFrame->getVBlock(*prevBlock, r + dr, c + dc);
 
 			if (decodeDiff())
 				return -1;
 
-			currFrame->putVBlock(currBlock, r, c);
+			currFrame->putVBlock(*currBlock, r, c);
 		}
 	}
 
@@ -184,17 +363,17 @@ int HybCoder::interDecode ( void )
 
 void HybCoder::findBestYBlock ( uint sr, uint sc )
 {
-	findBestBlock(prevFrame->get_read_yBuff(), prevFrame->getYRows(), prevFrame->getYCols(), currBlock, sr, sc);
+	findBestBlock(prevFrame->get_read_yBuff(), prevFrame->getYRows(), prevFrame->getYCols(), *currBlock, sr, sc);
 }
 
 void HybCoder::findBestUBlock ( uint sr, uint sc )
 {
-	findBestBlock(prevFrame->get_read_uBuff(), prevFrame->getURows(), prevFrame->getUCols(), currBlock, sr, sc);
+	findBestBlock(prevFrame->get_read_uBuff(), prevFrame->getURows(), prevFrame->getUCols(), *currBlock, sr, sc);
 }
 
 void HybCoder::findBestVBlock ( uint sr, uint sc )
 {
-	findBestBlock(prevFrame->get_read_vBuff(), prevFrame->getVRows(), prevFrame->getVCols(), currBlock, sr, sc);
+	findBestBlock(prevFrame->get_read_vBuff(), prevFrame->getVRows(), prevFrame->getVCols(), *currBlock, sr, sc);
 }
 
 void HybCoder::findBestBlock ( uchar* fBuff, uint fRows, uint fCols, Block& blk, uint sr, uint sc )
@@ -263,7 +442,7 @@ void HybCoder::encodeDiff ( void )
 	Golomb::encode(32, dc, bs);
 
 	for (uint i = 0; i < (bsize * bsize); i++) {
-		Golomb::encode(5, currBlock.buff[i] - prevBlock.buff[i], bs);
+		Golomb::encode(5, currBlock->buff[i] - prevBlock->buff[i], bs);
 	}
 }
 
@@ -277,10 +456,11 @@ int HybCoder::decodeDiff ( void )
 			return -1;
 		}
 
-		currBlock.buff[i] = prevBlock.buff[i] + aux;
+		currBlock->buff[i] = prevBlock->buff[i] + aux;
 	}
 
 	return 0;
 }
+
 
 // EOF =========================================================================

@@ -1,15 +1,3 @@
-# Build files
-YuvShow
-YuvTest
-YuvCmp
-YuvEntropy
-TestFrame
-TestBitStream
-TestGolomb
-TestCoder
-TestBlocks
-TestHyb
-
 # Eclipse
 .settings/*
 .project

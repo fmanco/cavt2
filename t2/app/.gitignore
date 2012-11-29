@@ -1,0 +1,15 @@
+# Build files
+YuvShow
+YuvTest
+YuvCmp
+YuvEntropy
+TestFrame
+TestBitStream
+TestGolomb
+TestCoder
+TestBlocks
+TestHyb
+TestDCT
+
+*.o
+

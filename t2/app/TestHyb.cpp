@@ -25,15 +25,39 @@ int main ( int argc, char** argv )
 
 	int nFrame = 0;
 
+{
 	YuvReader reader(argv[1]);
 	reader.open();
 	reader.readHeader();
 
+	YuvFrame::Type ftype;
+	switch(reader.getType()) {
+		case 444:
+		ftype = YuvFrame::YUV444;
+		break;
+
+		case 422:
+		ftype = YuvFrame::YUV422;
+		break;
+
+		case 420:
+		ftype = YuvFrame::YUV420;
+		break;
+
+		default:
+		ftype = YuvFrame::YUV444;
+		break;
+	}
+	YuvFrame frame(ftype, reader.getNRows(), reader.getNCols());
+
+	// ==========
 	BitStream bs_out((char*)"file", BitStream::WRITE);
 	bs_out.open();
 
-	HybCoder encoder(10, 2, 6, bs_out);
-	YuvFrame frame(reader.getNRows(), reader.getNCols());
+	HybEncoder encoder(bs_out);
+	encoder.init(reader.getNRows(), reader.getNCols(),
+	             reader.getType(), reader.getFps(),
+		         10, 2, 6);
 
 	nFrame = 0;
 	while (reader.readFrame(frame) == 0) {
@@ -41,22 +65,44 @@ int main ( int argc, char** argv )
 
 		encoder.encode(frame);
 	}
+
 	bs_out.close();
+	reader.close();
+}
 
-
+{
 	BitStream bs_in((char*)"file", BitStream::READ);
 	bs_in.open();
 
-	HybCoder decoder(10, 2, 6, bs_in);
+	HybDecoder decoder(bs_in);
+	decoder.init();
 
-	YuvDisplay disp((char*)"Hybrid Encoder", reader.getFps(), reader.getNRows(), reader.getNCols());
-	YuvWriter writer((char*)"output.yuv", reader.getNRows(), reader.getNCols(), reader.getType(), reader.getFps());
+	YuvFrame::Type ftype;
+	switch(decoder.getType()) {
+		case 444:
+		ftype = YuvFrame::YUV444;
+		break;
 
-	reader.close();
-	disp.start();
+		case 422:
+		ftype = YuvFrame::YUV422;
+		break;
 
+		case 420:
+		ftype = YuvFrame::YUV420;
+		break;
+
+		default:
+		ftype = YuvFrame::YUV444;
+		break;
+	}
+	YuvFrame frame(ftype, decoder.getNRows(), decoder.getNCols());
+
+	YuvWriter writer((char*)"output.yuv", decoder.getNRows(), decoder.getNCols(), decoder.getType(), decoder.getFps());
 	writer.open();
 	writer.writeHeader();
+
+	YuvDisplay disp((char*)"Hybrid Encoder", decoder.getFps(), decoder.getNRows(), decoder.getNCols());
+	disp.start();
 
 	while(decoder.decode(frame) == 0) {
 		disp.displayFrame(frame);
@@ -66,6 +112,7 @@ int main ( int argc, char** argv )
 	bs_in.close();
 	writer.close();
 	disp.stop();
+}
 
 	return 0;
 }
