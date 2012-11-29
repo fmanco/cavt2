@@ -13,7 +13,10 @@ APPS += YuvShow
 #APPS += TestCoder
 #APPS += TestBlocks
 #APPS += TestHyb
+APPS += TestDCT
+APPS += TestDCTCoder
 #APPS += TestDCT
+
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 
@@ -29,7 +32,8 @@ LIBS += Block.o
 LIBS += Golomb.o
 LIBS += Predictor.o
 LIBS += IntraCoder.o
-LIBS += HybCoder.o
+#LIBS += HybCoder.o
+LIBS += DCTCoder.o
 
 
 APPS    := $(patsubst %,$(APP_BASE_DIR)/%,$(APPS))
