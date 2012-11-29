@@ -46,8 +46,8 @@ protected:
 	uint Blockcmp ( uchar* fBuff, uint fRows, uint fCols,
 	                Block& blk, uint r, uint c );
 
-	void encodeDiff ( void );
-	int  decodeDiff ( void );
+	void encodeDiff ( uint quantization );
+	int  decodeDiff ( uint quantization );
 
 protected:
 	bool inited;
@@ -60,6 +60,9 @@ protected:
 	uint bsize;
 	uint area;
 	uint keyFrameT;
+	uint qY;
+	uint qU;
+	uint qV;
 
 	int dr;
 	int dc;
@@ -68,6 +71,7 @@ protected:
 
 	YuvFrame* currFrame;
 	YuvFrame* prevFrame;
+	YuvFrame* quantFrame;
 
 	Block* currBlock;
 	Block* prevBlock;
@@ -83,12 +87,14 @@ public:
 
 public:
 	int init   ( uint nRows, uint nCols, uint fps, uint type,
-	             uint _bsize, uint _area, uint _keyFrameT );
+	             uint _bsize, uint _area, uint _keyFrameT,
+	             uint _qY = 1, uint _qU = 1, uint _qV = 1 );
 	int encode ( YuvFrame& frame );
 
 private:
 	int writeHeader ( uint nRows, uint nCols, uint type, uint fps,
-	                  uint bsize, uint area, uint keyFrameT );
+	                  uint bsize, uint area, uint keyFrameT,
+	                  uint qY, uint qU, uint qV );
 };
 
 
@@ -103,7 +109,8 @@ public:
 
 private:
 	int readHeader ( uint* nRows, uint* nCols, uint* type, uint* fps,
-	                 uint* bsize, uint* area, uint* keyFrameT );
+	                 uint* bsize, uint* area, uint* keyFrameT,
+	                 uint* qY, uint* qU, uint* qV );
 };
 
 

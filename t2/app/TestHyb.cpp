@@ -57,7 +57,7 @@ int main ( int argc, char** argv )
 	HybEncoder encoder(bs_out);
 	encoder.init(reader.getNRows(), reader.getNCols(),
 	             reader.getType(), reader.getFps(),
-		         10, 2, 6);
+		         10, 20, 10, 2, 4, 4);
 
 	nFrame = 0;
 	while (reader.readFrame(frame) == 0) {

@@ -25,6 +25,7 @@
 #define BSIZE_M 400
 #define AREA_M 400
 #define KFT_M 400
+#define QUANTIZATION_M 400
 
 
 //==============================================================================
@@ -32,9 +33,9 @@
 HybCoder::HybCoder ( BitStream& _bs )
 	: inited(false),
 	  nRows(0), nCols(0), type(0), fps(0),
-	  bsize(0), area(0), keyFrameT(1),
+	  bsize(0), area(0), keyFrameT(1), qY(1), qU(1), qV(1),
 	  dr(0), dc(0), counter(0),
-	  currFrame(NULL), prevFrame(NULL),
+	  currFrame(NULL), prevFrame(NULL), quantFrame(NULL),
 	  currBlock(NULL), prevBlock(NULL),
 	  bs(_bs)
 { }
@@ -43,6 +44,10 @@ HybCoder::~HybCoder (  )
 {
 	if (prevFrame != NULL) {
 		delete prevFrame;
+	}
+
+	if (quantFrame != NULL) {
+		delete quantFrame;
 	}
 
 	if (currBlock != NULL) {
@@ -80,7 +85,8 @@ HybDecoder::~HybDecoder ( )
 //==============================================================================
 
 int HybEncoder::init ( uint _nRows, uint _nCols, uint _type, uint _fps,
-	                   uint _bsize, uint _area, uint _keyFrameT )
+	                   uint _bsize, uint _area, uint _keyFrameT,
+	                   uint _qY, uint _qU, uint _qV )
 {
 	int err = -1;
 
@@ -95,11 +101,14 @@ int HybEncoder::init ( uint _nRows, uint _nCols, uint _type, uint _fps,
 	bsize     = _bsize;
 	area      = _area;
 	keyFrameT = _keyFrameT;
+	qY        = _qY;
+	qU        = _qU;
+	qV        = _qV;
 
 	prevBlock = new Block(bsize);
 	currBlock = new Block(bsize);
 
-	err = writeHeader(nRows, nCols, type, fps, bsize, area, keyFrameT);
+	err = writeHeader(nRows, nCols, type, fps, bsize, area, keyFrameT, qY, qU, qV);
 
 	if (err == 0) {
 		inited = true;
@@ -116,14 +125,20 @@ int HybEncoder::encode ( YuvFrame& frame )
 	currFrame = &frame;
 	if (counter % keyFrameT == 0) {
 		intraEncode(frame);
+
+		delete prevFrame;
+		prevFrame = new YuvFrame(frame);
 	} else {
+		quantFrame = new YuvFrame(frame.getType(), frame.getNRows(), frame.getNCols());
+
 		interEncode(frame);
+
+		delete prevFrame;
+		prevFrame  = quantFrame;
+		quantFrame = NULL;
 	}
 
 	counter++;
-
-	delete prevFrame;
-	prevFrame = new YuvFrame(frame);
 
 	return 0;
 }
@@ -133,7 +148,7 @@ int HybDecoder::init ( void )
 {
 	int err  = -1;
 
-	err = readHeader(&nRows, &nCols, &type, &fps, &bsize, &area, &keyFrameT);
+	err = readHeader(&nRows, &nCols, &type, &fps, &bsize, &area, &keyFrameT, &qY, &qU, &qV);
 
 	if (err == 0) {
 		prevBlock = new Block(bsize);
@@ -150,6 +165,7 @@ int HybDecoder::decode ( YuvFrame& frame )
 		return -1;
 
 	currFrame = &frame;
+
 	if (counter % keyFrameT == 0) {
 		if (intraDecode())
 			return -1;
@@ -170,7 +186,8 @@ int HybDecoder::decode ( YuvFrame& frame )
 //==============================================================================
 
 int HybEncoder::writeHeader ( uint nRows, uint nCols, uint type, uint fps,
-	                          uint bsize, uint area, uint keyFrameT )
+	                          uint bsize, uint area, uint keyFrameT,
+	                          uint qY, uint qU, uint qV )
 {
 	int err = 0;
 
@@ -209,11 +226,27 @@ int HybEncoder::writeHeader ( uint nRows, uint nCols, uint type, uint fps,
 		return err;
 	}
 
+	err = Golomb::encode(QUANTIZATION_M, qY, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::encode(QUANTIZATION_M, qU, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::encode(QUANTIZATION_M, qV, bs);
+	if (err != 0) {
+		return err;
+	}
+
 	return 0;
 }
 
 int HybDecoder::readHeader ( uint* nRows, uint* nCols, uint* type, uint* fps,
-	                         uint* bsize, uint* area, uint* keyFrameT )
+	                         uint* bsize, uint* area, uint* keyFrameT,
+	                         uint* qY, uint* qU, uint* qV )
 {
 	int err = 0;
 
@@ -252,6 +285,21 @@ int HybDecoder::readHeader ( uint* nRows, uint* nCols, uint* type, uint* fps,
 		return err;
 	}
 
+	err = Golomb::decode(QUANTIZATION_M, (int*) qY, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::decode(QUANTIZATION_M, (int*) qU, bs);
+	if (err != 0) {
+		return err;
+	}
+
+	err = Golomb::decode(QUANTIZATION_M, (int*) qV, bs);
+	if (err != 0) {
+		return err;
+	}
+
 	return 0;
 }
 
@@ -262,7 +310,7 @@ int HybCoder::intraEncode ( YuvFrame& frame )
 	if (bsize > frame.getNRows() || bsize > frame.getNCols())
 		return -1; // \todo What to do here?
 
-	IntraCoder::encode(frame, bs);
+	IntraCoder::encode(frame, bs, 0, qY, qU, qV);
 
 	return 0;
 }
@@ -278,7 +326,9 @@ int HybCoder::interEncode ( YuvFrame& frame )
 			currFrame->getYBlock(*currBlock, r, c);
 			findBestYBlock(r, c);
 			prevFrame->getYBlock(*prevBlock, r + dr, c + dc);
-			encodeDiff();
+			encodeDiff(qY);
+
+			quantFrame->putYBlock(*currBlock, r, c);
 		}
 	}
 
@@ -287,7 +337,9 @@ int HybCoder::interEncode ( YuvFrame& frame )
 			currFrame->getUBlock(*currBlock, r, c);
 			findBestUBlock(r, c);
 			prevFrame->getUBlock(*prevBlock, r + dr, c + dc);
-			encodeDiff();
+			encodeDiff(qU);
+
+			quantFrame->putUBlock(*currBlock, r, c);
 		}
 	}
 
@@ -296,7 +348,9 @@ int HybCoder::interEncode ( YuvFrame& frame )
 			currFrame->getVBlock(*currBlock, r, c);
 			findBestVBlock(r, c);
 			prevFrame->getVBlock(*prevBlock, r + dr, c + dc);
-			encodeDiff();
+			encodeDiff(qV);
+
+			quantFrame->putVBlock(*currBlock, r, c);
 		}
 	}
 
@@ -320,7 +374,7 @@ int HybCoder::interDecode ( void )
 
 			prevFrame->getYBlock(*prevBlock, r + dr, c + dc);
 
-			if (decodeDiff())
+			if (decodeDiff(qY))
 				return -1;
 
 			currFrame->putYBlock(*currBlock, r, c);
@@ -334,7 +388,7 @@ int HybCoder::interDecode ( void )
 
 			prevFrame->getUBlock(*prevBlock, r + dr, c + dc);
 
-			if (decodeDiff())
+			if (decodeDiff(qU))
 				return -1;
 
 			currFrame->putUBlock(*currBlock, r, c);
@@ -348,7 +402,7 @@ int HybCoder::interDecode ( void )
 
 			prevFrame->getVBlock(*prevBlock, r + dr, c + dc);
 
-			if (decodeDiff())
+			if (decodeDiff(qV))
 				return -1;
 
 			currFrame->putVBlock(*currBlock, r, c);
@@ -433,28 +487,47 @@ uint HybCoder::Blockcmp ( uchar* fBuff, uint fRows, uint fCols, Block& blk, uint
 	return err / (blk.nRows * blk.nCols);
 }
 
-void HybCoder::encodeDiff ( void )
+void HybCoder::encodeDiff ( uint quantization )
 {
 	// \todo Is it necessary 32 bits for dr/dc?
 	Golomb::encode(32, dr, bs);
 	Golomb::encode(32, dc, bs);
 
-	for (uint i = 0; i < (bsize * bsize); i++) {
-		Golomb::encode(5, currBlock->buff[i] - prevBlock->buff[i], bs);
+	if (quantization == 1) {
+		for (uint i = 0; i < (bsize * bsize); i++) {
+			Golomb::encode(5, currBlock->buff[i] - prevBlock->buff[i], bs);
+		}
+	} else {
+		for (uint i = 0; i < (bsize * bsize); i++) {
+			int aux = (currBlock->buff[i] - prevBlock->buff[i]) >> quantization;
+
+			Golomb::encode(5, aux, bs);
+
+			currBlock->buff[i] = prevBlock->buff[i] + (aux << quantization);
+		}
 	}
 }
 
-
-int HybCoder::decodeDiff ( void )
+int HybCoder::decodeDiff ( uint quantization )
 {
 	int aux;
 
-	for (uint i = 0; i < (bsize * bsize); i++) {
-		if (Golomb::decode(5, &aux, bs)) {
-			return -1;
-		}
+	if (quantization == 1) {
+		for (uint i = 0; i < (bsize * bsize); i++) {
+			if (Golomb::decode(5, &aux, bs)) {
+				return -1;
+			}
 
-		currBlock->buff[i] = prevBlock->buff[i] + aux;
+			currBlock->buff[i] = prevBlock->buff[i] + aux;
+		}
+	} else {
+		for (uint i = 0; i < (bsize * bsize); i++) {
+			if (Golomb::decode(5, &aux, bs)) {
+				return -1;
+			}
+
+			currBlock->buff[i] = prevBlock->buff[i] + (aux << quantization);
+		}
 	}
 
 	return 0;
