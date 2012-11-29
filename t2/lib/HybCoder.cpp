@@ -113,6 +113,7 @@ int HybEncoder::encode ( YuvFrame& frame )
 	if (!inited)
 		return -1;
 
+	currFrame = &frame;
 	if (counter % keyFrameT == 0) {
 		intraEncode(frame);
 	} else {
@@ -272,7 +273,6 @@ int HybCoder::interEncode ( YuvFrame& frame )
 			prevFrame->getNCols() != frame.getNCols())
 		return -1; // \todo What to do here?
 
-	currFrame = &frame;
 	for (uint r = 0; r < frame.getYRows(); r += bsize) {
 		for (uint c = 0; c < frame.getYCols(); c += bsize) {
 			currFrame->getYBlock(*currBlock, r, c);
