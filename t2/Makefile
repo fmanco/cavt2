@@ -10,10 +10,10 @@ APPS += YuvShow
 #APPS += TestFrame
 #APPS += TestBitStream
 #APPS += TestGolomb
-APPS += TestCoder
+#APPS += TestCoder
 #APPS += TestBlocks
 #APPS += TestHyb
-APPS += TestDCT
+#APPS += TestDCT
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 
