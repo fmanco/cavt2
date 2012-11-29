@@ -17,7 +17,9 @@
 class Predictor{
 
 public:
-	static void predict(YuvFrame& frame, int r, int c, int mode /*enum/object*/, int* y, int* u, int* v);
+	static int predictY(YuvFrame& frame, int r, int c, int mode=1);
+	static int predictU(YuvFrame& frame, int r, int c, int mode=1);
+	static int predictV(YuvFrame& frame, int r, int c, int mode=1);
 };
 
 
