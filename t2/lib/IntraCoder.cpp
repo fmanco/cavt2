@@ -18,13 +18,13 @@
 #define FPS_M 10
 #define TYPE_M 400
 #define QUANT_M 2
+#define MODE_M 2
 
 
   //==============================================================================
 
-int IntraCoder::writeHeader(uint rows, uint cols, uint fps, uint type, uint quantization, BitStream& bs){
+int IntraCoder::writeHeader(uint rows, uint cols, uint fps, uint type, uint predMode, uint quantY, uint quantU, uint quantV, BitStream& bs){	
 	int err;
-
 
 	if ((err = Golomb::encode(ROW_M, rows, bs)) != 0){
 		return err;
@@ -42,38 +42,54 @@ int IntraCoder::writeHeader(uint rows, uint cols, uint fps, uint type, uint quan
 		return err;
 	}
 
-	if ((err=Golomb::encode(QUANT_M, quantization, bs)) != 0){
+	if ((err=Golomb::encode(MODE_M, predMode, bs)) != 0){
+		return err;
+	}
+
+	if ((err=Golomb::encode(QUANT_M, quantY, bs)) != 0){
+		return err;
+	}	
+
+	if ((err=Golomb::encode(QUANT_M, quantU, bs)) != 0){
+		return err;
+	}	
+
+	if ((err=Golomb::encode(QUANT_M, quantV, bs)) != 0){
 		return err;
 	}	
 
 	return 0;
 }
 
-int IntraCoder::encode(YuvFrame& frame, BitStream& bs, uint quantization){
+int IntraCoder::encode(YuvFrame& frame, BitStream& bs, uint mode, uint quantY, uint quantU, uint quantV){
 	//TODO: validate quantization
 
 	int pY, pU, pV; //pixel values
 	int predY, predU, predV; //predicted pixel values
 	uint r, c;
 	int err;
-	int quant = quantization; //unsigned is magic
+	
+	int qY = (int) quantY;
+	int qU = (int) quantU;
+	int qV = (int) quantV;
+
 	int diff;
 
 	for (r = 0; r < frame.getYRows(); r++){
 		for (c = 0; c < frame.getYCols(); c++)
 		{
 			pY = frame.getYPixel(r, c);
-			Predictor::predict(frame, r, c, 1, &predY, &predU, &predV);
+			predY = Predictor::predictY(frame, r, c, mode);
 			
-			diff = (pY - predY)/quant;
+			diff = (pY - predY)/qY;
 
 			//encode difference
 			if ((err = Golomb::encode(M, diff, bs)) != 0){
 				return err;
 			}
 
-			if (quantization > 1){
-				frame.putYPixel(r, c, predY + diff*quant);
+			if (quantY > 1){
+				frame.putYPixel(r, c, predY + diff*qY);
 			}
 		}
 	}
@@ -83,16 +99,16 @@ int IntraCoder::encode(YuvFrame& frame, BitStream& bs, uint quantization){
 		{
 			pU = frame.getUPixel(r, c);
 
-			Predictor::predict(frame, r, c, 1, &predY, &predU, &predV);
+			predU = Predictor::predictU(frame, r, c, mode);
 
-			diff = (pU - predU)/quant;
+			diff = (pU - predU)/qU;
 			//encode difference
 			if ((err = Golomb::encode(M, diff, bs)) != 0){
 				return err;
 			}
 
-			if (quantization > 1){
-				frame.putUPixel(r, c, predU + diff*quant);
+			if (quantU > 1){
+				frame.putUPixel(r, c, predU + diff*qU);
 			}
 
 		}
@@ -104,16 +120,16 @@ int IntraCoder::encode(YuvFrame& frame, BitStream& bs, uint quantization){
 		{
 			pV = frame.getVPixel(r, c);
 
-			Predictor::predict(frame, r, c, 1, &predY, &predU, &predV);
+			predV = Predictor::predictV(frame, r, c, mode);
 
-			diff = (pV - predV)/quant;
+			diff = (pV - predV)/qV;
 			//encode difference
 			if ((err = Golomb::encode(M, diff, bs)) != 0){
 				return err;
 			}
 
-			if (quantization > 1){
-				frame.putVPixel(r, c, predV + diff*quant);
+			if (quantV > 1){
+				frame.putVPixel(r, c, predV + diff*qV);
 			}
 
 		}
@@ -122,10 +138,10 @@ int IntraCoder::encode(YuvFrame& frame, BitStream& bs, uint quantization){
 	return 0;
 }
 
-int IntraCoder::readHeader(BitStream& bs, uint *rows, uint *cols, uint *fps, uint *type, uint *quantization){
+int IntraCoder::readHeader(BitStream& bs, uint *rows, uint *cols, uint *fps, uint *type, uint* predMode, uint *quantY, uint *quantU, uint *quantV){
 	int err;
 
-	int _rows, _cols, _fps, _type, _quantization;
+	int _rows, _cols, _fps, _type, _predMode, _quantY, _quantU, _quantV;
 
 	if ((err = Golomb::decode(ROW_M, &_rows, bs)) != 0){
 		return err;
@@ -147,15 +163,31 @@ int IntraCoder::readHeader(BitStream& bs, uint *rows, uint *cols, uint *fps, uin
 	}
 	*type=_type;
 
-	if ((err = Golomb::decode(QUANT_M, &_quantization, bs)) != 0){
+	if ((err = Golomb::decode(MODE_M, &_predMode, bs)) != 0){
 			return err;
 	}
-	*quantization=_quantization;
+	*predMode=_predMode;
+
+	if ((err = Golomb::decode(QUANT_M, &_quantY, bs)) != 0){
+			return err;
+	}
+	*quantY=_quantY;
+
+	if ((err = Golomb::decode(QUANT_M, &_quantU, bs)) != 0){
+			return err;
+	}
+	*quantU=_quantU;
+
+	if ((err = Golomb::decode(QUANT_M, &_quantV, bs)) != 0){
+			return err;
+	}
+	*quantV=_quantV;
+
 
 	return 0;
 }
 
-int IntraCoder::decode(BitStream& bs, YuvFrame& frame, uint quantization){
+int IntraCoder::decode(BitStream& bs, YuvFrame& frame, uint mode, uint quantY, uint quantU, uint quantV){
 	//TODO: validate quantization
 
 	int dY, dU, dV; //difference values
@@ -166,29 +198,27 @@ int IntraCoder::decode(BitStream& bs, YuvFrame& frame, uint quantization){
 	for (r = 0; r < frame.getYRows(); r++) {
 		for (c = 0; c < frame.getYCols(); c++)
 		{
-			Predictor::predict(frame, r, c, 1, &predY, &predU, &predV);
+			predY = Predictor::predictY(frame, r, c, mode);
 
 			if ((err = Golomb::decode(M, &dY, bs)) != 0){
 				return err;
 			}
 
-			frame.putYPixel(r,c, predY + dY * quantization);
-			// frame.putYPixel(r,c, (predY + dY) * quantization);
+			frame.putYPixel(r,c, predY + dY * quantY);
 		}
 	}
 
 	for (r = 0; r < frame.getURows(); r++) {
 		for (c = 0; c < frame.getUCols(); c++)
 		{
-			Predictor::predict(frame, r, c, 1, &predY, &predU, &predV);
+			predU = Predictor::predictU(frame, r, c, mode);
 
 			if ((err = Golomb::decode(M, &dU, bs)) != 0){
 				return err;
 			}
 
 
-			frame.putUPixel(r,c, predU + dU * quantization);
-			// frame.putUPixel(r,c, (predU + dU) * quantization);
+			frame.putUPixel(r,c, predU + dU * quantU);
 		}
 	}
 
@@ -196,14 +226,13 @@ int IntraCoder::decode(BitStream& bs, YuvFrame& frame, uint quantization){
 	for (r = 0; r < frame.getVRows(); r++) {
 		for (c = 0; c < frame.getVCols(); c++)
 		{
-			Predictor::predict(frame, r, c, 1, &predY, &predU, &predV);
+			predV = Predictor::predictV(frame, r, c, mode);
 
 			if ((err = Golomb::decode(M, &dV, bs)) != 0){
 				return err;
 			}
 
-			frame.putVPixel(r,c, predV + dV * quantization);
-			// frame.putVPixel(r,c, (predV + dV) * quantization);
+			frame.putVPixel(r,c, predV + dV * quantV);
 		}
 	}
 
