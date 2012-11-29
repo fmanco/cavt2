@@ -308,9 +308,7 @@ int HybCoder::intraDecode ( void )
 	if (bsize > currFrame->getNRows() || bsize > currFrame->getNCols())
 		return -1; // \todo What to do here?
 
-	IntraCoder::decode(bs, *currFrame);
-
-	return 0;
+	return IntraCoder::decode(bs, *currFrame, 0, qY, qU, qV);
 }
 
 int HybCoder::interDecode ( void )
