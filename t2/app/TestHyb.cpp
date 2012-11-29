@@ -30,7 +30,25 @@ int main ( int argc, char** argv )
 	reader.open();
 	reader.readHeader();
 
-	YuvFrame frame(reader.getNRows(), reader.getNCols());
+	YuvFrame::Type ftype;
+	switch(reader.getType()) {
+		case 444:
+		ftype = YuvFrame::YUV444;
+		break;
+
+		case 422:
+		ftype = YuvFrame::YUV422;
+		break;
+
+		case 420:
+		ftype = YuvFrame::YUV420;
+		break;
+
+		default:
+		ftype = YuvFrame::YUV444;
+		break;
+	}
+	YuvFrame frame(ftype, reader.getNRows(), reader.getNCols());
 
 	// ==========
 	BitStream bs_out((char*)"file", BitStream::WRITE);
@@ -59,7 +77,25 @@ int main ( int argc, char** argv )
 	HybDecoder decoder(bs_in);
 	decoder.init();
 
-	YuvFrame frame(decoder.getNRows(), decoder.getNCols());
+	YuvFrame::Type ftype;
+	switch(decoder.getType()) {
+		case 444:
+		ftype = YuvFrame::YUV444;
+		break;
+
+		case 422:
+		ftype = YuvFrame::YUV422;
+		break;
+
+		case 420:
+		ftype = YuvFrame::YUV420;
+		break;
+
+		default:
+		ftype = YuvFrame::YUV444;
+		break;
+	}
+	YuvFrame frame(ftype, decoder.getNRows(), decoder.getNCols());
 
 	YuvWriter writer((char*)"output.yuv", decoder.getNRows(), decoder.getNCols(), decoder.getType(), decoder.getFps());
 	writer.open();
