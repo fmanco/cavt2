@@ -63,7 +63,7 @@ int main( int argc, char** argv ){
 	printf("Block:\n");
 	print(block);
 
-	shift(block, 0);
+	shift(block, -128);
 	printf("Shift:\n");
 	print(block);
 
