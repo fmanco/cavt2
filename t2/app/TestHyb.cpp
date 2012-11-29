@@ -25,13 +25,12 @@ int main ( int argc, char** argv )
 
 	int nFrame = 0;
 
-	// ==========
+{
 	YuvReader reader(argv[1]);
 	reader.open();
 	reader.readHeader();
 
 	YuvFrame frame(reader.getNRows(), reader.getNCols());
-
 
 	// ==========
 	BitStream bs_out((char*)"file", BitStream::WRITE);
@@ -39,7 +38,7 @@ int main ( int argc, char** argv )
 
 	HybEncoder encoder(bs_out);
 	encoder.init(reader.getNRows(), reader.getNCols(),
-	             reader.getFps(), reader.getType(),
+	             reader.getType(), reader.getFps(),
 		         10, 2, 6);
 
 	nFrame = 0;
@@ -50,22 +49,23 @@ int main ( int argc, char** argv )
 	}
 
 	bs_out.close();
+	reader.close();
+}
 
-
-	// ==========
+{
 	BitStream bs_in((char*)"file", BitStream::READ);
 	bs_in.open();
 
 	HybDecoder decoder(bs_in);
-	decoder.init(reader.getNRows(), reader.getNCols(),
-	             reader.getFps(), reader.getType(),
-		         10, 2, 6);
+	decoder.init();
 
-	YuvWriter writer((char*)"output.yuv", reader.getNRows(), reader.getNCols(), reader.getType(), reader.getFps());
+	YuvFrame frame(decoder.getNRows(), decoder.getNCols());
+
+	YuvWriter writer((char*)"output.yuv", decoder.getNRows(), decoder.getNCols(), decoder.getType(), decoder.getFps());
 	writer.open();
 	writer.writeHeader();
 
-	YuvDisplay disp((char*)"Hybrid Encoder", reader.getFps(), reader.getNRows(), reader.getNCols());
+	YuvDisplay disp((char*)"Hybrid Encoder", decoder.getFps(), decoder.getNRows(), decoder.getNCols());
 	disp.start();
 
 	while(decoder.decode(frame) == 0) {
@@ -76,10 +76,8 @@ int main ( int argc, char** argv )
 	bs_in.close();
 	writer.close();
 	disp.stop();
+}
 
-
-	// ==========
-	reader.close();
 	return 0;
 }
 

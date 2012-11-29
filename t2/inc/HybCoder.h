@@ -26,8 +26,10 @@ protected:
 	~HybCoder (  );
 
 public:
-	int init   ( uint nRows, uint nCols, uint fps, uint type,
-	             uint _bsize, uint _area, uint _keyFrameT );
+	uint getNRows   ( void ) const { return nRows; }
+	uint getNCols   ( void ) const { return nCols; }
+	uint getType    ( void ) const { return type; }
+	uint getFps     ( void ) const { return fps; }
 
 protected:
 	int intraEncode ( YuvFrame& frame );
@@ -49,6 +51,11 @@ protected:
 
 protected:
 	bool inited;
+
+	uint nRows;
+	uint nCols;
+	uint type;
+	uint fps;
 
 	uint bsize;
 	uint area;
@@ -75,12 +82,13 @@ public:
 	~HybEncoder (  );
 
 public:
-	// int init   ( uint nRows, uint nCols, uint fps, uint type,
-	//              uint _bsize, uint _area, uint _keyFrameT );
+	int init   ( uint nRows, uint nCols, uint fps, uint type,
+	             uint _bsize, uint _area, uint _keyFrameT );
 	int encode ( YuvFrame& frame );
 
 private:
-	void writeHeader ( void );
+	int writeHeader ( uint nRows, uint nCols, uint type, uint fps,
+	                  uint bsize, uint area, uint keyFrameT );
 };
 
 
@@ -90,11 +98,12 @@ public:
 	~HybDecoder (  );
 
 public:
-	// int init   (  );
+	int init   ( void );
 	int decode ( YuvFrame& frame );
 
 private:
-	void readHeader ( void );
+	int readHeader ( uint* nRows, uint* nCols, uint* type, uint* fps,
+	                 uint* bsize, uint* area, uint* keyFrameT );
 };
 
 
