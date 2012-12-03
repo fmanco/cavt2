@@ -18,6 +18,7 @@
 
 //==============================================================================
 #define DIFF_M   16
+#define DELTA_M  32
 
 #define ROW_M 100
 #define COL_M 100
@@ -327,6 +328,9 @@ int HybCoder::interEncode ( YuvFrame& frame )
 			currFrame->getYBlock(*currBlock, r, c);
 			findBestYBlock(r, c);
 			prevFrame->getYBlock(*prevBlock, r + dr, c + dc);
+
+			Golomb::encode(DELTA_M, dr, bs);
+			Golomb::encode(DELTA_M, dc, bs);
 			encodeDiff(qY);
 
 			quantFrame->putYBlock(*currBlock, r, c);
@@ -338,6 +342,9 @@ int HybCoder::interEncode ( YuvFrame& frame )
 			currFrame->getUBlock(*currBlock, r, c);
 			findBestUBlock(r, c);
 			prevFrame->getUBlock(*prevBlock, r + dr, c + dc);
+
+			Golomb::encode(DELTA_M, dr, bs);
+			Golomb::encode(DELTA_M, dc, bs);
 			encodeDiff(qU);
 
 			quantFrame->putUBlock(*currBlock, r, c);
@@ -349,6 +356,9 @@ int HybCoder::interEncode ( YuvFrame& frame )
 			currFrame->getVBlock(*currBlock, r, c);
 			findBestVBlock(r, c);
 			prevFrame->getVBlock(*prevBlock, r + dr, c + dc);
+
+			Golomb::encode(DELTA_M, dr, bs);
+			Golomb::encode(DELTA_M, dc, bs);
 			encodeDiff(qV);
 
 			quantFrame->putVBlock(*currBlock, r, c);
@@ -490,10 +500,6 @@ uint HybCoder::Blockcmp ( uchar* fBuff, uint fRows, uint fCols, Block& blk, uint
 
 void HybCoder::encodeDiff ( uint quantization )
 {
-	// \todo Is it necessary 32 bits for dr/dc?
-	Golomb::encode(32, dr, bs);
-	Golomb::encode(32, dc, bs);
-
 	if (quantization == 1) {
 		for (uint i = 0; i < (bsize * bsize); i++) {
 			Golomb::encode(DIFF_M, currBlock->buff[i] - prevBlock->buff[i], bs);
