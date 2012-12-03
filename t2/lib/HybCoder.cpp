@@ -17,7 +17,7 @@
 
 
 //==============================================================================
-#define DIFF_M   16
+#define DIFF_M   4
 #define DELTA_M  32
 #define ROW_M   100
 #define COL_M   100
