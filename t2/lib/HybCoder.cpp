@@ -446,16 +446,16 @@ void HybCoder::findBestBlock ( uchar* fBuff, uint fRows, uint fCols, Block& blk,
 	uint err = 0;        // Auxiliar variable for block error
 	uint errmin = UINT_MAX; // Starting with the max possible error
 
-	uint r  = ((sr < area) ? 0 : (sr - area));
-	uint c  = ((sc < area) ? 0 : (sc - area));
+	uint ir  = ((sr < area) ? 0 : (sr - area));
+	uint ic  = ((sc < area) ? 0 : (sc - area));
 	uint er = ((sr + area) > fRows ? sr + 1 : (sr + area));
 	uint ec = ((sc + area) > fCols ? sc + 1 : (sc + area));
 
-	for (; r < er; r++) {
-		for (; c < ec; c++) {
+	for (uint r = ir; r < er; r++) {
+		for (uint c = ic; c < ec; c++) {
 			err = Blockcmp(fBuff, fRows, fCols, blk, r, c);
 
-			if (err < errmin) {
+			if (err <= errmin) {
 				errmin = err;
 
 				dr = r - sr;
@@ -485,6 +485,7 @@ uint HybCoder::Blockcmp ( uchar* fBuff, uint fRows, uint fCols, Block& blk, uint
 		}
 
 		for (; bc < blk.nCols; bc++) {
+			err += blk.buff[(br * blk.nCols) + bc];
 		}
 	}
 
