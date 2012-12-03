@@ -499,11 +499,11 @@ void HybCoder::encodeDiff ( uint quantization )
 		}
 	} else {
 		for (uint i = 0; i < (bsize * bsize); i++) {
-			int aux = (currBlock->buff[i] - prevBlock->buff[i]) >> quantization;
+			int aux = (currBlock->buff[i] - prevBlock->buff[i]) / ((int)quantization);
 
 			Golomb::encode(5, aux, bs);
 
-			currBlock->buff[i] = prevBlock->buff[i] + (aux << quantization);
+			currBlock->buff[i] = prevBlock->buff[i] + (aux * ((int)quantization));
 		}
 	}
 }
@@ -526,7 +526,7 @@ int HybCoder::decodeDiff ( uint quantization )
 				return -1;
 			}
 
-			currBlock->buff[i] = prevBlock->buff[i] + (aux << quantization);
+			currBlock->buff[i] = prevBlock->buff[i] + (aux * ((int)quantization));
 		}
 	}
 
