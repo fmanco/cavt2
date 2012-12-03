@@ -17,6 +17,7 @@
 
 
 //==============================================================================
+#define DIFF_M   16
 
 #define ROW_M 100
 #define COL_M 100
@@ -495,13 +496,13 @@ void HybCoder::encodeDiff ( uint quantization )
 
 	if (quantization == 1) {
 		for (uint i = 0; i < (bsize * bsize); i++) {
-			Golomb::encode(5, currBlock->buff[i] - prevBlock->buff[i], bs);
+			Golomb::encode(DIFF_M, currBlock->buff[i] - prevBlock->buff[i], bs);
 		}
 	} else {
 		for (uint i = 0; i < (bsize * bsize); i++) {
 			int aux = (currBlock->buff[i] - prevBlock->buff[i]) / ((int)quantization);
 
-			Golomb::encode(5, aux, bs);
+			Golomb::encode(DIFF_M, aux, bs);
 
 			currBlock->buff[i] = prevBlock->buff[i] + (aux * ((int)quantization));
 		}
@@ -514,7 +515,7 @@ int HybCoder::decodeDiff ( uint quantization )
 
 	if (quantization == 1) {
 		for (uint i = 0; i < (bsize * bsize); i++) {
-			if (Golomb::decode(5, &aux, bs)) {
+			if (Golomb::decode(DIFF_M, &aux, bs)) {
 				return -1;
 			}
 
@@ -522,7 +523,7 @@ int HybCoder::decodeDiff ( uint quantization )
 		}
 	} else {
 		for (uint i = 0; i < (bsize * bsize); i++) {
-			if (Golomb::decode(5, &aux, bs)) {
+			if (Golomb::decode(DIFF_M, &aux, bs)) {
 				return -1;
 			}
 
