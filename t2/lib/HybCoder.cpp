@@ -19,15 +19,14 @@
 //==============================================================================
 #define DIFF_M   16
 #define DELTA_M  32
-
-#define ROW_M 100
-#define COL_M 100
-#define FPS_M 10
-#define TYPE_M 400
+#define ROW_M   100
+#define COL_M   100
+#define FPS_M    10
+#define TYPE_M  400
 #define BSIZE_M 400
-#define AREA_M 400
-#define KFT_M 400
-#define QUANTIZATION_M 400
+#define AREA_M  400
+#define KFT_M   400
+#define QUANT_M 400
 
 
 //==============================================================================
@@ -228,17 +227,17 @@ int HybEncoder::writeHeader ( uint nRows, uint nCols, uint type, uint fps,
 		return err;
 	}
 
-	err = Golomb::encode(QUANTIZATION_M, qY, bs);
+	err = Golomb::encode(QUANT_M, qY, bs);
 	if (err != 0) {
 		return err;
 	}
 
-	err = Golomb::encode(QUANTIZATION_M, qU, bs);
+	err = Golomb::encode(QUANT_M, qU, bs);
 	if (err != 0) {
 		return err;
 	}
 
-	err = Golomb::encode(QUANTIZATION_M, qV, bs);
+	err = Golomb::encode(QUANT_M, qV, bs);
 	if (err != 0) {
 		return err;
 	}
@@ -287,17 +286,17 @@ int HybDecoder::readHeader ( uint* nRows, uint* nCols, uint* type, uint* fps,
 		return err;
 	}
 
-	err = Golomb::decode(QUANTIZATION_M, (int*) qY, bs);
+	err = Golomb::decode(QUANT_M, (int*) qY, bs);
 	if (err != 0) {
 		return err;
 	}
 
-	err = Golomb::decode(QUANTIZATION_M, (int*) qU, bs);
+	err = Golomb::decode(QUANT_M, (int*) qU, bs);
 	if (err != 0) {
 		return err;
 	}
 
-	err = Golomb::decode(QUANTIZATION_M, (int*) qV, bs);
+	err = Golomb::decode(QUANT_M, (int*) qV, bs);
 	if (err != 0) {
 		return err;
 	}
