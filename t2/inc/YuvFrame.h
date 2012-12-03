@@ -29,6 +29,7 @@ public:
 public:
 	YuvFrame  ( uint _nRows, uint _nCols );
 	YuvFrame  ( Type _type, uint _nRows, uint _nCols );
+	YuvFrame  ( int _type, uint _nRows, uint _nCols );
 	YuvFrame  ( const YuvFrame& obj );
 	~YuvFrame (  );
 

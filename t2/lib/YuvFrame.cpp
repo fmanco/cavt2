@@ -63,6 +63,50 @@ YuvFrame::YuvFrame ( Type _type, uint _nRows, uint _nCols )
 	sync_buff_420 = false;
 }
 
+
+YuvFrame::YuvFrame ( int _type, uint _nRows, uint _nCols )
+	: nRows(_nRows), nCols(_nCols)
+{
+	switch(_type) {
+		case 444:
+		type = YuvFrame::YUV444;
+		break;
+
+		case 422:
+		type = YuvFrame::YUV422;
+		break;
+
+		case 420:
+		type = YuvFrame::YUV420;
+		break;
+
+		default:
+		type = YuvFrame::YUV444;
+		break;
+	}
+
+	yBuff     = NULL;
+
+	buff_444  = NULL;
+	yBuff_444 = NULL;
+	uBuff_444 = NULL;
+	vBuff_444 = NULL;
+
+	buff_422  = NULL;
+	yBuff_422 = NULL;
+	uBuff_422 = NULL;
+	vBuff_422 = NULL;
+
+	buff_420  = NULL;
+	yBuff_420 = NULL;
+	uBuff_420 = NULL;
+	vBuff_420 = NULL;
+
+	sync_buff_444 = false;
+	sync_buff_422 = false;
+	sync_buff_420 = false;
+}
+
 YuvFrame::YuvFrame ( const YuvFrame& obj )
 {
 	type = obj.type;
