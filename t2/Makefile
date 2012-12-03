@@ -32,7 +32,7 @@ LIBS += Block.o
 LIBS += Golomb.o
 LIBS += Predictor.o
 LIBS += IntraCoder.o
-#LIBS += HybCoder.o
+LIBS += HybCoder.o
 LIBS += DCTCoder.o
 
 
