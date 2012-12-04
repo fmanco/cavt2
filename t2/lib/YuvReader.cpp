@@ -52,7 +52,7 @@ int YuvReader::readHeader ( void )
 		return -1;
 	}
 
-	if (fscanf(fp, "%u%u%u%u%*[\n]s", &nCols, &nRows, &fps, &type) != 4) {
+	if (fscanf(fp, "%u%u%u%u%*c]s", &nCols, &nRows, &fps, &type) != 4) {
 		fclose(fp);
 		fp = NULL;
 		return -1;
