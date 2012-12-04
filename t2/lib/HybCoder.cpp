@@ -121,22 +121,27 @@ int HybEncoder::encode ( YuvFrame& frame )
 	if (!inited)
 		return -1;
 
+	int err = 0;
+
 	currFrame = &frame;
 
 	if (counter % keyFrameT == 0) {
-		intraEncode();
+		err = intraEncode();
 
 		delete prevFrame;
 		prevFrame = new YuvFrame(frame);
 	} else {
 		quantFrame = new YuvFrame(frame.getType(), frame.getNRows(), frame.getNCols());
 
-		interEncode();
+		err = interEncode();
 
 		delete prevFrame;
 		prevFrame  = quantFrame;
 		quantFrame = NULL;
 	}
+
+	if (err)
+		return err;
 
 	counter++;
 
