@@ -55,44 +55,15 @@ int YuvWriter::writeFrame ( YuvFrame& frame )
 		return -1;
 	}
 
-	uchar* yBuff = NULL;
-	uchar* uBuff = NULL;
-	uchar* vBuff = NULL;
+	uchar* yBuff = frame.get_write_yBuff();
+	uchar* uBuff = frame.get_write_uBuff();
+	uchar* vBuff = frame.get_write_vBuff();
 
 	uint nRows = frame.getNRows();
 	uint nCols = frame.getNCols();
 
-	uint size1 = 0;
-	uint size2 = 0;
-
-	switch (type) {
-	case 444:
-		yBuff = frame.get_read_yBuff_444();
-		uBuff = frame.get_read_uBuff_444();
-		vBuff = frame.get_read_vBuff_444();
-
-		size1 = nRows * nCols;
-		size2 = size1;
-		break;
-
-	case 422:
-		yBuff = frame.get_read_yBuff_422();
-		uBuff = frame.get_read_uBuff_422();
-		vBuff = frame.get_read_vBuff_422();
-
-		size1 = nRows * nCols;
-		size2 = nRows * (nCols / 2);
-		break;
-
-	case 420:
-		yBuff = frame.get_read_yBuff_420();
-		uBuff = frame.get_read_uBuff_420();
-		vBuff = frame.get_read_vBuff_420();
-
-		size1 = nRows * nCols;
-		size2 = (nRows / 2) * (nCols / 2);
-		break;
-	}
+	uint size1 = nRows * nCols;
+	uint size2 = frame.getURows() * frame.getUCols();
 
 	if (fwrite(yBuff, sizeof(uchar), size1, fp) != size1) {
 		return -1;

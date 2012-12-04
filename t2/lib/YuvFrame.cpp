@@ -611,123 +611,148 @@ void YuvFrame::putVPixel ( uint r, uint c, uchar pixel )
 
 uchar* YuvFrame::get_read_yBuff ( void )
 {
-	switch (type) {
-		case YUV444:
-			return get_read_yBuff_444();
-
-		case YUV422:
-			return get_read_yBuff_422();
-
-		case YUV420:
-			return get_read_yBuff_420();
-	}
-
-	return NULL;
+	return get_read_yBuff(type);
 }
 
 uchar* YuvFrame::get_read_uBuff ( void )
 {
-	switch (type) {
-		case YUV444:
-			return get_read_uBuff_444();
-
-		case YUV422:
-			return get_read_uBuff_422();
-
-		case YUV420:
-			return get_read_uBuff_420();
-	}
-
-	return NULL;
+	return get_read_uBuff(type);
 }
 
 uchar* YuvFrame::get_read_vBuff ( void )
 {
-		switch (type) {
+	return get_read_vBuff(type);
+}
+
+uchar* YuvFrame::get_read_yBuff ( YuvFrame::Type _type )
+{
+	switch (_type) {
 		case YUV444:
-			return get_read_vBuff_444();
+			read_444();
+			return yBuff_444;
 
 		case YUV422:
-			return get_read_vBuff_422();
+			read_422();
+			return yBuff_422;
 
 		case YUV420:
-			return get_read_vBuff_420();
+			read_420();
+			return yBuff_420;
 	}
 
 	return NULL;
 }
 
-uchar* YuvFrame::get_read_yBuff_444 ( void ) { read_444(); return yBuff_444; }
-uchar* YuvFrame::get_read_uBuff_444 ( void ) { read_444(); return uBuff_444; }
-uchar* YuvFrame::get_read_vBuff_444 ( void ) { read_444(); return vBuff_444; }
-
-uchar* YuvFrame::get_read_yBuff_422 ( void ) { read_422(); return yBuff_422; }
-uchar* YuvFrame::get_read_uBuff_422 ( void ) { read_422(); return uBuff_422; }
-uchar* YuvFrame::get_read_vBuff_422 ( void ) { read_422(); return vBuff_422; }
-
-uchar* YuvFrame::get_read_yBuff_420 ( void ) { read_420(); return yBuff_420; }
-uchar* YuvFrame::get_read_uBuff_420 ( void ) { read_420(); return uBuff_420; }
-uchar* YuvFrame::get_read_vBuff_420 ( void ) { read_420(); return vBuff_420; }
-
-uchar* YuvFrame::get_write_yBuff ( void )
+uchar* YuvFrame::get_read_uBuff ( YuvFrame::Type _type )
 {
-	switch (type) {
+	switch (_type) {
 		case YUV444:
-			return get_write_yBuff_444();
+			read_444();
+			return uBuff_444;
 
 		case YUV422:
-			return get_write_yBuff_422();
+			read_422();
+			return uBuff_422;
 
 		case YUV420:
-			return get_write_yBuff_420();
+			read_420();
+			return uBuff_420;
 	}
 
 	return NULL;
+}
+
+uchar* YuvFrame::get_read_vBuff ( YuvFrame::Type _type )
+{
+	switch (_type) {
+		case YUV444:
+			read_444();
+			return vBuff_444;
+
+		case YUV422:
+			read_422();
+			return vBuff_422;
+
+		case YUV420:
+			read_420();
+			return vBuff_420;
+	}
+
+	return NULL;
+}
+
+
+uchar* YuvFrame::get_write_yBuff ( void )
+{
+	return get_write_yBuff(type);
 }
 
 uchar* YuvFrame::get_write_uBuff ( void )
 {
-	switch (type) {
-		case YUV444:
-			return get_write_uBuff_444();
-
-		case YUV422:
-			return get_write_uBuff_422();
-
-		case YUV420:
-			return get_write_uBuff_420();
-	}
-
-	return NULL;
+	return get_write_uBuff(type);
 }
 
 uchar* YuvFrame::get_write_vBuff ( void )
 {
-	switch (type) {
+	return get_write_vBuff(type);
+}
+
+uchar* YuvFrame::get_write_yBuff ( YuvFrame::Type _type )
+{
+	switch (_type) {
 		case YUV444:
-			return get_write_vBuff_444();
+			write_444();
+			return yBuff_444;
 
 		case YUV422:
-			return get_write_vBuff_422();
+			write_422();
+			return yBuff_422;
 
 		case YUV420:
-			return get_write_vBuff_420();
+			write_422();
+			return yBuff_422;
 	}
 
 	return NULL;
 }
 
-uchar* YuvFrame::get_write_yBuff_444 ( void ) { write_444(); return yBuff_444; }
-uchar* YuvFrame::get_write_uBuff_444 ( void ) { write_444(); return uBuff_444; }
-uchar* YuvFrame::get_write_vBuff_444 ( void ) { write_444(); return vBuff_444; }
+uchar* YuvFrame::get_write_uBuff ( YuvFrame::Type _type )
+{
+	switch (_type) {
+		case YUV444:
+			write_444();
+			return uBuff_444;
 
-uchar* YuvFrame::get_write_yBuff_422 ( void ) { write_422(); return yBuff_422; }
-uchar* YuvFrame::get_write_uBuff_422 ( void ) { write_422(); return uBuff_422; }
-uchar* YuvFrame::get_write_vBuff_422 ( void ) { write_422(); return vBuff_422; }
+		case YUV422:
+			write_422();
+			return uBuff_422;
 
-uchar* YuvFrame::get_write_yBuff_420 ( void ) { write_420(); return yBuff_420; }
-uchar* YuvFrame::get_write_uBuff_420 ( void ) { write_420(); return uBuff_420; }
-uchar* YuvFrame::get_write_vBuff_420 ( void ) { write_420(); return vBuff_420; }
+		case YUV420:
+			write_422();
+			return uBuff_422;
+	}
+
+	return NULL;
+}
+
+uchar* YuvFrame::get_write_vBuff ( YuvFrame::Type _type )
+{
+	switch (_type) {
+		case YUV444:
+			write_444();
+			return vBuff_444;
+
+		case YUV422:
+			write_422();
+			return vBuff_422;
+
+		case YUV420:
+			write_422();
+			return vBuff_422;
+	}
+
+	return NULL;
+}
 
 
 //==============================================================================
