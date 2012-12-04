@@ -37,18 +37,6 @@ protected:
 	int intraDecode ( void );
 	int interDecode ( void );
 
-	void findBestYBlock ( uint sr, uint sc );
-	void findBestUBlock ( uint sr, uint sc );
-	void findBestVBlock ( uint sr, uint sc );
-	void findBestBlock  ( uchar* fBuff, uint nRows, uint nCols,
-	                      Block& blk, uint sr, uint sc );
-
-	uint Blockcmp ( uchar* fBuff, uint fRows, uint fCols,
-	                Block& blk, uint r, uint c );
-
-	void encodeDiff ( uint quantization );
-	int  decodeDiff ( uint quantization );
-
 protected:
 	bool inited;
 

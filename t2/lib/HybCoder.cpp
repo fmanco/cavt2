@@ -12,13 +12,10 @@
 #include "Block.h"
 #include "Golomb.h"
 #include "IntraCoder.h"
-#include <cstdlib>
-#include <climits>
+#include "InterCoder.h"
 
 
 //==============================================================================
-#define DIFF_M   4
-#define DELTA_M  32
 #define ROW_M   100
 #define COL_M   100
 #define FPS_M    10
@@ -143,7 +140,6 @@ int HybEncoder::encode ( YuvFrame& frame )
 
 	return 0;
 }
-
 
 int HybDecoder::init ( void )
 {
@@ -322,49 +318,7 @@ int HybCoder::interEncode ( YuvFrame& frame )
 			prevFrame->getNCols() != frame.getNCols())
 		return -1; // \todo What to do here?
 
-	for (uint r = 0; r < frame.getYRows(); r += bsize) {
-		for (uint c = 0; c < frame.getYCols(); c += bsize) {
-			currFrame->getYBlock(*currBlock, r, c);
-			findBestYBlock(r, c);
-			prevFrame->getYBlock(*prevBlock, r + dr, c + dc);
-
-			Golomb::encode(DELTA_M, dr, bs);
-			Golomb::encode(DELTA_M, dc, bs);
-			encodeDiff(qY);
-
-			quantFrame->putYBlock(*currBlock, r, c);
-		}
-	}
-
-	for (uint r = 0; r < frame.getURows(); r += bsize) {
-		for (uint c = 0; c < frame.getUCols(); c += bsize) {
-			currFrame->getUBlock(*currBlock, r, c);
-			findBestUBlock(r, c);
-			prevFrame->getUBlock(*prevBlock, r + dr, c + dc);
-
-			Golomb::encode(DELTA_M, dr, bs);
-			Golomb::encode(DELTA_M, dc, bs);
-			encodeDiff(qU);
-
-			quantFrame->putUBlock(*currBlock, r, c);
-		}
-	}
-
-	for (uint r = 0; r < frame.getVRows(); r += bsize) {
-		for (uint c = 0; c < frame.getVCols(); c += bsize) {
-			currFrame->getVBlock(*currBlock, r, c);
-			findBestVBlock(r, c);
-			prevFrame->getVBlock(*prevBlock, r + dr, c + dc);
-
-			Golomb::encode(DELTA_M, dr, bs);
-			Golomb::encode(DELTA_M, dc, bs);
-			encodeDiff(qV);
-
-			quantFrame->putVBlock(*currBlock, r, c);
-		}
-	}
-
-	return 0;
+	return InterCoder::encode(frame, *prevFrame, bsize, area, qY, qU, qV, *quantFrame, bs);
 }
 
 int HybCoder::intraDecode ( void )
@@ -377,167 +331,7 @@ int HybCoder::intraDecode ( void )
 
 int HybCoder::interDecode ( void )
 {
-	for (uint r = 0; r < currFrame->getYRows(); r += bsize) {
-		for (uint c = 0; c < currFrame->getYCols(); c += bsize) {
-			Golomb::decode(32, &dr, bs);
-			Golomb::decode(32, &dc, bs);
-
-			prevFrame->getYBlock(*prevBlock, r + dr, c + dc);
-
-			if (decodeDiff(qY))
-				return -1;
-
-			currFrame->putYBlock(*currBlock, r, c);
-		}
-	}
-
-	for (uint r = 0; r < currFrame->getURows(); r += bsize) {
-		for (uint c = 0; c < currFrame->getUCols(); c += bsize) {
-			Golomb::decode(32, &dr, bs);
-			Golomb::decode(32, &dc, bs);
-
-			prevFrame->getUBlock(*prevBlock, r + dr, c + dc);
-
-			if (decodeDiff(qU))
-				return -1;
-
-			currFrame->putUBlock(*currBlock, r, c);
-		}
-	}
-
-	for (uint r = 0; r < currFrame->getVRows(); r += bsize) {
-		for (uint c = 0; c < currFrame->getVCols(); c += bsize) {
-			Golomb::decode(32, &dr, bs);
-			Golomb::decode(32, &dc, bs);
-
-			prevFrame->getVBlock(*prevBlock, r + dr, c + dc);
-
-			if (decodeDiff(qV))
-				return -1;
-
-			currFrame->putVBlock(*currBlock, r, c);
-		}
-	}
-
-	return 0;
-}
-
-
-void HybCoder::findBestYBlock ( uint sr, uint sc )
-{
-	findBestBlock(prevFrame->get_read_yBuff(), prevFrame->getYRows(), prevFrame->getYCols(), *currBlock, sr, sc);
-}
-
-void HybCoder::findBestUBlock ( uint sr, uint sc )
-{
-	findBestBlock(prevFrame->get_read_uBuff(), prevFrame->getURows(), prevFrame->getUCols(), *currBlock, sr, sc);
-}
-
-void HybCoder::findBestVBlock ( uint sr, uint sc )
-{
-	findBestBlock(prevFrame->get_read_vBuff(), prevFrame->getVRows(), prevFrame->getVCols(), *currBlock, sr, sc);
-}
-
-void HybCoder::findBestBlock ( uchar* fBuff, uint fRows, uint fCols, Block& blk, uint sr, uint sc )
-{
-	dr = 0; // Reseting offset vector
-	dc = 0; //
-
-	uint err = 0;        // Auxiliar variable for block error
-	uint errmin = UINT_MAX; // Starting with the max possible error
-
-	uint ir  = ((sr < area) ? 0 : (sr - area));
-	uint ic  = ((sc < area) ? 0 : (sc - area));
-	uint er = ((sr + area) > fRows ? sr + 1 : (sr + area));
-	uint ec = ((sc + area) > fCols ? sc + 1 : (sc + area));
-
-	for (uint r = ir; r < er; r++) {
-		for (uint c = ic; c < ec; c++) {
-			err = Blockcmp(fBuff, fRows, fCols, blk, r, c);
-
-			if (err <= errmin) {
-				errmin = err;
-
-				dr = r - sr;
-				dc = c - sc;
-			}
-		}
-	}
-}
-
-
-uint HybCoder::Blockcmp ( uchar* fBuff, uint fRows, uint fCols, Block& blk, uint r, uint c )
-{
-	uint br; // Block row index
-	uint bc; // Block column index
-
-	uint fr; // Frame row index
-	uint fc; // Frame column index
-
-	uint er = ((r + blk.nRows) > fRows ? (fRows) : (r + blk.nRows)); // Last frame row
-	uint ec = ((c + blk.nCols) > fCols ? (fCols) : (c + blk.nCols)); // Last frame column
-
-	uint err = 0;
-
-	for (br = 0, fr = r; fr < er; br++, fr++) {
-		for (bc = 0, fc = c; fc < ec; bc++, fc++) {
-			err += abs(blk.buff[(br * blk.nCols) + bc] - fBuff[(fr * fCols) + fc]);
-		}
-
-		for (; bc < blk.nCols; bc++) {
-			err += blk.buff[(br * blk.nCols) + bc];
-		}
-	}
-
-	for (; br < blk.nRows; br++) {
-		for (bc = 0; bc < blk.nCols; bc++) {
-			err += blk.buff[(br * blk.nCols) + bc];
-		}
-	}
-
-	return err / (blk.nRows * blk.nCols);
-}
-
-void HybCoder::encodeDiff ( uint quantization )
-{
-	if (quantization == 1) {
-		for (uint i = 0; i < (bsize * bsize); i++) {
-			Golomb::encode(DIFF_M, currBlock->buff[i] - prevBlock->buff[i], bs);
-		}
-	} else {
-		for (uint i = 0; i < (bsize * bsize); i++) {
-			int aux = (currBlock->buff[i] - prevBlock->buff[i]) / ((int)quantization);
-
-			Golomb::encode(DIFF_M, aux, bs);
-
-			currBlock->buff[i] = prevBlock->buff[i] + (aux * ((int)quantization));
-		}
-	}
-}
-
-int HybCoder::decodeDiff ( uint quantization )
-{
-	int aux;
-
-	if (quantization == 1) {
-		for (uint i = 0; i < (bsize * bsize); i++) {
-			if (Golomb::decode(DIFF_M, &aux, bs)) {
-				return -1;
-			}
-
-			currBlock->buff[i] = prevBlock->buff[i] + aux;
-		}
-	} else {
-		for (uint i = 0; i < (bsize * bsize); i++) {
-			if (Golomb::decode(DIFF_M, &aux, bs)) {
-				return -1;
-			}
-
-			currBlock->buff[i] = prevBlock->buff[i] + (aux * ((int)quantization));
-		}
-	}
-
-	return 0;
+	return InterCoder::decode(*currFrame, *prevFrame, bsize, area, qY, qU, qV, bs);
 }
 
 

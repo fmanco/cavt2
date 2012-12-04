@@ -17,7 +17,7 @@
 //==============================================================================
 
 class YuvFrame; // Forward declaration because of friendship
-class HybCoder; //
+class InterCoder; //
 
 //==============================================================================
 
@@ -25,7 +25,7 @@ class Block
 {
 private:
 	friend class YuvFrame;
-	friend class HybCoder;
+	friend class InterCoder;
 
 public:
 	Block  ( uint _nRows, uint _nCols );
