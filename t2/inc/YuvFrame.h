@@ -39,6 +39,7 @@ public:
 	//
 	Type getType   ( void ) const;
 	void setType   ( Type _type );
+	void setType   ( uint _type );
 
 	uint getNRows  ( void ) const;
 	uint getNCols  ( void ) const;

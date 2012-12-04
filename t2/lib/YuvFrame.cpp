@@ -186,6 +186,27 @@ void YuvFrame::setType ( Type _type )
 	type = _type;
 }
 
+void YuvFrame::setType ( uint _type )
+{
+	switch(_type) {
+		case 444:
+		type = YuvFrame::YUV444;
+		break;
+
+		case 422:
+		type = YuvFrame::YUV422;
+		break;
+
+		case 420:
+		type = YuvFrame::YUV420;
+		break;
+
+		default:
+		type = YuvFrame::YUV444;
+		break;
+	}
+}
+
 uint YuvFrame::getNRows ( void ) const
 {
 	return nRows;
