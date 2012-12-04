@@ -789,6 +789,46 @@ uchar* YuvFrame::get_write_vBuff ( YuvFrame::Type _type )
 
 //==============================================================================
 
+int YuvFrame::cmp (YuvFrame &oth)
+{
+	if ((getNRows() != oth.getNRows() ) || (getNCols() != oth.getNCols()))
+		return -1;
+
+	uint err   = 0;
+	uint count = 0;
+
+	uchar* tbuff; // this' buffer
+	uchar* obuff; // other's buffer
+
+	tbuff = get_read_yBuff();
+	obuff = oth.get_read_yBuff(type);
+	count += getYRows() * getYCols();
+
+	for (uint i = 0; i < (getYRows() * getYCols()); i++) {
+		err += abs(tbuff[i] - obuff[i]);
+	}
+
+	tbuff = get_read_uBuff();
+	obuff = oth.get_read_uBuff(type);
+	count += getURows() * getUCols();
+
+	for (uint i = 0; i < (getURows() * getUCols()); i++) {
+		err += abs(tbuff[i] - obuff[i]);
+	}
+
+	tbuff = get_read_vBuff();
+	obuff = oth.get_read_vBuff(type);
+	count += getVRows() * getVCols();
+
+	for (uint i = 0; i < (getVRows() * getVCols()); i++) {
+		err += abs(tbuff[i] - obuff[i]);
+	}
+
+	return (int)(err / count); // Hopefully no overflows, otherwise, well...
+}
+
+//==============================================================================
+
 void YuvFrame::read_444 ( void )
 {
 	aloc_444();

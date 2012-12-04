@@ -95,6 +95,11 @@ public:
 	uchar* get_write_vBuff ( YuvFrame::Type type );
 
 
+	//====================
+	// Utilities
+	//
+	int cmp (YuvFrame &oth);
+
 private:
 	// Internal buffer synchronization
 	void read_444  ( void );
