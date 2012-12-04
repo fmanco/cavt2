@@ -36,7 +36,7 @@ int InterCoder::encode ( YuvFrame& currFrame, YuvFrame& prevFrame,
 	for (uint r = 0; r < currFrame.getYRows(); r += bsize) {
 		for (uint c = 0; c < currFrame.getYCols(); c += bsize) {
 			currFrame.getYBlock(currBlock, r, c);
-			findBestYBlock(currFrame, currBlock, area, r, c, dr, dc);
+			findBestYBlock(prevFrame, currBlock, area, r, c, dr, dc);
 			prevFrame.getYBlock(prevBlock, r + dr, c + dc);
 
 			encodeDelta(dr, dc, bs);
@@ -49,7 +49,7 @@ int InterCoder::encode ( YuvFrame& currFrame, YuvFrame& prevFrame,
 	for (uint r = 0; r < currFrame.getURows(); r += bsize) {
 		for (uint c = 0; c < currFrame.getUCols(); c += bsize) {
 			currFrame.getUBlock(currBlock, r, c);
-			findBestUBlock(currFrame, currBlock, area, r, c, dr, dc);
+			findBestUBlock(prevFrame, currBlock, area, r, c, dr, dc);
 			prevFrame.getUBlock(prevBlock, r + dr, c + dc);
 
 			encodeDelta(dr, dc, bs);
@@ -62,7 +62,7 @@ int InterCoder::encode ( YuvFrame& currFrame, YuvFrame& prevFrame,
 	for (uint r = 0; r < currFrame.getVRows(); r += bsize) {
 		for (uint c = 0; c < currFrame.getVCols(); c += bsize) {
 			currFrame.getVBlock(currBlock, r, c);
-			findBestVBlock(currFrame, currBlock, area, r, c, dr, dc);
+			findBestVBlock(prevFrame, currBlock, area, r, c, dr, dc);
 			prevFrame.getVBlock(prevBlock, r + dr, c + dc);
 
 			encodeDelta(dr, dc, bs);
