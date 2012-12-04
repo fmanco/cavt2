@@ -121,15 +121,16 @@ int HybEncoder::encode ( YuvFrame& frame )
 		return -1;
 
 	currFrame = &frame;
+
 	if (counter % keyFrameT == 0) {
-		intraEncode(frame);
+		intraEncode();
 
 		delete prevFrame;
 		prevFrame = new YuvFrame(frame);
 	} else {
 		quantFrame = new YuvFrame(frame.getType(), frame.getNRows(), frame.getNCols());
 
-		interEncode(frame);
+		interEncode();
 
 		delete prevFrame;
 		prevFrame  = quantFrame;
@@ -302,23 +303,24 @@ int HybDecoder::readHeader ( uint* nRows, uint* nCols, uint* type, uint* fps,
 
 //==============================================================================
 
-int HybCoder::intraEncode ( YuvFrame& frame )
+int HybCoder::intraEncode ( void )
 {
-	if (bsize > frame.getNRows() || bsize > frame.getNCols())
+	if (bsize > currFrame->getNRows() || bsize > currFrame->getNCols())
 		return -1; // \todo What to do here?
 
-	IntraCoder::encode(frame, bs, 0, qY, qU, qV);
+	IntraCoder::encode(*currFrame, bs, 0, qY, qU, qV);
 
 	return 0;
 }
 
-int HybCoder::interEncode ( YuvFrame& frame )
+int HybCoder::interEncode ( void )
 {
-	if (prevFrame->getNRows() != frame.getNRows() ||
-			prevFrame->getNCols() != frame.getNCols())
+	if (prevFrame->getNRows() != currFrame->getNRows() ||
+			prevFrame->getNCols() != currFrame->getNCols()) {
 		return -1; // \todo What to do here?
+	}
 
-	return InterCoder::encode(frame, *prevFrame, bsize, area, qY, qU, qV, *quantFrame, bs);
+	return InterCoder::encode(*currFrame, *prevFrame, bsize, area, qY, qU, qV, *quantFrame, bs);
 }
 
 int HybCoder::intraDecode ( void )

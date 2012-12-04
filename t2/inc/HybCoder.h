@@ -32,8 +32,8 @@ public:
 	uint getFps     ( void ) const { return fps; }
 
 protected:
-	int intraEncode ( YuvFrame& frame );
-	int interEncode ( YuvFrame& frame );
+	int intraEncode ( void );
+	int interEncode ( void );
 	int intraDecode ( void );
 	int interDecode ( void );
 
