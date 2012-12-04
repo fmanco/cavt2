@@ -2,12 +2,12 @@
 #include <cstdlib>
 #include "BitStream.h"
 #include "YuvReader.h"
-#include "IntraCoder.h"
+#include "DCTCoder.h"
 
 int main( int argc, char** argv ){
 
-	if (argc != 7) {
-		printf("USAGE: %s <input> <output> <prediction mode> <Y quantization> <U quantization> <V quantization>\n", argv[0]);
+	if (argc != 4) {
+		printf("USAGE: %s <input> <output> <quantization>\n\tThe quantization parameter is expressed as floor(q*100) where q can be a real number, e.g. for a factor of 2.5 the value is 250.\n\tA value of 0 has the least losses (only rounding errors), altough it can produce bigger files.\n", argv[0]);
 		return -1;
 	}
 
@@ -16,10 +16,7 @@ int main( int argc, char** argv ){
 
 	char* fileIn = argv[1];
 	char* fileOut = argv[2];
-	uint mode = atoi(argv[3]);
-	uint qY = atoi(argv[4]);
-	uint qU = atoi(argv[5]);
-	uint qV = atoi(argv[6]);
+	uint quant = atoi(argv[3]);
 
 	YuvReader reader(fileIn);
 	BitStream bs = BitStream(fileOut, BitStream::WRITE);
@@ -43,10 +40,10 @@ int main( int argc, char** argv ){
 
 	YuvFrame frame(type, rows, cols);
 
-	IntraCoder::writeHeader(rows, cols, fps, type, mode, qY, qU, qV, bs);
+	DCTCoder::writeHeader(rows, cols, fps, type, quant, bs);
 
 	while (reader.readFrame(frame) == 0){
-		IntraCoder::encode(frame, bs, mode, qY, qU, qV);
+		DCTCoder::encode(frame, bs, quant);
 		nFrames++;
 	}
 

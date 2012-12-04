@@ -12,11 +12,12 @@ APPS += YuvShow
 #APPS += TestGolomb
 #APPS += TestCoder
 #APPS += TestBlocks
-#APPS += TestHyb
-APPS += TestDCT
-APPS += TestDCTCoder
+APPS += TestHyb
 #APPS += TestDCT
-
+#APPS += TestDCTCoder
+#APPS += TestIntraCoder
+APPS += EncodeIntraPred
+APPS += EncodeIntraDCT
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 
@@ -32,7 +33,7 @@ LIBS += Block.o
 LIBS += Golomb.o
 LIBS += Predictor.o
 LIBS += IntraCoder.o
-#LIBS += HybCoder.o
+LIBS += HybCoder.o
 LIBS += DCTCoder.o
 
 
