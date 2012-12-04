@@ -51,6 +51,13 @@ public:
 	uint getVRows  ( void ) const;
 	uint getVCols  ( void ) const;
 
+	uint getYRows  ( YuvFrame::Type _type ) const;
+	uint getYCols  ( YuvFrame::Type _type ) const;
+	uint getURows  ( YuvFrame::Type _type ) const;
+	uint getUCols  ( YuvFrame::Type _type ) const;
+	uint getVRows  ( YuvFrame::Type _type ) const;
+	uint getVCols  ( YuvFrame::Type _type ) const;
+
 	//====================
 	// Get and Put blocks and pixels
 	//

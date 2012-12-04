@@ -217,19 +217,51 @@ uint YuvFrame::getNCols ( void ) const
 	return nCols;
 }
 
+
 uint YuvFrame::getYRows ( void ) const
 {
-	return nRows;
+	return getYRows(type);
 }
 
 uint YuvFrame::getYCols ( void ) const
 {
-	return nCols;
+	return getYCols(type);
 }
 
 uint YuvFrame::getURows ( void ) const
 {
-	switch(type) {
+	return getURows(type);
+}
+
+uint YuvFrame::getUCols ( void ) const
+{
+	return getUCols(type);
+}
+
+uint YuvFrame::getVRows ( void ) const
+{
+	return getVRows(type);
+}
+
+uint YuvFrame::getVCols ( void ) const
+{
+	return getVCols(type);
+}
+
+
+uint YuvFrame::getYRows ( YuvFrame::Type _type ) const
+{
+	return nRows;
+}
+
+uint YuvFrame::getYCols ( YuvFrame::Type _type ) const
+{
+	return nCols;
+}
+
+uint YuvFrame::getURows ( YuvFrame::Type _type ) const
+{
+	switch(_type) {
 		case YUV444:
 			return nRows;
 
@@ -243,9 +275,9 @@ uint YuvFrame::getURows ( void ) const
 	return 0;
 }
 
-uint YuvFrame::getUCols ( void ) const
+uint YuvFrame::getUCols ( YuvFrame::Type _type ) const
 {
-	switch(type) {
+	switch(_type) {
 		case YUV444:
 			return nCols;
 
@@ -259,9 +291,9 @@ uint YuvFrame::getUCols ( void ) const
 	return 0;
 }
 
-uint YuvFrame::getVRows ( void ) const
+uint YuvFrame::getVRows ( YuvFrame::Type _type ) const
 {
-	switch(type) {
+	switch(_type) {
 		case YUV444:
 			return nRows;
 
@@ -275,9 +307,9 @@ uint YuvFrame::getVRows ( void ) const
 	return 0;
 }
 
-uint YuvFrame::getVCols ( void ) const
+uint YuvFrame::getVCols ( YuvFrame::Type _type ) const
 {
-	switch(type) {
+	switch(_type) {
 		case YUV444:
 			return nCols;
 
