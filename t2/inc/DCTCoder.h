@@ -29,7 +29,7 @@ public:
 	/**
 	 * Writes a bitsream header for a video.
 	 */
-	int static writeHeader(uint rows, uint cols, uint fps, uint type, uint quantization, BitStream& bs); //use quantization/100?
+	int static writeHeader(uint rows, uint cols, uint fps, uint type, uint quantization, BitStream& bs);
 
 	int static encode(YuvFrame& frame, BitStream& bs, uint quantization = 100);
 
@@ -44,8 +44,8 @@ public:
 private:
 	void static dct(int* const values, float* dct); // computes the dct components for the signal (values)
 	void static invdct(float* dct, int* values); // computes the inverse dct for the components (dct)
-	void static quantize(float* dct, float factor, Type type, int* quantizedDct); //quantizes the DCT coefficients using the matrices defined by the jpeg standard, depending on the indicated type.
-	void static dequantize(int* quantizedDct, float factor, Type type, float* dct); //dequantizes the quantized DCT coefficients using the matrices defined by the jpeg standard, depending on the indicated type.
+	void static quantize(float* dct, int factor, Type type, int* quantizedDct); //quantizes the DCT coefficients using the matrices defined by the jpeg standard, depending on the indicated type.
+	void static dequantize(int* quantizedDct, int factor, Type type, float* dct); //dequantizes the quantized DCT coefficients using the matrices defined by the jpeg standard, depending on the indicated type.
 
 };
 
