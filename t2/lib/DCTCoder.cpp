@@ -19,6 +19,13 @@
 #define W 8
 #define H 8
 #define SIZE 64
+#define M 5
+#define ROW_M 100
+#define COL_M 100
+#define FPS_M 10
+#define TYPE_M 400
+#define QUANT_M 100
+
 
 static float S_0 = sqrt(1.0f/8.0f);
 static float S_X = sqrt(2.0f/8.0f);
@@ -46,6 +53,7 @@ static float uvQuantizeMatrix[] = {
 	99, 99, 99, 99, 99, 99, 99, 99,
 };
 
+
 //==============================================================================
 
 inline float static s(int i) { return (i==0) ? S_0 : S_X; }; //scaling factor for the transform
@@ -53,20 +61,37 @@ inline int static round(float x) { return (int) (x>0.0f) ? floor(x+0.5f) : ceil(
 inline void static shift(int* block, int offset) { for (int i = 0; i < SIZE; i++){ block[i] += offset; }}; // add a value to every element in the block
 
 int DCTCoder::writeHeader(uint rows, uint cols, uint fps, uint type, uint quantization, BitStream& bs) {
-	return -1;
+	int err;
+
+	if ((err = Golomb::encode(ROW_M, rows, bs)) != 0){
+		return err;
+	}
+
+	if ((err = Golomb::encode(COL_M, cols, bs)) != 0){
+		return err;
+	}
+
+	if ((err = Golomb::encode(FPS_M, fps, bs)) != 0){
+		return err;
+	}
+
+	if ((err=Golomb::encode(TYPE_M, type, bs)) != 0){
+		return err;
+	}
+
+	if ((err=Golomb::encode(QUANT_M, quantization, bs)) != 0){
+		return err;
+	}
+
+	return 0;
 }
 
 int DCTCoder::encode(YuvFrame& frame, BitStream& bs, uint quantization) {
-
-	// YuvBlock block(W,H);
 
 	int err;
 	int block[SIZE] = {0};
 	float dctC[SIZE] = {.0f};
 	int qBlock[SIZE] = {0};
-
-	// Block block(W,H);
-
 
 	int yRowBlocks = (frame.getYRows() + H - 1)/H; // ceil()
 	int yColBlocks = (frame.getYCols() + W - 1)/W;
@@ -75,38 +100,21 @@ int DCTCoder::encode(YuvFrame& frame, BitStream& bs, uint quantization) {
 	int vRowBlocks = (frame.getVRows() + H - 1)/H;
 	int vColBlocks = (frame.getVCols() + W - 1)/W;
 
-	// int w, h;
-
-	// printf ("rows %d -> %d\n", frame.getYRows(), yRowBlocks);
-	// printf ("cols %d -> %d\n", frame.getYCols(), yColBlocks);
-
 	//Y
 	for (int i = 0; i < yRowBlocks; i++){
-		// printf("%d\n", i);
 		for (int j = 0; j < yColBlocks; j++){
-			if ( (frame.getYRows() - i*H) % 8  != 0) {
-				printf("i=%d continue\n", i);
-				continue;
-			}
-			if ( (frame.getYCols() - j*W) % 8  != 0){
-				printf("j=%d continue\n", j);
-				continue;
-			}
-
 			for (int k = 0; k < H; k++){
 				for (int l = 0; l < W; l++){
-					// printf("\t%d, %d -> (%d, %d)", k, l, i*H+k, j*W+l);
 					block[k*W+l] = frame.getYPixel(i*H+k,j*W+l);
 				}
-				// printf("\n");
 			}
 
 			shift(block, -128);
 			dct(block, dctC);
-			quantize(dctC, 1.0, LUMINANCE, qBlock);
+			quantize(dctC, quantization, LUMINANCE, qBlock);
 
 			for (int c = 0; c < SIZE; c++){
-				if ((err = Golomb::encode(5, qBlock[c], bs)) != 0){
+				if ((err = Golomb::encode(M, qBlock[c], bs)) != 0){
 					return err;
 				}
 
@@ -114,100 +122,91 @@ int DCTCoder::encode(YuvFrame& frame, BitStream& bs, uint quantization) {
 		}
 	}
 
-	return 0;
-
 	//U
 	for (int i = 0; i < uRowBlocks; i++){
-		// printf("%d\n", i);
 		for (int j = 0; j < uColBlocks; j++){
-			if ( (frame.getURows() - i*H) % 8  != 0) {
-				printf("i=%d continue\n", i);
-				continue;
-			}
-			if ( (frame.getUCols() - j*W) % 8  != 0){
-				printf("j=%d continue\n", j);
-				continue;
-			}
-
-
-
 			for (int k = 0; k < H; k++){
 				for (int l = 0; l < W; l++){
-					// printf("\t%d, %d -> (%d, %d)", k, l, i*H+k, j*W+l);
 					block[k*W+l] = frame.getUPixel(i*H+k,j*W+l);
 				}
-				// printf("\n");
 			}
 
 			shift(block, -128);
 			dct(block, dctC);
-			quantize(dctC, 1.0, CROMINANCE, qBlock);
-
+			quantize(dctC, quantization, CROMINANCE, qBlock);
 			for (int c = 0; c < SIZE; c++){
-				if ((err = Golomb::encode(5, qBlock[c], bs)) != 0){
+				if ((err = Golomb::encode(M, qBlock[c], bs)) != 0){
 					return err;
 				}
-
 			}
 		}
 	}
 
 	//V
 	for (int i = 0; i < vRowBlocks; i++){
-		// printf("%d\n", i);
 		for (int j = 0; j < vColBlocks; j++){
-			if ( (frame.getVRows() - i*H) % 8  != 0) {
-				printf("i=%d continue\n", i);
-				continue;
-			}
-			if ( (frame.getVCols() - j*W) % 8  != 0){
-				printf("j=%d continue\n", j);
-				continue;
-			}
-
-
-
 			for (int k = 0; k < H; k++){
 				for (int l = 0; l < W; l++){
-					// printf("\t%d, %d -> (%d, %d)", k, l, i*H+k, j*W+l);
 					block[k*W+l] = frame.getVPixel(i*H+k,j*W+l);
 				}
-				// printf("\n");
 			}
 
 			shift(block, -128);
 			dct(block, dctC);
-			quantize(dctC, 1.0, CROMINANCE, qBlock);
-
+			quantize(dctC, quantization, CROMINANCE, qBlock); 
 			for (int c = 0; c < SIZE; c++){
-				if ((err = Golomb::encode(5, qBlock[c], bs)) != 0){
+				if ((err = Golomb::encode(M, qBlock[c], bs)) != 0){
 					return err;
 				}
-
 			}
 		}
 	}
+
+
 
 	return 0;
 }
 
 int DCTCoder::readHeader(BitStream& bs, uint *rows, uint *cols, uint *fps, uint *type, uint *quantization){
-	
+	int err;
 
+	int _rows, _cols, _fps, _type, _quantization;
 
-	return -1;
+	if ((err = Golomb::decode(ROW_M, &_rows, bs)) != 0){
+		return err;
+	}
+	*rows=_rows;
+
+	if ((err = Golomb::decode(COL_M, &_cols, bs)) != 0){
+		return err;
+	}
+	*cols=_cols;
+
+	if ((err = Golomb::decode(FPS_M, &_fps, bs)) != 0){
+		return err;
+	}
+	*fps=_fps;
+
+	if ((err = Golomb::decode(TYPE_M, &_type, bs)) != 0){
+		return err;
+	}
+	*type=_type;
+
+	if ((err = Golomb::decode(QUANT_M, &_quantization, bs)) != 0){
+			return err;
+	}
+	*quantization=_quantization;
+
+	return 0;
 }
 
 int DCTCoder::decode(BitStream& bs, YuvFrame& frame, uint quantization){
 
-
 	int err;
+	int v;
 	int block[SIZE] = {0};
 	float dctC[SIZE] = {.0f};
 	int qBlock[SIZE] = {0};
-
-	// Block block(W,H);
-
 
 	int yRowBlocks = (frame.getYRows() + H - 1)/H; // ceil()
 	int yColBlocks = (frame.getYCols() + W - 1)/W;
@@ -216,37 +215,17 @@ int DCTCoder::decode(BitStream& bs, YuvFrame& frame, uint quantization){
 	int vRowBlocks = (frame.getVRows() + H - 1)/H;
 	int vColBlocks = (frame.getVCols() + W - 1)/W;
 
-	// int w, h;
-
-	int v;
-
-	// printf ("rows %d -> %d\n", frame.getYRows(), yRowBlocks);
-	// printf ("cols %d -> %d\n", frame.getYCols(), yColBlocks);
-
-
 	// Y
 	for (int i = 0; i < yRowBlocks; i++){
-		// printf("%d\n", i);
 		for (int j = 0; j < yColBlocks; j++){
-			if ( (frame.getYRows() - i*H) % 8  != 0) {
-				printf("i=%d continue\n", i);
-				continue;
-			}
-			if ( (frame.getYCols() - j*W) % 8  != 0){
-				printf("j=%d continue\n", j);
-				continue;
-			}
-
-
 			for (int c = 0; c < SIZE; c++){
-				if ((err = Golomb::decode(5, &v, bs)) != 0){
+				if ((err = Golomb::decode(M, &v, bs)) != 0){
 					return err;
 				}
 				qBlock[c] = v;
-
 			}
 
-			dequantize(qBlock, 1.0f, LUMINANCE, dctC);
+			dequantize(qBlock, quantization, LUMINANCE, dctC);
 			invdct(dctC, block);
 			shift(block, 128);
 
@@ -258,39 +237,17 @@ int DCTCoder::decode(BitStream& bs, YuvFrame& frame, uint quantization){
 		}
 	}
 
-	for (uint r = 0; r < frame.getURows(); r++){
-		for (uint c = 0; c < frame.getUCols(); c++){
-			frame.putUPixel(r, c,128);
-			frame.putVPixel(r, c,128);
-		}
-
-	}
-
-
-	return 0;
-
 	//U
 	for (int i = 0; i < uRowBlocks; i++){
-		// printf("%d\n", i);
 		for (int j = 0; j < uColBlocks; j++){
-			if ( (frame.getURows() - i*H) % 8  != 0) {
-				printf("i=%d continue\n", i);
-				continue;
-			}
-			if ( (frame.getUCols() - j*W) % 8  != 0){
-				printf("j=%d continue\n", j);
-				continue;
-			}
-
 			for (int c = 0; c < SIZE; c++){
-				if ((err = Golomb::decode(5, &v, bs)) != 0){
+				if ((err = Golomb::decode(M, &v, bs)) != 0){
 					return err;
 				}
 				qBlock[c] = v;
-
 			}
 
-			dequantize(qBlock, 1.0f, CROMINANCE, dctC);
+			dequantize(qBlock, quantization, CROMINANCE, dctC);
 			invdct(dctC, block);
 			shift(block, 128);
 
@@ -302,29 +259,18 @@ int DCTCoder::decode(BitStream& bs, YuvFrame& frame, uint quantization){
 		}
 	}
 
+
 	//V
 	for (int i = 0; i < vRowBlocks; i++){
-		// printf("%d\n", i);
 		for (int j = 0; j < vColBlocks; j++){
-			if ( (frame.getVRows() - i*H) % 8  != 0) {
-				printf("i=%d continue\n", i);
-				continue;
-			}
-			if ( (frame.getVCols() - j*W) % 8  != 0){
-				printf("j=%d continue\n", j);
-				continue;
-			}
-
-
 			for (int c = 0; c < SIZE; c++){
-				if ((err = Golomb::decode(5, &v, bs)) != 0){
+				if ((err = Golomb::decode(M, &v, bs)) != 0){
 					return err;
 				}
 				qBlock[c] = v;
-
 			}
 
-			dequantize(qBlock, 1.0f, CROMINANCE, dctC);
+			dequantize(qBlock, quantization, CROMINANCE, dctC);
 			invdct(dctC, block);
 			shift(block, 128);
 
@@ -355,7 +301,7 @@ void DCTCoder::dct(int* const values, float* dct) {
 	}
 }
 
-void DCTCoder::invdct(float* dct, int* values){
+void DCTCoder::invdct(float* const dct, int* values){
 	float sum;
 
 	for (int i = 0; i < H; i++){
@@ -371,22 +317,32 @@ void DCTCoder::invdct(float* dct, int* values){
 	}		
 }
 
-void DCTCoder::quantize(float* dct, float factor, Type type, int* quantizedDct){
+void DCTCoder::quantize(float* dct, int factor, Type type, int* quantizedDct){
 	float* matrix = (type == LUMINANCE ) ? yQuantizeMatrix : uvQuantizeMatrix;
+
+	float fFactor = (float) factor / 100.0f;
 
 	for (int i = 0; i < H; i++){
 		for (int j = 0; j < W; j++){
-			quantizedDct[i*W+j] = round(dct[i*W+j]/(matrix[i*W+j]*factor));
+			if (factor == 0)
+				quantizedDct[i*W+j] = round(dct[i*W+j]);
+			else
+				quantizedDct[i*W+j] = round(dct[i*W+j]/(matrix[i*W+j]*fFactor));
 		}
 	}
 }	
 
-void DCTCoder::dequantize(int* quantizedDct, float factor, Type type, float* dct) {
+void DCTCoder::dequantize(int* quantizedDct, int factor, Type type, float* dct) {
 	float* matrix = (type == LUMINANCE ) ? yQuantizeMatrix : uvQuantizeMatrix;
+
+	float fFactor = (float) factor / 100.0f;
 
 	for (int i = 0; i < H; i++){
 		for (int j = 0; j < W; j++){
-			dct[i*W+j] = quantizedDct[i*W+j]*(matrix[i*W+j]*factor);
+			if (factor == 0)
+				dct[i*W+j] = quantizedDct[i*W+j];
+			else
+				dct[i*W+j] = quantizedDct[i*W+j]*(matrix[i*W+j]*fFactor);
 		}
 	}
 }
