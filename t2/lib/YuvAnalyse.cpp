@@ -57,58 +57,57 @@ void YuvAnalyse::mse(YuvFrame& a, YuvFrame& b, float* mseY, float* mseU, float* 
 }
 
 
-/*
+void YuvAnalyse::entropy(YuvFrame& frame, float* entY, float* entU, float* entV){
 
-int main(int argc, char** argv){
-	uint frames = 0;
-	float sumPNSR_Y = 0.0f;
-	float sumPNSR_U = 0.0f;
-	float sumPNSR_V = 0.0f;
+	uchar *aBufferY = frame.get_read_yBuff();
+	uchar *aBufferU = frame.get_read_uBuff();
+	uchar *aBufferV = frame.get_read_vBuff();
 
-	if( argc < 2 ) {
-		fprintf( stderr, "Usage: YuvCmp filename\n or YuvCmp filename filename" );
-		return 1;
+	int sizeY = frame.getYCols()*frame.getYRows();
+	int sizeU = frame.getUCols()*frame.getURows();
+	int sizeV = frame.getVCols()*frame.getVRows();
+
+	float entropyY=0.0;
+	float entropyU=0.0;
+	float entropyV=0.0;
+	uint occurrenceY[255] = {0};
+	uint occurrenceU[255] = {0};
+	uint occurrenceV[255] = {0};
+	float prob;
+	int i;
+
+	for(i = 0 ; i < sizeY; i++) {
+		occurrenceY[aBufferY[i]]++;
+	}	
+	
+	for(i = 0 ; i < sizeU; i++) {
+		occurrenceU[aBufferU[i]]++;
+	}	
+
+	for(i = 0 ; i < sizeV; i++) {
+		occurrenceV[aBufferV[i]]++;
+	}	
+
+
+	for (i = 0; i < 255; i++){
+		if (occurrenceY[i]>0) {
+			prob = ((float) occurrenceY[i])/(float)sizeY;
+			entropyY += prob*log2f(prob);
+		}
+
+		if (occurrenceU[i]>0) {
+			prob = ((float) occurrenceU[i])/(float)sizeU;
+			entropyU += prob*log2f(prob);
+		}
+
+		if (occurrenceV[i]>0) {
+			prob = ((float) occurrenceV[i])/(float)sizeV;
+			entropyV += prob*log2f(prob);
+		}
 	}
 
-	YUV orig(argv[1]);
-	
-	if (argc == 2) {
-		
-		YuvResize resize = YuvResize(2, true);
-		YUV reduced = resize.prepareCopy(orig, YuvResize::REDUCE);
-		YUV expanded = resize.prepareCopy(reduced, YuvResize::EXPAND);
-
-		//chained conversion
-		while (orig.readFrame()!=-1){
-			
-			resize.reduce(orig, reduced);
-			resize.expand(reduced, expanded);
-			
-			expanded.displayFrame();
-			
-			sumPNSR_Y += calcPSNR(orig, expanded, 0);
-			sumPNSR_U += calcPSNR(orig, expanded, 1);
-			sumPNSR_V += calcPSNR(orig, expanded, 2);
-			
-			frames++;
-		}
-	} else {
-		YUV orig2(argv[2]);
-		while (orig.readFrame()!=-1 && orig2.readFrame()!=-1){
-			
-			
-			sumPNSR_Y += calcPSNR(orig, orig2, 0);
-			sumPNSR_U += calcPSNR(orig, orig2, 1);
-			sumPNSR_V += calcPSNR(orig, orig2, 2);
-			
-			frames++;
-		}
-	}
-	
-	printf("Y: %f, U:%f, V:%f\n", sumPNSR_Y/(float)frames, sumPNSR_U/(float)frames, sumPNSR_V/(float)frames);
-	
-	return 0;
-
-*/
-
+	*entY = entropyY;
+	*entU = entropyU;
+	*entV = entropyV;
+}
 // EOF =========================================================================

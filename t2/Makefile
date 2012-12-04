@@ -19,6 +19,7 @@ APPS += YuvShow
 #APPS += EncodeIntraDCT
 #APPS += DecodeIntraDCT
 #APPS += CompPNSR
+#APPS += CalcEntropy
 
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)

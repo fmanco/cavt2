@@ -20,6 +20,7 @@
 class YuvAnalyse {
 public:
 	void static psnr(YuvFrame& a, YuvFrame& b, float* psnrY, float* psnrU, float* psnrV);
+	void static entropy(YuvFrame& frame, float* entY, float* entU, float* entV);
 private:
 	void static mse(YuvFrame& a, YuvFrame& b, float* mseY, float* mseU, float* mseV);
 };
