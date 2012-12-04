@@ -18,6 +18,8 @@ APPS += YuvShow
 #APPS += DecodeIntraPred
 #APPS += EncodeIntraDCT
 #APPS += DecodeIntraDCT
+#APPS += CompPNSR
+
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 
@@ -36,7 +38,7 @@ LIBS += IntraCoder.o
 LIBS += InterCoder.o
 LIBS += HybCoder.o
 LIBS += DCTCoder.o
-
+LIBS += YuvAnalyse.o
 
 APPS    := $(patsubst %,$(APP_BASE_DIR)/%,$(APPS))
 LIBS    := $(patsubst %.o,$(LIB_BASE_DIR)/%.o,$(LIBS))
