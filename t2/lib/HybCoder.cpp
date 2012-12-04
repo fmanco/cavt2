@@ -131,7 +131,7 @@ int HybEncoder::encode ( YuvFrame& frame )
 		delete prevFrame;
 		prevFrame = new YuvFrame(frame);
 	} else {
-		quantFrame = new YuvFrame(frame.getType(), frame.getNRows(), frame.getNCols());
+		quantFrame = new YuvFrame(type, nRows, nCols);
 
 		err = interEncode();
 
