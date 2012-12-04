@@ -121,16 +121,25 @@ int HybEncoder::encode ( YuvFrame& frame )
 	if (!inited)
 		return -1;
 
-	int err = 0;
+	int  err   = 0;
+	bool intra = false;
 
 	currFrame = &frame;
 
-	if (counter % keyFrameT == 0) {
+	if (keyFrameT == 0) {
+		intra = (counter == 0 || frame.cmp(*prevFrame) > 6);
+	} else {
+		intra = (counter % keyFrameT == 0);
+	}
+
+	if (intra) {
+		Golomb::encode(1, 1, bs);
 		err = intraEncode();
 
 		delete prevFrame;
 		prevFrame = new YuvFrame(frame);
 	} else {
+		Golomb::encode(1, 0, bs);
 		quantFrame = new YuvFrame(type, nRows, nCols);
 
 		err = interEncode();
@@ -169,10 +178,13 @@ int HybDecoder::decode ( YuvFrame& frame )
 		return -1;
 
 	int err = 0;
+	int aux = 0;
 
 	currFrame = &frame;
 
-	if (counter % keyFrameT == 0) {
+	Golomb::decode(1, &aux, bs);
+
+	if (aux) {
 		err = intraDecode();
 	} else {
 		err = interDecode();
