@@ -51,7 +51,7 @@ public:
 	uint getVCols  ( void ) const;
 
 	//====================
-	// Get and Put blocks and pixels in YUV444 mode
+	// Get and Put blocks and pixels
 	//
 	void getYBlock ( Block &b, uint r, uint c );
 	void getUBlock ( Block &b, uint r, uint c );
