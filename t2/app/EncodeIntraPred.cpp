@@ -25,21 +25,24 @@ int main( int argc, char** argv ){
 	BitStream bs = BitStream(fileOut, BitStream::WRITE);
 	
 	if (reader.open()!=0){
-		printf("Error!");
+		printf("Error opening %s\n", fileIn);
+		return -1;
 	}
 
 	if (reader.readHeader()!=0){
-		printf("Error!");
+		printf("Error reading header for %s\n", fileIn);
+		return -1;
 	}
 
+	if (bs.open()!=0){
+		printf("Error opening %s\n", fileOut);
+		return -1;
+	}
+	
 	rows = reader.getNRows();
 	cols = reader.getNCols();
 	fps = reader.getFps();
 	type = reader.getType();
-
-	if (bs.open()!=0){
-		printf("Error!");
-	}
 
 	YuvFrame frame(type, rows, cols);
 
@@ -50,9 +53,10 @@ int main( int argc, char** argv ){
 		nFrames++;
 	}
 
+	reader.close();
 	bs.close();
 
-	printf("Done! %d frames writen, bits?!\n",nFrames);
+	printf("Done! %d frames writen.\n",nFrames);
 
 	return 0;
 }
