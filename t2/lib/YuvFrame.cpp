@@ -741,8 +741,8 @@ uchar* YuvFrame::get_write_yBuff ( YuvFrame::Type _type )
 			return yBuff_422;
 
 		case YUV420:
-			write_422();
-			return yBuff_422;
+			write_420();
+			return yBuff_420;
 	}
 
 	return NULL;
@@ -760,8 +760,8 @@ uchar* YuvFrame::get_write_uBuff ( YuvFrame::Type _type )
 			return uBuff_422;
 
 		case YUV420:
-			write_422();
-			return uBuff_422;
+			write_420();
+			return uBuff_420;
 	}
 
 	return NULL;
@@ -779,8 +779,8 @@ uchar* YuvFrame::get_write_vBuff ( YuvFrame::Type _type )
 			return vBuff_422;
 
 		case YUV420:
-			write_422();
-			return vBuff_422;
+			write_420();
+			return vBuff_420;
 	}
 
 	return NULL;
