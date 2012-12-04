@@ -16,6 +16,7 @@
 
 
 //==============================================================================
+
 #define ROW_M   100
 #define COL_M   100
 #define FPS_M    10
@@ -162,15 +163,18 @@ int HybDecoder::decode ( YuvFrame& frame )
 	if (!inited)
 		return -1;
 
+	int err = 0;
+
 	currFrame = &frame;
 
 	if (counter % keyFrameT == 0) {
-		if (intraDecode())
-			return -1;
+		err = intraDecode();
 	} else {
-		if (interDecode())
-			return -1;
+		err = interDecode();
 	}
+
+	if (err)
+		return err;
 
 	counter++;
 
