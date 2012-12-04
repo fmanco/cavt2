@@ -13,10 +13,6 @@ APPS += YuvShow
 #APPS += TestCoder
 #APPS += TestBlocks
 APPS += TestHyb
-=======
-#APPS += TestHyb
-#APPS += TestDCT
-#APPS += TestDCTCoder
 #APPS += TestDCT
 #APPS += TestDCTCoder
 #APPS += TestIntraCoder
@@ -39,6 +35,7 @@ LIBS += Block.o
 LIBS += Golomb.o
 LIBS += Predictor.o
 LIBS += IntraCoder.o
+LIBS += InterCoder.o
 LIBS += HybCoder.o
 LIBS += DCTCoder.o
 
