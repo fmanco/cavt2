@@ -32,22 +32,10 @@ public:
 	uint getFps     ( void ) const { return fps; }
 
 protected:
-	int intraEncode ( YuvFrame& frame );
-	int interEncode ( YuvFrame& frame );
+	int intraEncode ( void );
+	int interEncode ( void );
 	int intraDecode ( void );
 	int interDecode ( void );
-
-	void findBestYBlock ( uint sr, uint sc );
-	void findBestUBlock ( uint sr, uint sc );
-	void findBestVBlock ( uint sr, uint sc );
-	void findBestBlock  ( uchar* fBuff, uint nRows, uint nCols,
-	                      Block& blk, uint sr, uint sc );
-
-	uint Blockcmp ( uchar* fBuff, uint fRows, uint fCols,
-	                Block& blk, uint r, uint c );
-
-	void encodeDiff ( void );
-	int  decodeDiff ( void );
 
 protected:
 	bool inited;
@@ -60,6 +48,9 @@ protected:
 	uint bsize;
 	uint area;
 	uint keyFrameT;
+	uint qY;
+	uint qU;
+	uint qV;
 
 	int dr;
 	int dc;
@@ -68,6 +59,7 @@ protected:
 
 	YuvFrame* currFrame;
 	YuvFrame* prevFrame;
+	YuvFrame* quantFrame;
 
 	Block* currBlock;
 	Block* prevBlock;
@@ -83,12 +75,14 @@ public:
 
 public:
 	int init   ( uint nRows, uint nCols, uint fps, uint type,
-	             uint _bsize, uint _area, uint _keyFrameT );
+	             uint _bsize, uint _area, uint _keyFrameT,
+	             uint _qY = 1, uint _qU = 1, uint _qV = 1 );
 	int encode ( YuvFrame& frame );
 
 private:
 	int writeHeader ( uint nRows, uint nCols, uint type, uint fps,
-	                  uint bsize, uint area, uint keyFrameT );
+	                  uint bsize, uint area, uint keyFrameT,
+	                  uint qY, uint qU, uint qV );
 };
 
 
@@ -103,7 +97,8 @@ public:
 
 private:
 	int readHeader ( uint* nRows, uint* nCols, uint* type, uint* fps,
-	                 uint* bsize, uint* area, uint* keyFrameT );
+	                 uint* bsize, uint* area, uint* keyFrameT,
+	                 uint* qY, uint* qU, uint* qV );
 };
 
 

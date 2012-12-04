@@ -59,9 +59,9 @@ void YuvDisplay::YUVtoRGB ( YuvFrame& frame )
 	int r, g, b, y, u, v;     // Auxiliary variables
 
 	// Get YUV buffer
-	yBuffer = frame.get_read_yBuff_444();
-	uBuffer = frame.get_read_uBuff_444();
-	vBuffer = frame.get_read_vBuff_444();
+	yBuffer = frame.get_read_yBuff(YuvFrame::YUV444);
+	uBuffer = frame.get_read_uBuff(YuvFrame::YUV444);
+	vBuffer = frame.get_read_vBuff(YuvFrame::YUV444);
 
 	// The video is stored in YUV planar mode but OpenCv uses packed modes
 	imgBuffer = (uchar*) img->imageData;

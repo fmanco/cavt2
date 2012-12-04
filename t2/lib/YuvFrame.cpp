@@ -63,6 +63,50 @@ YuvFrame::YuvFrame ( Type _type, uint _nRows, uint _nCols )
 	sync_buff_420 = false;
 }
 
+
+YuvFrame::YuvFrame ( int _type, uint _nRows, uint _nCols )
+	: nRows(_nRows), nCols(_nCols)
+{
+	switch(_type) {
+		case 444:
+		type = YuvFrame::YUV444;
+		break;
+
+		case 422:
+		type = YuvFrame::YUV422;
+		break;
+
+		case 420:
+		type = YuvFrame::YUV420;
+		break;
+
+		default:
+		type = YuvFrame::YUV444;
+		break;
+	}
+
+	yBuff     = NULL;
+
+	buff_444  = NULL;
+	yBuff_444 = NULL;
+	uBuff_444 = NULL;
+	vBuff_444 = NULL;
+
+	buff_422  = NULL;
+	yBuff_422 = NULL;
+	uBuff_422 = NULL;
+	vBuff_422 = NULL;
+
+	buff_420  = NULL;
+	yBuff_420 = NULL;
+	uBuff_420 = NULL;
+	vBuff_420 = NULL;
+
+	sync_buff_444 = false;
+	sync_buff_422 = false;
+	sync_buff_420 = false;
+}
+
 YuvFrame::YuvFrame ( const YuvFrame& obj )
 {
 	type = obj.type;
@@ -142,6 +186,27 @@ void YuvFrame::setType ( Type _type )
 	type = _type;
 }
 
+void YuvFrame::setType ( uint _type )
+{
+	switch(_type) {
+		case 444:
+		type = YuvFrame::YUV444;
+		break;
+
+		case 422:
+		type = YuvFrame::YUV422;
+		break;
+
+		case 420:
+		type = YuvFrame::YUV420;
+		break;
+
+		default:
+		type = YuvFrame::YUV444;
+		break;
+	}
+}
+
 uint YuvFrame::getNRows ( void ) const
 {
 	return nRows;
@@ -152,19 +217,51 @@ uint YuvFrame::getNCols ( void ) const
 	return nCols;
 }
 
+
 uint YuvFrame::getYRows ( void ) const
 {
-	return nRows;
+	return getYRows(type);
 }
 
 uint YuvFrame::getYCols ( void ) const
 {
-	return nCols;
+	return getYCols(type);
 }
 
 uint YuvFrame::getURows ( void ) const
 {
-	switch(type) {
+	return getURows(type);
+}
+
+uint YuvFrame::getUCols ( void ) const
+{
+	return getUCols(type);
+}
+
+uint YuvFrame::getVRows ( void ) const
+{
+	return getVRows(type);
+}
+
+uint YuvFrame::getVCols ( void ) const
+{
+	return getVCols(type);
+}
+
+
+uint YuvFrame::getYRows ( YuvFrame::Type _type ) const
+{
+	return nRows;
+}
+
+uint YuvFrame::getYCols ( YuvFrame::Type _type ) const
+{
+	return nCols;
+}
+
+uint YuvFrame::getURows ( YuvFrame::Type _type ) const
+{
+	switch(_type) {
 		case YUV444:
 			return nRows;
 
@@ -178,9 +275,9 @@ uint YuvFrame::getURows ( void ) const
 	return 0;
 }
 
-uint YuvFrame::getUCols ( void ) const
+uint YuvFrame::getUCols ( YuvFrame::Type _type ) const
 {
-	switch(type) {
+	switch(_type) {
 		case YUV444:
 			return nCols;
 
@@ -194,9 +291,9 @@ uint YuvFrame::getUCols ( void ) const
 	return 0;
 }
 
-uint YuvFrame::getVRows ( void ) const
+uint YuvFrame::getVRows ( YuvFrame::Type _type ) const
 {
-	switch(type) {
+	switch(_type) {
 		case YUV444:
 			return nRows;
 
@@ -210,9 +307,9 @@ uint YuvFrame::getVRows ( void ) const
 	return 0;
 }
 
-uint YuvFrame::getVCols ( void ) const
+uint YuvFrame::getVCols ( YuvFrame::Type _type ) const
 {
-	switch(type) {
+	switch(_type) {
 		case YUV444:
 			return nCols;
 
@@ -546,124 +643,189 @@ void YuvFrame::putVPixel ( uint r, uint c, uchar pixel )
 
 uchar* YuvFrame::get_read_yBuff ( void )
 {
-	switch (type) {
-		case YUV444:
-			return get_read_yBuff_444();
-
-		case YUV422:
-			return get_read_yBuff_422();
-
-		case YUV420:
-			return get_read_yBuff_420();
-	}
-
-	return NULL;
+	return get_read_yBuff(type);
 }
 
 uchar* YuvFrame::get_read_uBuff ( void )
 {
-	switch (type) {
-		case YUV444:
-			return get_read_uBuff_444();
-
-		case YUV422:
-			return get_read_uBuff_422();
-
-		case YUV420:
-			return get_read_uBuff_420();
-	}
-
-	return NULL;
+	return get_read_uBuff(type);
 }
 
 uchar* YuvFrame::get_read_vBuff ( void )
 {
-		switch (type) {
+	return get_read_vBuff(type);
+}
+
+uchar* YuvFrame::get_read_yBuff ( YuvFrame::Type _type )
+{
+	switch (_type) {
 		case YUV444:
-			return get_read_vBuff_444();
+			read_444();
+			return yBuff_444;
 
 		case YUV422:
-			return get_read_vBuff_422();
+			read_422();
+			return yBuff_422;
 
 		case YUV420:
-			return get_read_vBuff_420();
+			read_420();
+			return yBuff_420;
 	}
 
 	return NULL;
 }
 
-uchar* YuvFrame::get_read_yBuff_444 ( void ) { read_444(); return yBuff_444; }
-uchar* YuvFrame::get_read_uBuff_444 ( void ) { read_444(); return uBuff_444; }
-uchar* YuvFrame::get_read_vBuff_444 ( void ) { read_444(); return vBuff_444; }
-
-uchar* YuvFrame::get_read_yBuff_422 ( void ) { read_422(); return yBuff_422; }
-uchar* YuvFrame::get_read_uBuff_422 ( void ) { read_422(); return uBuff_422; }
-uchar* YuvFrame::get_read_vBuff_422 ( void ) { read_422(); return vBuff_422; }
-
-uchar* YuvFrame::get_read_yBuff_420 ( void ) { read_420(); return yBuff_420; }
-uchar* YuvFrame::get_read_uBuff_420 ( void ) { read_420(); return uBuff_420; }
-uchar* YuvFrame::get_read_vBuff_420 ( void ) { read_420(); return vBuff_420; }
-
-uchar* YuvFrame::get_write_yBuff ( void )
+uchar* YuvFrame::get_read_uBuff ( YuvFrame::Type _type )
 {
-	switch (type) {
+	switch (_type) {
 		case YUV444:
-			return get_write_yBuff_444();
+			read_444();
+			return uBuff_444;
 
 		case YUV422:
-			return get_write_yBuff_422();
+			read_422();
+			return uBuff_422;
 
 		case YUV420:
-			return get_write_yBuff_420();
+			read_420();
+			return uBuff_420;
 	}
 
 	return NULL;
+}
+
+uchar* YuvFrame::get_read_vBuff ( YuvFrame::Type _type )
+{
+	switch (_type) {
+		case YUV444:
+			read_444();
+			return vBuff_444;
+
+		case YUV422:
+			read_422();
+			return vBuff_422;
+
+		case YUV420:
+			read_420();
+			return vBuff_420;
+	}
+
+	return NULL;
+}
+
+
+uchar* YuvFrame::get_write_yBuff ( void )
+{
+	return get_write_yBuff(type);
 }
 
 uchar* YuvFrame::get_write_uBuff ( void )
 {
-	switch (type) {
-		case YUV444:
-			return get_write_uBuff_444();
-
-		case YUV422:
-			return get_write_uBuff_422();
-
-		case YUV420:
-			return get_write_uBuff_420();
-	}
-
-	return NULL;
+	return get_write_uBuff(type);
 }
 
 uchar* YuvFrame::get_write_vBuff ( void )
 {
-	switch (type) {
+	return get_write_vBuff(type);
+}
+
+uchar* YuvFrame::get_write_yBuff ( YuvFrame::Type _type )
+{
+	switch (_type) {
 		case YUV444:
-			return get_write_vBuff_444();
+			write_444();
+			return yBuff_444;
 
 		case YUV422:
-			return get_write_vBuff_422();
+			write_422();
+			return yBuff_422;
 
 		case YUV420:
-			return get_write_vBuff_420();
+			write_420();
+			return yBuff_420;
 	}
 
 	return NULL;
 }
 
-uchar* YuvFrame::get_write_yBuff_444 ( void ) { write_444(); return yBuff_444; }
-uchar* YuvFrame::get_write_uBuff_444 ( void ) { write_444(); return uBuff_444; }
-uchar* YuvFrame::get_write_vBuff_444 ( void ) { write_444(); return vBuff_444; }
+uchar* YuvFrame::get_write_uBuff ( YuvFrame::Type _type )
+{
+	switch (_type) {
+		case YUV444:
+			write_444();
+			return uBuff_444;
 
-uchar* YuvFrame::get_write_yBuff_422 ( void ) { write_422(); return yBuff_422; }
-uchar* YuvFrame::get_write_uBuff_422 ( void ) { write_422(); return uBuff_422; }
-uchar* YuvFrame::get_write_vBuff_422 ( void ) { write_422(); return vBuff_422; }
+		case YUV422:
+			write_422();
+			return uBuff_422;
 
-uchar* YuvFrame::get_write_yBuff_420 ( void ) { write_420(); return yBuff_420; }
-uchar* YuvFrame::get_write_uBuff_420 ( void ) { write_420(); return uBuff_420; }
-uchar* YuvFrame::get_write_vBuff_420 ( void ) { write_420(); return vBuff_420; }
+		case YUV420:
+			write_420();
+			return uBuff_420;
+	}
 
+	return NULL;
+}
+
+uchar* YuvFrame::get_write_vBuff ( YuvFrame::Type _type )
+{
+	switch (_type) {
+		case YUV444:
+			write_444();
+			return vBuff_444;
+
+		case YUV422:
+			write_422();
+			return vBuff_422;
+
+		case YUV420:
+			write_420();
+			return vBuff_420;
+	}
+
+	return NULL;
+}
+
+
+//==============================================================================
+
+int YuvFrame::cmp (YuvFrame &oth)
+{
+	if ((getNRows() != oth.getNRows() ) || (getNCols() != oth.getNCols()))
+		return -1;
+
+	uint err   = 0;
+	uint count = 0;
+
+	uchar* tbuff; // this' buffer
+	uchar* obuff; // other's buffer
+
+	tbuff = get_read_yBuff();
+	obuff = oth.get_read_yBuff(type);
+	count += getYRows() * getYCols();
+
+	for (uint i = 0; i < (getYRows() * getYCols()); i++) {
+		err += abs(tbuff[i] - obuff[i]);
+	}
+
+	tbuff = get_read_uBuff();
+	obuff = oth.get_read_uBuff(type);
+	count += getURows() * getUCols();
+
+	for (uint i = 0; i < (getURows() * getUCols()); i++) {
+		err += abs(tbuff[i] - obuff[i]);
+	}
+
+	tbuff = get_read_vBuff();
+	obuff = oth.get_read_vBuff(type);
+	count += getVRows() * getVCols();
+
+	for (uint i = 0; i < (getVRows() * getVCols()); i++) {
+		err += abs(tbuff[i] - obuff[i]);
+	}
+
+	return (int)(err / count); // Hopefully no overflows, otherwise, well...
+}
 
 //==============================================================================
 

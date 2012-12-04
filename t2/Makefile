@@ -13,8 +13,12 @@ APPS += YuvShow
 #APPS += TestCoder
 #APPS += TestBlocks
 APPS += TestHyb
+=======
+#APPS += TestHyb
 #APPS += TestDCT
-APPS += TestDCTCoder
+#APPS += TestDCTCoder
+#APPS += TestDCT
+#APPS += TestDCTCoder
 #APPS += TestIntraCoder
 APPS += EncodeIntraPred
 APPS += DecodeIntraPred
@@ -41,7 +45,6 @@ LIBS += DCTCoder.o
 
 APPS    := $(patsubst %,$(APP_BASE_DIR)/%,$(APPS))
 LIBS    := $(patsubst %.o,$(LIB_BASE_DIR)/%.o,$(LIBS))
-HEADERS := $(patsubst %.o,$(INC_BASE_DIR)/%.o,$(HEADERS))
 
 
 all: $(APPS)
