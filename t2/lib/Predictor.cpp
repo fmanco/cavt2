@@ -23,6 +23,9 @@ int Predictor::predictY(YuvFrame& frame, int r, int c, int mode) {
 	int bV = 0;
 	int cV = 0;
 
+	if (mode < 0 || mode > 7)
+		mode = 7;
+
 	if (c == 0 && mode != 2){
 		return 0;
 	}
@@ -98,6 +101,9 @@ int Predictor::predictU(YuvFrame& frame, int r, int c, int mode) {
 	int bV = 0;
 	int cV = 0;
 
+	if (mode < 0 || mode > 7)
+		mode = 7;
+
 	if (c == 0 && mode != 2){
 		return 0;
 	}
@@ -171,6 +177,9 @@ int Predictor::predictV(YuvFrame& frame, int r, int c, int mode) {
 	int aV = 0;
 	int bV = 0;
 	int cV = 0;
+
+	if (mode < 0 || mode > 7)
+		mode = 7;
 
 	if (c == 0 && mode != 2){
 		return 0;
