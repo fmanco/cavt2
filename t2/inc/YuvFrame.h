@@ -39,6 +39,7 @@ public:
 	//
 	Type getType   ( void ) const;
 	void setType   ( Type _type );
+	void setType   ( uint _type );
 
 	uint getNRows  ( void ) const;
 	uint getNCols  ( void ) const;
@@ -51,7 +52,7 @@ public:
 	uint getVCols  ( void ) const;
 
 	//====================
-	// Get and Put blocks and pixels in YUV444 mode
+	// Get and Put blocks and pixels
 	//
 	void getYBlock ( Block &b, uint r, uint c );
 	void getUBlock ( Block &b, uint r, uint c );
@@ -74,33 +75,17 @@ public:
 	uchar* get_read_uBuff ( void );
 	uchar* get_read_vBuff ( void );
 
-	uchar* get_read_yBuff_444 ( void );
-	uchar* get_read_uBuff_444 ( void );
-	uchar* get_read_vBuff_444 ( void );
-
-	uchar* get_read_yBuff_422 ( void );
-	uchar* get_read_uBuff_422 ( void );
-	uchar* get_read_vBuff_422 ( void );
-
-	uchar* get_read_yBuff_420 ( void );
-	uchar* get_read_uBuff_420 ( void );
-	uchar* get_read_vBuff_420 ( void );
+	uchar* get_read_yBuff ( YuvFrame::Type type );
+	uchar* get_read_uBuff ( YuvFrame::Type type );
+	uchar* get_read_vBuff ( YuvFrame::Type type );
 
 	uchar* get_write_yBuff ( void );
 	uchar* get_write_uBuff ( void );
 	uchar* get_write_vBuff ( void );
 
-	uchar* get_write_yBuff_444 ( void );
-	uchar* get_write_uBuff_444 ( void );
-	uchar* get_write_vBuff_444 ( void );
-
-	uchar* get_write_yBuff_422 ( void );
-	uchar* get_write_uBuff_422 ( void );
-	uchar* get_write_vBuff_422 ( void );
-
-	uchar* get_write_yBuff_420 ( void );
-	uchar* get_write_uBuff_420 ( void );
-	uchar* get_write_vBuff_420 ( void );
+	uchar* get_write_yBuff ( YuvFrame::Type type );
+	uchar* get_write_uBuff ( YuvFrame::Type type );
+	uchar* get_write_vBuff ( YuvFrame::Type type );
 
 
 private:
