@@ -25,7 +25,7 @@ private:
 	~InterCoder (  );
 
 public:
-	int static encode ( YuvFrame& frame, YuvFrame& prevFrame,
+	int static encode ( YuvFrame& currFrame, YuvFrame& prevFrame,
 		                uint bsize, uint area,
 		                uint qY, uint qU, uint qV,
 	                    YuvFrame& quantFrame, BitStream& bs );
