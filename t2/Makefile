@@ -13,8 +13,8 @@ APPS += YuvShow
 #APPS += TestCoder
 #APPS += TestBlocks
 #APPS += TestHyb
-APPS += TestDCT
-APPS += TestDCTCoder
+#APPS += TestDCT
+#APPS += TestDCTCoder
 #APPS += TestDCT
 
 
