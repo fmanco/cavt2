@@ -121,11 +121,18 @@ int HybEncoder::encode ( YuvFrame& frame )
 	if (!inited)
 		return -1;
 
-	int err = 0;
+	int  err   = 0;
+	bool intra = false;
 
 	currFrame = &frame;
 
-	if (counter == 0 || frame.cmp(*prevFrame) > 10) {
+	if (keyFrameT == 0) {
+		intra = (counter == 0 || frame.cmp(*prevFrame) > 6);
+	} else {
+		intra = (counter % keyFrameT == 0);
+	}
+
+	if (intra) {
 		Golomb::encode(1, 1, bs);
 		err = intraEncode();
 
