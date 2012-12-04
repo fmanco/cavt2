@@ -7,19 +7,17 @@ LIB_BASE_DIR = lib
 
 APPS =
 APPS += YuvShow
-#APPS += TestFrame
-#APPS += TestBitStream
-#APPS += TestGolomb
-#APPS += TestCoder
-#APPS += TestBlocks
-APPS += TestHyb
+##APPS += TestFrame
+##APPS += TestGolomb
+##APPS += TestBlocks
+#APPS += TestHyb
 #APPS += TestDCT
 #APPS += TestDCTCoder
 #APPS += TestIntraCoder
-APPS += EncodeIntraPred
-APPS += DecodeIntraPred
-APPS += EncodeIntraDCT
-APPS += DecodeIntraDCT
+#APPS += EncodeIntraPred
+#APPS += DecodeIntraPred
+#APPS += EncodeIntraDCT
+#APPS += DecodeIntraDCT
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 
