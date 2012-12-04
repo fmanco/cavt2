@@ -157,9 +157,8 @@ void quantize(float* dct, float factor, int* qdct){
 }
 
 
-void shift(int* block, int down=0){
+void shift(int* block, int offset){
 
-	int offset = (down==0) ? -128 : 128;
 
 	for (int i = 0; i < BLOCK_SIZE*BLOCK_SIZE; i++){
 		block[i] += offset;
