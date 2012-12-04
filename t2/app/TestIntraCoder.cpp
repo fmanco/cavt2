@@ -6,16 +6,20 @@
 #include "YuvDisplay.h"
 int main( int argc, char** argv ){
 
-	char* file = "file"; //BACK OFF
+	if (argc != 2) {
+		printf("USAGE: %s <input>\n", argv[0]);
+		return -1;
+	}
 
+	char* file = (char *)"file";
 	int nFrames;
 	uint rows, cols, fps, type;
-	uint qY = 1, qU = 3, qV = 3;
+	uint qY = 8, qU = 16, qV = 16;
 	uint mode = 7;
 
 	BitStream bs = BitStream(file, BitStream::WRITE);
 
-	YuvReader reader("../ducks_take_off-1280x720-50-444.yuv");
+	YuvReader reader(argv[1]);
 	printf("%d\n", reader.open());
 	printf("%d\n", reader.readHeader());
 
@@ -28,7 +32,7 @@ int main( int argc, char** argv ){
 
 	printf("%d\n", bs.open());
 
-	YuvFrame frame1(rows, cols);
+	YuvFrame frame1(type, rows, cols);
 
 	IntraCoder::writeHeader(rows, cols, fps, type, mode, qY, qU, qV, bs);
 
@@ -47,12 +51,7 @@ int main( int argc, char** argv ){
 	printf("%d\n", bs1.open());
 
 	printf("%d\n", IntraCoder::readHeader(bs1, &rows, &cols, &fps, &type, &mode, &qY, &qU, &qV));
-	YuvFrame frame2(YuvFrame::YUV444, rows, cols);
-
-	//THIS!
-	// frame2.get_write_yBuff_444();
-	// frame2.get_write_uBuff_444();
-	// frame2.get_write_vBuff_444();
+	YuvFrame frame2(type, rows, cols);
 
 	YuvDisplay display((char*)"YuvShow", fps, rows, cols);
 	printf("%d, %d, %d, %d, %d, %d, %d, %d\n", cols, rows, fps, type, mode, qY, qU, qV);
@@ -65,9 +64,6 @@ int main( int argc, char** argv ){
 	}
 
 	bs1.close();
-
-	// printf("%d\n", Golomb::decode(15, bs1));
-	// printf("%d\n", Golomb::decode(16, bs1));
 
 	return 0;
 }
