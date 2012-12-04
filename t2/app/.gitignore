@@ -10,6 +10,12 @@ TestCoder
 TestBlocks
 TestHyb
 TestDCT
+DecodeIntraDCT
+DecodeIntraPred
+EncodeIntraDCT
+EncodeIntraPred
+TestDCTCoder
+TestIntraCoder
 
 *.o
 
