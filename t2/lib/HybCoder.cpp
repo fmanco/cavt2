@@ -329,7 +329,7 @@ int HybCoder::intraEncode ( void )
 	if (bsize > currFrame->getNRows() || bsize > currFrame->getNCols())
 		return -1; // \todo What to do here?
 
-	IntraCoder::encode(*currFrame, bs, 0, qY, qU, qV);
+	IntraCoder::encode(*currFrame, bs, 7, qY, qU, qV);
 
 	return 0;
 }
@@ -349,7 +349,7 @@ int HybCoder::intraDecode ( void )
 	if (bsize > currFrame->getNRows() || bsize > currFrame->getNCols())
 		return -1; // \todo What to do here?
 
-	return IntraCoder::decode(bs, *currFrame, 0, qY, qU, qV);
+	return IntraCoder::decode(bs, *currFrame, 7, qY, qU, qV);
 }
 
 int HybCoder::interDecode ( void )
