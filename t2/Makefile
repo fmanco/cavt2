@@ -21,7 +21,7 @@ APPS += EncodeIntraDCT
 APPS += DecodeIntraDCT
 APPS += EncodeHybrid
 APPS += DecodeHybrid
-APPS += CompPNSR
+APPS += CompPSNR
 APPS += CalcEntropy
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
