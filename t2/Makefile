@@ -1,6 +1,6 @@
 CC = g++
-#CXXFLAGS = -O3 -Wall -I$(INC_BASE_DIR) `pkg-config --libs --cflags opencv`
-CXXFLAGS = -g -O0 -Wall -I$(INC_BASE_DIR) `pkg-config --libs --cflags opencv`
+CXXFLAGS = -O3 -Wall -I$(INC_BASE_DIR) `pkg-config --libs --cflags opencv`
+#CXXFLAGS = -g -O0 -Wall -I$(INC_BASE_DIR) `pkg-config --libs --cflags opencv` #DEBUG
 
 APP_BASE_DIR = app
 INC_BASE_DIR = inc
@@ -8,9 +8,9 @@ LIB_BASE_DIR = lib
 
 APPS =
 APPS += YuvShow
-##APPS += TestFrame
-##APPS += TestGolomb
-##APPS += TestBlocks
+#APPS += TestFrame
+#APPS += TestGolomb
+#APPS += TestBlocks
 #APPS += TestHyb
 #APPS += TestDCT
 #APPS += TestDCTCoder
