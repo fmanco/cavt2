@@ -16,6 +16,10 @@ EncodeIntraDCT
 EncodeIntraPred
 TestDCTCoder
 TestIntraCoder
+CalcEntropy
+CompPSNR
+DecodeHybrid
+EncodeHybrid
 
 *.o
 
