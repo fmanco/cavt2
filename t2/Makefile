@@ -15,14 +15,14 @@ APPS += YuvShow
 #APPS += TestDCT
 #APPS += TestDCTCoder
 #APPS += TestIntraCoder
-#APPS += EncodeIntraPred
-#APPS += DecodeIntraPred
-#APPS += EncodeIntraDCT
-#APPS += DecodeIntraDCT
-#APPS += EncodeHybrid
-#APPS += DecodeHybrid
-#APPS += CompPNSR
-#APPS += CalcEntropy
+APPS += EncodeIntraPred
+APPS += DecodeIntraPred
+APPS += EncodeIntraDCT
+APPS += DecodeIntraDCT
+APPS += EncodeHybrid
+APPS += DecodeHybrid
+APPS += CompPNSR
+APPS += CalcEntropy
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 
