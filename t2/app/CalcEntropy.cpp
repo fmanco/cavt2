@@ -50,7 +50,7 @@ int main( int argc, char** argv ){
 
 	readerA.close();
 
-	printf("Y: %f, U:%f, V:%f\n", entropy_Y/(float)nFrames, entropy_U/(float)nFrames, entropy_V/(float)nFrames);
+	printf("Y: %f U: %f V: %f\n", entropy_Y/(float)nFrames, entropy_U/(float)nFrames, entropy_V/(float)nFrames);
 
 	return 0;
 }

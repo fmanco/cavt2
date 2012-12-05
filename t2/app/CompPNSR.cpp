@@ -75,7 +75,7 @@ int main( int argc, char** argv ){
 	readerA.close();
 	readerB.close();
 
-	printf("Y: %f dB, U:%f dB, V:%f dB\n", sumPSNR_Y/(float)nFrames, sumPSNR_U/(float)nFrames, sumPSNR_V/(float)nFrames);
+	printf("Y: %f dB U: %f dB V: %f dB\n", sumPSNR_Y/(float)nFrames, sumPSNR_U/(float)nFrames, sumPSNR_V/(float)nFrames);
 
 	return 0;
 }
