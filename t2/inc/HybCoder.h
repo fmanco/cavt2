@@ -74,7 +74,7 @@ public:
 	~HybEncoder (  );
 
 public:
-	int init   ( uint nRows, uint nCols, uint fps, uint type,
+	int init   ( uint nRows, uint nCols, uint type, uint fps,
 	             uint _bsize, uint _area, uint _keyFrameT,
 	             uint _qY = 1, uint _qU = 1, uint _qV = 1 );
 	int encode ( YuvFrame& frame );

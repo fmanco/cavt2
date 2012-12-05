@@ -1,5 +1,6 @@
 CC = g++
-CXXFLAGS = -O3 -Wall -I$(INC_BASE_DIR) `pkg-config --libs --cflags opencv`
+#CXXFLAGS = -O3 -Wall -I$(INC_BASE_DIR) `pkg-config --libs --cflags opencv`
+CXXFLAGS = -g -O0 -Wall -I$(INC_BASE_DIR) `pkg-config --libs --cflags opencv`
 
 APP_BASE_DIR = app
 INC_BASE_DIR = inc
@@ -18,9 +19,10 @@ APPS += YuvShow
 #APPS += DecodeIntraPred
 #APPS += EncodeIntraDCT
 #APPS += DecodeIntraDCT
+#APPS += EncodeHybrid
+#APPS += DecodeHybrid
 #APPS += CompPNSR
 #APPS += CalcEntropy
-
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 
