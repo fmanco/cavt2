@@ -1,0 +1,180 @@
+#!/usr/bin/env python
+
+videos      = [
+                'videos/carphone-176x144-30.yuv',
+                'videos/coastguard-176x144-30.yuv',
+                'videos/ducks_take_off-1280x720-50-444.yuv',
+                'videos/football-176x144-30-422.yuv',
+                'videos/galleon-176x144-30-422.yuv',
+                'videos/mobile_calendar-176x144-30-422.yuv',
+                'videos/news-176x144-30.yuv',
+                'videos/old_town_cross-1280x720-50-444.yuv',
+                'videos/park_joy-1280x720-50-444.yuv'
+              ]
+
+bsizes      = [
+                '5'  ,
+                '10' ,
+                '15' ,
+              ]
+
+areas       = [
+                '5' ,
+                '10',
+                '15',
+              ]
+
+keyframeTs  = [
+                '0'  ,
+                '10' ,
+                '20' ,
+                '50' ,
+                '100'
+              ]
+
+quants      = [
+                ['2', '4', '4'],
+                ['4', '8', '8'],
+                ['8', '16', '16']
+              ]
+
+stream_name = 'output.stream'
+output_name = 'output.yuv'
+
+encode_cmd  = '../app/EncodeHybrid'
+decode_cmd  = '../app/DecodeHybrid'
+psnr_cmd    = '../app/CompPSNR'
+entropy_cmd = '../app/CalcEntropy'
+
+
+def millis():
+	import time as time_ #make sure we don't override time
+	return int(round(time_.time() * 1000))
+
+def enc_dec(video_name, bsize, area, keyFrameT, qY, qU, qV):
+	import subprocess, os
+	
+	cmd = [encode_cmd, video_name, stream_name, bsize, area, keyFrameT, qY, qU, qV]
+	print(cmd)
+	
+	enc_time  = millis()
+	output    = subprocess.check_output(cmd)
+	enc_time  = millis() - enc_time
+	
+	parts     = output.split(' ')
+	nframes   = int(parts[1])
+	
+	orig_size = os.path.getsize(video_name)
+	enc_size  = os.path.getsize(stream_name)
+	
+	cmd = [decode_cmd, stream_name, output_name]
+	print(cmd)
+	
+	dec_time  = millis()
+	subprocess.check_call(cmd, stdout = subprocess.PIPE)
+	dec_time  = millis() - dec_time
+	
+	return [nframes, orig_size, enc_size, enc_time, dec_time]
+
+
+def test_lossless(video_name, bsize, area, keyFrameT):
+	import subprocess
+	
+	result = enc_dec(video_name, bsize, area, keyFrameT, '1', '1', '1')
+	[nframes, o_size, e_size, enc_time, dec_time] = result
+	
+	cmd = [entropy_cmd, video_name]
+	print(cmd)
+	output = subprocess.check_output(cmd)
+	
+	parts  = output.split(' ')
+	o_enty = float(parts[1])
+	o_entu = float(parts[3])
+	o_entv = float(parts[5])
+	
+	return [nframes, o_size, e_size, enc_time, dec_time, o_enty, o_entu, o_entv]
+
+
+def test_lossy(video_name, bsize, area, keyFrameT, qY, qU, qV):
+	import subprocess
+	
+	result = enc_dec(video_name, bsize, area, keyFrameT, qY, qU, qV)
+	(nframes, o_size, e_size, enc_time, dec_time) = result
+	
+	cmd = [entropy_cmd, video_name]
+	print(cmd)
+	output = subprocess.check_output(cmd)
+	
+	parts  = output.split(' ')
+	o_enty = float(parts[1])
+	o_entu = float(parts[3])
+	o_entv = float(parts[5])
+	
+	cmd = [entropy_cmd, output_name]
+	print(cmd)
+	output = subprocess.check_output(cmd)
+	
+	parts  = output.split(' ')
+	e_enty = float(parts[1])
+	e_entu = float(parts[3])
+	e_entv = float(parts[5])
+	
+	cmd = [psnr_cmd, video_name, output_name]
+	print(cmd)
+	output = subprocess.check_output(cmd)
+	
+	parts  = output.split(' ')
+	psnry  = float(parts[1])
+	psnru  = float(parts[4])
+	psnrv  = float(parts[7])
+	
+	return [nframes, o_size, e_size, enc_time, dec_time,
+		    o_enty, o_entu, o_entv,
+		    e_enty, e_entu, e_entv,
+		    psnry, psnru, psnrv]
+
+
+def write_resuls(results):
+	f = open('results.csv', 'w')
+	
+	print >> f, 'Video, bsize, area, keyFrameT, \
+qY, qU, qV, nframes, \
+o_size, e_size, enc_time, dec_time, \
+o_enty, o_entu, o_entv, \
+e_enty, e_entu, e_entv, \
+psnry, psnru, psnrv'
+	
+	for result in results:
+		for r in result:
+			f.write(str(r))
+			if (r != result[-1]):
+				f.write('%s' % (', '))
+			
+		print >> f
+	
+	f.close()
+
+
+def main():
+	results = []
+	
+	for bsize in bsizes:
+		for i in [3, 4, 7]:
+			results.append([videos[i], bsize, '10', '1000000', '1', '1', '1'] + test_lossless(videos[i], bsize, '10', '1000000'))
+	
+	for area in areas:
+		for i in [3, 4, 7]:
+			results.append([videos[i], '10', area, '1000000', '1', '1', '1'] + test_lossless(videos[i], '10', area, '1000000'))
+	
+	for keyframeT in keyframeTs:
+		for i in [3, 4, 7]:
+			results.append([videos[i], '10', '10', keyframeT, '1', '1', '1'] + test_lossless(videos[i], '10', '10', keyframeT))
+	
+	for quant in quants:
+			results.append([videos[7], '10', '10', '0', quant[0], quant[1], quant[2]] + test_lossy(videos[7], '10', '10', '0', quant[0], quant[1], quant[2]))
+	
+	write_resuls(results)
+
+
+if __name__ == "__main__":
+    main()
