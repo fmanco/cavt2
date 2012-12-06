@@ -1,0 +1,29 @@
+== Compilação:
+
+Para executar a compilação do projecto basta executar `make`.
+Depois da compilação ficarão disponíveis na pasta app todos os binários gerados.
+
+
+== Execução das aplicações:
+
+Para obter o modo de utilização de cada um dos executáveis basta executar esse executável sem argumentos.
+
+
+== Testes:
+
+Neste mesmo pacote são fornecidos scripts de teste (em python).
+Os scripts estão disponíveis na pasta results.
+
+Para a execução destes scripts deve colocado o directório videos dentro do directório results, com os seguintes vídeos:
+
+* carphone-176x144-30.yuv
+* coastguard-176x144-30.yuv
+* ducks_take_off-1280x720-50-444.yuv
+* football-176x144-30-422.yuv
+* galleon-176x144-30-422.yuv
+* mobile_calendar-176x144-30-422.yuv
+* news-176x144-30.yuv
+* old_town_cross-1280x720-50-444.yuv
+* park_joy-1280x720-50-444.yuv
+
+A execução dos testes pressupõe que o make já foi executado.
