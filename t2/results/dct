@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+
+videos      = [
+                'videos/carphone-176x144-30.yuv',
+                'videos/coastguard-176x144-30.yuv',
+                'videos/ducks_take_off-1280x720-50-444.yuv',
+                'videos/football-176x144-30-422.yuv',
+                'videos/galleon-176x144-30-422.yuv',
+                'videos/mobile_calendar-176x144-30-422.yuv',
+                'videos/news-176x144-30.yuv',
+                'videos/old_town_cross-1280x720-50-444.yuv',
+                'videos/park_joy-1280x720-50-444.yuv'
+              ]
+
+quants      = [
+                '0'   ,
+                '100' ,
+                '250' ,
+              ]
+
+stream_name = 'output.stream'
+output_name = 'output.yuv'
+
+encode_cmd  = '../app/EncodeIntraDCT'
+decode_cmd  = '../app/DecodeIntraDCT'
+psnr_cmd    = '../app/CompPSNR'
+entropy_cmd = '../app/CalcEntropy'
+
+
+def millis():
+	import time as time_ #make sure we don't override time
+	return int(round(time_.time() * 1000))
+
+def enc_dec(video_name, quant):
+	import subprocess, os
+	
+	cmd = [encode_cmd, video_name, stream_name, quant]
+	print(cmd)
+	
+	enc_time  = millis()
+	output    = subprocess.check_output(cmd)
+	enc_time  = millis() - enc_time
+	
+	parts     = output.split(' ')
+	nframes   = int(parts[1])
+	
+	orig_size = os.path.getsize(video_name)
+	enc_size  = os.path.getsize(stream_name)
+	
+	cmd = [decode_cmd, stream_name, output_name]
+	print(cmd)
+	
+	dec_time  = millis()
+	subprocess.check_call(cmd, stdout = subprocess.PIPE)
+	dec_time  = millis() - dec_time
+	
+	return [nframes, orig_size, enc_size, enc_time, dec_time]
+
+def test(video_name, quant):
+	import subprocess
+	
+	result = enc_dec(video_name, quant)
+	(nframes, o_size, e_size, enc_time, dec_time) = result
+	
+	cmd = [entropy_cmd, video_name]
+	print(cmd)
+	output = subprocess.check_output(cmd)
+	
+	parts  = output.split(' ')
+	o_enty = float(parts[1])
+	o_entu = float(parts[3])
+	o_entv = float(parts[5])
+	
+	cmd = [entropy_cmd, output_name]
+	print(cmd)
+	output = subprocess.check_output(cmd)
+	
+	parts  = output.split(' ')
+	e_enty = float(parts[1])
+	e_entu = float(parts[3])
+	e_entv = float(parts[5])
+	
+	cmd = [psnr_cmd, video_name, output_name]
+	print(cmd)
+	output = subprocess.check_output(cmd)
+	
+	parts  = output.split(' ')
+	psnry  = float(parts[1])
+	psnru  = float(parts[4])
+	psnrv  = float(parts[7])
+	
+	return [nframes, o_size, e_size, enc_time, dec_time,
+		    o_enty, o_entu, o_entv,
+		    e_enty, e_entu, e_entv,
+		    psnry, psnru, psnrv]
+
+
+def write_resuls(results):
+	f = open('results.csv', 'w')
+	
+	print >> f, 'Video, quant, nframes, \
+o_size, e_size, enc_time, dec_time, \
+o_enty, o_entu, o_entv, \
+e_enty, e_entu, e_entv, \
+psnry, psnru, psnrv'
+	
+	for result in results:
+		for r in result:
+			f.write(str(r))
+			if (r != result[-1]):
+				f.write('%s' % (', '))
+			
+		print >> f
+	
+	f.close()
+
+
+def main():
+	results = []
+	
+	for quant in quants:
+		for video in videos:
+			results.append([video, quant] + test(video, quant))
+	
+	write_resuls(results)
+
+
+if __name__ == "__main__":
+    main()
