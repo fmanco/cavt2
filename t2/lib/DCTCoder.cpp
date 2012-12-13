@@ -59,6 +59,14 @@ static float uvQuantizeMatrix[] = {
 inline float static s(int i) { return (i==0) ? S_0 : S_X; }; //scaling factor for the transform
 inline int static round(float x) { return (int) (x>0.0f) ? floor(x+0.5f) : ceil(x-0.5f);};
 inline void static shift(int* block, int offset) { for (int i = 0; i < SIZE; i++){ block[i] += offset; }}; // add a value to every element in the block
+inline uchar static clamp(int value)
+{
+	if (value>255)
+		return 255;
+	if (value < 0)
+		return 0;
+	return (uchar)value;
+}
 
 int DCTCoder::writeHeader(uint rows, uint cols, uint fps, uint type, uint quantization, BitStream& bs) {
 	int err;
@@ -231,7 +239,7 @@ int DCTCoder::decode(BitStream& bs, YuvFrame& frame, uint quantization){
 
 			for (int k = 0; k < H; k++){
 				for (int l = 0; l < W; l++){
-					frame.putYPixel(i*H+k,j*W+l, block[k*W+l]);
+					frame.putYPixel(i*H+k,j*W+l, clamp(block[k*W+l]));
 				}
 			}
 		}
@@ -253,7 +261,7 @@ int DCTCoder::decode(BitStream& bs, YuvFrame& frame, uint quantization){
 
 			for (int k = 0; k < H; k++){
 				for (int l = 0; l < W; l++){
-					frame.putUPixel(i*H+k,j*W+l, block[k*W+l]);
+					frame.putUPixel(i*H+k,j*W+l, clamp(block[k*W+l]));
 				}
 			}
 		}
@@ -276,7 +284,7 @@ int DCTCoder::decode(BitStream& bs, YuvFrame& frame, uint quantization){
 
 			for (int k = 0; k < H; k++){
 				for (int l = 0; l < W; l++){
-					frame.putVPixel(i*H+k,j*W+l, block[k*W+l]);
+					frame.putVPixel(i*H+k,j*W+l, clamp(block[k*W+l]));
 				}
 			}
 		}
