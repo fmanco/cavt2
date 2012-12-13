@@ -49,7 +49,7 @@ LIBS    := $(patsubst %.o,$(LIB_BASE_DIR)/%.o,$(LIBS))
 
 all: $(APPS)
 
-$(APPS): $(APPS:%=%.cpp) $(LIBS) $(HEADERS)
+$(APPS): %: %.cpp $(LIBS) $(HEADERS)
 	@echo "Build bin '$@'"
 	@g++ -o $@ $(@:%=%.cpp) $(LIBS) $(CXXFLAGS)
 
