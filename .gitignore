@@ -4,3 +4,7 @@
 
 # Build files
 *.o
+
+# Data files
+*.yuv
+*.wav
