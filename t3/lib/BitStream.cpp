@@ -64,8 +64,7 @@ int BitStream::close ( void )
 	return 0;
 }
 
-
-int BitStream::writeBit ( uint8_t bit )
+int BitStream::writeBit ( uint32_t bit )
 {
 	if (fp == NULL || type != WRITE)
 		return -1;
@@ -89,7 +88,7 @@ int BitStream::writeBit ( uint8_t bit )
 	return 0;
 }
 
-int BitStream::writeBits ( uint8_t bits, uint nb )
+int BitStream::writeBits ( uint32_t bits, uint nb )
 {
 	if (fp == NULL || type != WRITE)
 		return -1;
@@ -102,7 +101,7 @@ int BitStream::writeBits ( uint8_t bits, uint nb )
 	return 0;
 }
 
-int BitStream::readBit ( uint8_t* bit )
+int BitStream::readBit ( uint32_t* bit )
 {
 	int temp;
 	if (fp == NULL || type != READ)
@@ -123,12 +122,12 @@ int BitStream::readBit ( uint8_t* bit )
 	return 0;
 }
 
-int BitStream::readBits ( uint nb, uint8_t* bits )
+int BitStream::readBits ( uint nb, uint32_t* bits )
 {
 	if (fp == NULL || type != READ)
 		return -1;
 
-	uint8_t bit;
+	uint32_t bit;
 
 	(*bits) = 0;
 

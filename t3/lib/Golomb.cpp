@@ -18,7 +18,7 @@ int Golomb::decode(uint m, int *value, BitStream& bs){
 	int q = 0, r, v;
 	int nbits = (int) floor(log2(m)) + 1;
 	int err;
-	uchar bit;
+	uint32_t bit;
 
 
 	do {

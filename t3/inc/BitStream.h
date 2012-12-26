@@ -27,11 +27,11 @@ public:
 	~BitStream (  );
 
 public:
-	int writeBit  ( uint8_t bit );
-	int writeBits ( uint8_t bits, uint nb );
+	int writeBit  ( uint32_t bit );
+	int writeBits ( uint32_t bits, uint nb );
 
-	int readBit  ( uint8_t* bit );
-	int readBits ( uint nb, uint8_t* bits );
+	int readBit  ( uint32_t* bit );
+	int readBits ( uint nb, uint32_t* bits );
 
 	int open  ( void );
 	int flush ( void );
