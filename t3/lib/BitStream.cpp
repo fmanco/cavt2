@@ -9,6 +9,7 @@
 #include "BitStream.h"
 #include <string>
 #include <cstdio>
+#include <stdint.h>
 
 
 //==============================================================================
@@ -64,7 +65,7 @@ int BitStream::close ( void )
 }
 
 
-int BitStream::writeBit ( uchar bit )
+int BitStream::writeBit ( uint8_t bit )
 {
 	if (fp == NULL || type != WRITE)
 		return -1;
@@ -88,7 +89,7 @@ int BitStream::writeBit ( uchar bit )
 	return 0;
 }
 
-int BitStream::writeBits ( uchar bits, uint nb )
+int BitStream::writeBits ( uint8_t bits, uint nb )
 {
 	if (fp == NULL || type != WRITE)
 		return -1;
@@ -101,7 +102,7 @@ int BitStream::writeBits ( uchar bits, uint nb )
 	return 0;
 }
 
-int BitStream::readBit ( uchar* bit )
+int BitStream::readBit ( uint8_t* bit )
 {
 	int temp;
 	if (fp == NULL || type != READ)
@@ -122,12 +123,12 @@ int BitStream::readBit ( uchar* bit )
 	return 0;
 }
 
-int BitStream::readBits ( uint nb, uchar* bits )
+int BitStream::readBits ( uint nb, uint8_t* bits )
 {
 	if (fp == NULL || type != READ)
 		return -1;
 
-	uchar bit;
+	uint8_t bit;
 
 	(*bits) = 0;
 

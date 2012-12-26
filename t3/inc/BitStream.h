@@ -14,7 +14,7 @@
 #include "base.h"
 #include <string>
 #include <cstdio>
-
+#include <stdint.h>
 
 //==============================================================================
 
@@ -27,11 +27,11 @@ public:
 	~BitStream (  );
 
 public:
-	int writeBit  ( uchar bit );
-	int writeBits ( uchar bits, uint nb );
+	int writeBit  ( uint8_t bit );
+	int writeBits ( uint8_t bits, uint nb );
 
-	int readBit  ( uchar* bit );
-	int readBits ( uint nb, uchar* bits );
+	int readBit  ( uint8_t* bit );
+	int readBits ( uint nb, uint8_t* bits );
 
 	int open  ( void );
 	int flush ( void );
@@ -42,7 +42,7 @@ private:
 	FILE* fp;
 	Type  type;
 
-	uchar buffer;
+	uint8_t buffer;
 	uint  pos;
 };
 
