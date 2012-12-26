@@ -7,14 +7,13 @@
 
 #include "base.h"
 #include "BitStream.h"
-#include <cstdlib>
+#include <string>
 #include <cstdio>
-#include <cstring>
 
 
 //==============================================================================
 
-BitStream::BitStream ( char* _filename, Type _type )
+BitStream::BitStream ( std::string _filename, Type _type )
 	: filename(_filename), fp(NULL), type(_type), buffer(0), pos(0)
 { }
 
@@ -29,9 +28,9 @@ int BitStream::open ( void )
 		return -1;
 
 	if (type == READ) {
-		fp = std::fopen(filename, "rb");
+		fp = std::fopen(filename.c_str(), "rb");
 	} else {
-		fp = std::fopen(filename, "wb");
+		fp = std::fopen(filename.c_str(), "wb");
 	}
 
 	if (fp == NULL)
