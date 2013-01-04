@@ -1,6 +1,5 @@
 CC = g++
-CXXFLAGS = -O3 -Wall -I$(INC_BASE_DIR) `pkg-config --libs --cflags sndfile`
-#CXXFLAGS = -g -O0 -Wall -I$(INC_BASE_DIR) `pkg-config --libs --cflags sndfile` #DEBUG
+CXXFLAGS = -I$(INC_BASE_DIR) `pkg-config --libs --cflags sndfile`
 
 APP_BASE_DIR = app
 INC_BASE_DIR = inc
@@ -10,18 +9,23 @@ APPS =
 APPS += TestCoder
 APPS += wavCopy
 
-HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
-
 LIBS =
 LIBS += BitStream.o
 LIBS += Golomb.o
 LIBS += Predictor.o
 
+HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
+
 APPS    := $(patsubst %,$(APP_BASE_DIR)/%,$(APPS))
 LIBS    := $(patsubst %.o,$(LIB_BASE_DIR)/%.o,$(LIBS))
 
 
+all: CXXFLAGS += -O3 -Wall
 all: $(APPS)
+
+debug: CXXFLAGS += -g -O0 -Wall
+debug: $(APPS)
+
 
 $(APPS): %: %.cpp $(LIBS) $(HEADERS)
 	@echo "Build bin '$@'"
@@ -35,4 +39,5 @@ $(APPS): %: %.cpp $(LIBS) $(HEADERS)
 clean:
 	rm -f $(APPS) $(APP_BASE_DIR)/*.o $(LIB_BASE_DIR)/*.o *~
 
-.PHONY: clean all
+.PHONY: clean all debug
+

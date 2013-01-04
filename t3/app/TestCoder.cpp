@@ -22,9 +22,9 @@ int main(int argc, char **argv)
 {
 
 	SNDFILE *soundFileIn; /* Pointer for input sound file */
-	
+
 	SF_INFO soundInfoIn; /* Input sound file Info */
-	
+
 
 	int i;
 	short sample[2];
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	int frames;
 	int samplerate;
 	int channels;
-	char * file = "testfile";
+	std::string file = "testfile";
 
 	long valAvg = 0;
 	long diffAvg = 0;
@@ -51,10 +51,10 @@ int main(int argc, char **argv)
 		/* When opening a file for read, the format field should be set to zero
 		 * before calling sf_open(). All other fields of the structure are filled
 		 * in by the library
-		 */	
+		 */
 		soundInfoIn.format = 0;
 		soundFileIn = sf_open (argv[argc-2], SFM_READ, &soundInfoIn);
-		
+
 		if (soundFileIn == NULL){
 			fprintf(stderr, "Could not open file for reading: \"%s\"\n",
 			  argv[argc-2]);
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
 		strcpy(dumbness, "ls -sh -1 ");
 		strcat(dumbness, argv[1]);
 		strcat(dumbness, " ");
-		strcat(dumbness, file);
+		strcat(dumbness, file.c_str());
 		system(dumbness);
 	}
 

@@ -7,14 +7,14 @@
 
 #include "base.h"
 #include "BitStream.h"
-#include <cstdlib>
+#include <string>
 #include <cstdio>
-#include <cstring>
+#include <stdint.h>
 
 
 //==============================================================================
 
-BitStream::BitStream ( char* _filename, Type _type )
+BitStream::BitStream ( std::string _filename, Type _type )
 	: filename(_filename), fp(NULL), type(_type), buffer(0), pos(0)
 { }
 
@@ -29,9 +29,9 @@ int BitStream::open ( void )
 		return -1;
 
 	if (type == READ) {
-		fp = std::fopen(filename, "rb");
+		fp = std::fopen(filename.c_str(), "rb");
 	} else {
-		fp = std::fopen(filename, "wb");
+		fp = std::fopen(filename.c_str(), "wb");
 	}
 
 	if (fp == NULL)
@@ -64,8 +64,7 @@ int BitStream::close ( void )
 	return 0;
 }
 
-
-int BitStream::writeBit ( uchar bit )
+int BitStream::writeBit ( uint32_t bit )
 {
 	if (fp == NULL || type != WRITE)
 		return -1;
@@ -89,7 +88,7 @@ int BitStream::writeBit ( uchar bit )
 	return 0;
 }
 
-int BitStream::writeBits ( uchar bits, uint nb )
+int BitStream::writeBits ( uint32_t bits, uint nb )
 {
 	if (fp == NULL || type != WRITE)
 		return -1;
@@ -102,7 +101,7 @@ int BitStream::writeBits ( uchar bits, uint nb )
 	return 0;
 }
 
-int BitStream::readBit ( uchar* bit )
+int BitStream::readBit ( uint32_t* bit )
 {
 	int temp;
 	if (fp == NULL || type != READ)
@@ -123,12 +122,12 @@ int BitStream::readBit ( uchar* bit )
 	return 0;
 }
 
-int BitStream::readBits ( uint nb, uchar* bits )
+int BitStream::readBits ( uint nb, uint32_t* bits )
 {
 	if (fp == NULL || type != READ)
 		return -1;
 
-	uchar bit;
+	uint32_t bit;
 
 	(*bits) = 0;
 

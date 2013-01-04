@@ -12,9 +12,9 @@
 //==============================================================================
 
 #include "base.h"
+#include <string>
+#include <cstdio>
 #include <stdint.h>
-#include <stdio.h>
-
 
 //==============================================================================
 
@@ -23,26 +23,26 @@ public:
 	enum Type { READ, WRITE };
 
 public:
-	BitStream  ( char* filename, Type t );
+	BitStream  ( std::string filename, Type t );
 	~BitStream (  );
 
 public:
-	int writeBit  ( uchar bit );
-	int writeBits ( uchar bits, uint nb );
+	int writeBit  ( uint32_t bit );
+	int writeBits ( uint32_t bits, uint nb );
 
-	int readBit  ( uchar* bit );
-	int readBits ( uint nb, uchar* bits );
+	int readBit  ( uint32_t* bit );
+	int readBits ( uint nb, uint32_t* bits );
 
 	int open  ( void );
 	int flush ( void );
 	int close ( void );
 
 private:
-	char* filename;
+	std::string filename;
 	FILE* fp;
 	Type  type;
 
-	uchar buffer;
+	uint8_t buffer;
 	uint  pos;
 };
 
