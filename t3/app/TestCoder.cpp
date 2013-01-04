@@ -4,9 +4,9 @@
 #include <sndfile.h>
 #include "BitStream.h"
 #include "Golomb.h"
+#include "Predictor.h"
 
-#define VAL_M 128
-//com M maior (512) dá erros, investigar
+#define VAL_M 2048
 
 
 void printInfo(SF_INFO &info){
@@ -28,8 +28,7 @@ int main(int argc, char **argv)
 
 	int i;
 	short sample[2];
-	// short smp;
-	short prevSample[2];
+	short tmp[2];
 
 	sf_count_t nSamples = 1;
 	int frames;
@@ -40,8 +39,6 @@ int main(int argc, char **argv)
 	long valAvg = 0;
 	long diffAvg = 0;
 
-	prevSample[0] = 0;
-	prevSample[1] = 0;
 
 	if (argc < 3){
 		fprintf(stderr, "Usage: wavCopy <input file> <output file>\n");
@@ -49,6 +46,7 @@ int main(int argc, char **argv)
 	}
 
 	{
+		Predictor p(100);
 
 		/* When opening a file for read, the format field should be set to zero
 		 * before calling sf_open(). All other fields of the structure are filled
@@ -93,8 +91,10 @@ int main(int argc, char **argv)
 				break;
 			}
 
-			Golomb::encode(VAL_M, prevSample[0] - sample[0], bs1);
-			Golomb::encode(VAL_M, prevSample[1] - sample[1], bs1);
+			p.predict(tmp);
+
+			Golomb::encode(VAL_M, tmp[0] - sample[0], bs1);
+			Golomb::encode(VAL_M, tmp[1] - sample[1], bs1);
 
 			// valAvg += 2*abs(sample[0]);
 			// valAvg += 2*abs(sample[1]);
@@ -102,8 +102,7 @@ int main(int argc, char **argv)
 			// diffAvg += abs(2*(prevSample[0] - sample[0]));
 			// diffAvg += abs(2*(prevSample[1] - sample[1]));
 
-			prevSample[0] = sample[0];
-			prevSample[1] = sample[1];
+			p.update(sample);
 		}
 
 		// printf("%ld, %ld\n", valAvg/(long)frames*2, diffAvg/(long)frames*2);
@@ -116,6 +115,7 @@ int main(int argc, char **argv)
 	}
 
 	{
+		Predictor p(100);
 		SNDFILE *soundFileOut; /* Pointer for output sound file */
 		SF_INFO soundInfoOut; /* Output sound file Info */
 
@@ -159,19 +159,19 @@ int main(int argc, char **argv)
 
 		int smp = 0;
 
-		prevSample[0] = 0;
-		prevSample[1] = 0;
 
 		while (true){
-			if (Golomb::decode(VAL_M, &smp, bs2)!=0)
-				break;
-
-			sample[0] = prevSample[0] - (short)smp;
+			p.predict(tmp);
 
 			if (Golomb::decode(VAL_M, &smp, bs2)!=0)
 				break;
 
-			sample[1] = prevSample[1] - (short)smp;
+			sample[0] = tmp[0] - (short)smp;
+
+			if (Golomb::decode(VAL_M, &smp, bs2)!=0)
+				break;
+
+			sample[1] = tmp[1] - (short)smp;
 
 			if (sf_writef_short(soundFileOut, sample, nSamples) != 1){
 				fprintf(stderr, "Error writing frames to the output:\n");
@@ -179,13 +179,29 @@ int main(int argc, char **argv)
 				return -1;
 			}
 
-			prevSample[0] = sample[0];
-			prevSample[1] = sample[1];
+			p.update(sample);
 
 		}
 		bs2.close();
 		sf_close(soundFileOut);
 
+	}
+
+	char dumbness[50];
+	strcpy(dumbness, "cmp ");
+	strcat(dumbness, argv[1]);
+	strcat(dumbness, " ");
+	strcat(dumbness, argv[2]);
+
+	if (system(dumbness) != 0)
+		printf("uh oh\n");
+	else {
+		printf("files match");
+		strcpy(dumbness, "ls -sh -1 ");
+		strcat(dumbness, argv[1]);
+		strcat(dumbness, " ");
+		strcat(dumbness, file);
+		system(dumbness);
 	}
 
 	return 0;
