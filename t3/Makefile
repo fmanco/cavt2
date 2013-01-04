@@ -15,6 +15,7 @@ HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 LIBS =
 LIBS += BitStream.o
 LIBS += Golomb.o
+LIBS += Predictor.o
 
 APPS    := $(patsubst %,$(APP_BASE_DIR)/%,$(APPS))
 LIBS    := $(patsubst %.o,$(LIB_BASE_DIR)/%.o,$(LIBS))
