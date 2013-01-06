@@ -6,12 +6,14 @@ INC_BASE_DIR = inc
 LIB_BASE_DIR = lib
 
 APPS =
-APPS += TestCoder
 APPS += wavCopy
+APPS += TestCoder
+APPS += TestHist
 
 LIBS =
 LIBS += BitStream.o
 LIBS += Golomb.o
+LIBS += Histogram-s16.o
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 
