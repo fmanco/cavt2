@@ -13,6 +13,10 @@
 
 int main(int argc, char **argv)
 {
+	if (argc < 3){
+		fprintf(stderr, "Usage: wavCopy <input file> <output file>\n");
+		return -1;
+	}
 
 	SNDFILE *soundFileIn; /* Pointer for input sound file */
 
@@ -34,14 +38,6 @@ int main(int argc, char **argv)
 
 	long valAvg = 0;
 	long diffAvg = 0;
-
-
-
-
-	if (argc < 3){
-		fprintf(stderr, "Usage: wavCopy <input file> <output file>\n");
-		return -1;
-	}
 
 	{
 		Predictor p(100);
