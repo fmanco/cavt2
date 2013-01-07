@@ -14,6 +14,9 @@ LIBS =
 LIBS += BitStream.o
 LIBS += Golomb.o
 LIBS += Histogram-s16.o
+LIBS += Predictor.o
+LIBS += SFReader.o
+LIBS += SFWriter.o
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 
@@ -41,3 +44,4 @@ clean:
 	rm -f $(APPS) $(APP_BASE_DIR)/*.o $(LIB_BASE_DIR)/*.o *~
 
 .PHONY: clean all debug
+
