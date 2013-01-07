@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 	if (system(dumbness) != 0)
 		printf("uh oh\n");
 	else {
-		printf("files match");
+		printf("files match\n");
 		strcpy(dumbness, "ls -sh -1 ");
 		strcat(dumbness, argv[1]);
 		strcat(dumbness, " ");
