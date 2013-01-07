@@ -5,6 +5,7 @@
 #include "BitStream.h"
 #include "Golomb.h"
 #include "Predictor.h"
+#include "SFReader.h"
 
 #define VAL_M 2048
 
@@ -36,8 +37,12 @@ int main(int argc, char **argv)
 	int channels;
 	std::string file = "testfile";
 
+	std::string fileIn(argv[argc-2]);
+
 	long valAvg = 0;
 	long diffAvg = 0;
+
+
 
 
 	if (argc < 3){
@@ -48,29 +53,15 @@ int main(int argc, char **argv)
 	{
 		Predictor p(100);
 
-		/* When opening a file for read, the format field should be set to zero
-		 * before calling sf_open(). All other fields of the structure are filled
-		 * in by the library
-		 */
-		soundInfoIn.format = 0;
-		soundFileIn = sf_open (argv[argc-2], SFM_READ, &soundInfoIn);
+		SFReader sfIn(fileIn);
 
-		if (soundFileIn == NULL){
-			fprintf(stderr, "Could not open file for reading: \"%s\"\n",
-			  argv[argc-2]);
-			sf_close(soundFileIn);
-			return -1;
-		}
+		sfIn.open();
 
 		// fprintf(stderr, "Frames (samples): %d\n", (int) soundInfoIn.frames);
 		// fprintf(stderr, "Samplerate: %d\n", soundInfoIn.samplerate);
 		// fprintf(stderr, "Channels: %d\n", soundInfoIn.channels);
 
-		printInfo(soundInfoIn);
-
-		frames = (int) soundInfoIn.frames;
-		samplerate = soundInfoIn.samplerate;
-		channels = soundInfoIn.channels;
+		sfIn.printInfo();
 
 		BitStream bs1 = BitStream(file, BitStream::WRITE);
 
@@ -79,17 +70,11 @@ int main(int argc, char **argv)
     		printf("Error closing!\n");
     	}
 
-		// bs1.writeBits(frames, 32);
-		// bs1.writeBits(samplerate, 32);
-		// bs1.writeBits(channels, 32);
 
-		for (i = 0; i < soundInfoIn.frames ; i++)
+		for (i = 0; i < sfIn.getNFrames() ; i++)
 		{
-			if (sf_readf_short(soundFileIn, sample, nSamples) == 0){
-				fprintf(stderr, "Error: Reached end of file\n");
-				sf_close(soundFileIn);
-				break;
-			}
+
+			sfIn.nextFrame(sample);
 
 			p.predict(tmp);
 
@@ -110,8 +95,8 @@ int main(int argc, char **argv)
 		if (bs1.close() != 0){
         	printf("Error closing!\n");
     	}
-
-		sf_close(soundFileIn);
+    	sfIn.close();
+    	soundInfoIn = sfIn.getInfo();
 	}
 
 	{
