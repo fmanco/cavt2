@@ -14,6 +14,7 @@ LIBS += BitStream.o
 LIBS += Golomb.o
 LIBS += Predictor.o
 LIBS += SFReader.o
+LIBS += SFWriter.o
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 

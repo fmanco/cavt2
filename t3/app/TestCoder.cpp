@@ -6,18 +6,10 @@
 #include "Golomb.h"
 #include "Predictor.h"
 #include "SFReader.h"
+#include "SFWriter.h"
 
 #define VAL_M 2048
 
-
-void printInfo(SF_INFO &info){
-	printf("frames : %d\n", (int) info.frames);
-	printf("samplerate : %d\n", info.samplerate);
-	printf("channels : %d\n", info.channels);
-	printf("format : %d\n", info.format);
-	printf("sections : %d\n", info.sections);
-	printf("seekable : %d\n\n", info.seekable);
-}
 
 int main(int argc, char **argv)
 {
@@ -38,6 +30,7 @@ int main(int argc, char **argv)
 	std::string file = "testfile";
 
 	std::string fileIn(argv[argc-2]);
+	std::string fileOut(argv[2]);
 
 	long valAvg = 0;
 	long diffAvg = 0;
@@ -53,15 +46,10 @@ int main(int argc, char **argv)
 	{
 		Predictor p(100);
 
-		SFReader sfIn(fileIn);
+		SFReader sfReader(fileIn);
 
-		sfIn.open();
-
-		// fprintf(stderr, "Frames (samples): %d\n", (int) soundInfoIn.frames);
-		// fprintf(stderr, "Samplerate: %d\n", soundInfoIn.samplerate);
-		// fprintf(stderr, "Channels: %d\n", soundInfoIn.channels);
-
-		sfIn.printInfo();
+		sfReader.open();
+		sfReader.printInfo();
 
 		BitStream bs1 = BitStream(file, BitStream::WRITE);
 
@@ -71,10 +59,10 @@ int main(int argc, char **argv)
     	}
 
 
-		for (i = 0; i < sfIn.getNFrames() ; i++)
+		for (i = 0; i < sfReader.getNFrames() ; i++)
 		{
 
-			sfIn.nextFrame(sample);
+			sfReader.nextFrame(sample);
 
 			p.predict(tmp);
 
@@ -95,52 +83,26 @@ int main(int argc, char **argv)
 		if (bs1.close() != 0){
         	printf("Error closing!\n");
     	}
-    	sfIn.close();
-    	soundInfoIn = sfIn.getInfo();
+    	sfReader.close();
+    	soundInfoIn = sfReader.getInfo();
 	}
 
 	{
+
 		Predictor p(100);
-		SNDFILE *soundFileOut; /* Pointer for output sound file */
-		SF_INFO soundInfoOut; /* Output sound file Info */
+
+		SFWriter sfWriter(fileOut, soundInfoIn);
 
 		BitStream bs2 = BitStream(file, BitStream::READ);
+
 		if (bs2.open() != 0){
     		printf("Error opening!\n");
     		return -1;
     	}
 
-    	//header doesnt work
-		// uchar tmp;
-		// bs2.readBits(32, &tmp);
-		// soundInfoOut.samplerate =  (int) tmp;
+    	sfWriter.printInfo();
+    	sfWriter.open();
 
-		// bs2.readBits(32, &tmp);
-		// soundInfoOut.channels =  (int) tmp;
-
-		// bs2.readBits(32, &tmp);
-		// soundInfoOut.format =  (int) tmp;
-
-		soundInfoOut.frames  = soundInfoIn.frames;
-		soundInfoOut.samplerate = soundInfoIn.samplerate;
-		soundInfoOut.channels = soundInfoIn.channels;
-		soundInfoOut.format = soundInfoIn.format;
-		soundInfoOut.sections = soundInfoIn.sections;
-		soundInfoOut.seekable = soundInfoIn.seekable;
-
-		printInfo(soundInfoOut);
-
-		// fprintf(stderr, "Frames (samples): %d\n", (int) soundInfoOut.frames);
-		// fprintf(stderr, "Samplerate: %d\n", soundInfoOut.samplerate);
-		// fprintf(stderr, "Channels: %d\n", soundInfoOut.channels);
-
-
-		soundFileOut = sf_open (argv[2], SFM_WRITE, &soundInfoOut);
-		if (soundFileOut == NULL){
-			fprintf(stderr, "Could not open file for writing: \"%s\"\n", argv[2]);
-			bs2.close();
-			return -1;
-		}
 
 		int smp = 0;
 
@@ -158,17 +120,14 @@ int main(int argc, char **argv)
 
 			sample[1] = tmp[1] - (short)smp;
 
-			if (sf_writef_short(soundFileOut, sample, nSamples) != 1){
-				fprintf(stderr, "Error writing frames to the output:\n");
-				bs2.close();
-				return -1;
-			}
+
+			sfWriter.writeFrame(sample);
 
 			p.update(sample);
 
 		}
 		bs2.close();
-		sf_close(soundFileOut);
+		sfWriter.close();
 
 	}
 

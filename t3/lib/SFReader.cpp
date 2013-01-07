@@ -14,8 +14,7 @@
 
 
 SFReader::SFReader( std::string _filename ) 
-	: filename(_filename)
-	{}
+	: filename(_filename) {}
 
 SFReader::~SFReader() {
 	close();
