@@ -12,36 +12,35 @@
 //==============================================================================
 
 #include "base.h"
-#include <string>
-#include <cstdio>
 #include <sndfile.h>
+#include <string>
+#include <stdint.h>
 
 //==============================================================================
 
 
 class SFReader {
 public:
-	SFReader( std::string filename );
-	~SFReader();
-public:
-	int open();
-	int nextFrame(short* frame);
-	int close();
-	void printInfo();
+	SFReader  ( std::string _filename );
+	~SFReader (  );
 
 public:
-	int getNFrames();
-	int getSamplerate();
-	int getChannels();
-	int getFormat();
-	SF_INFO getInfo();
+	int open      ( void );
+	int nextFrame ( int16_t frame[2] );
+	int close     ( void );
 
+	void printInfo ( void );
+
+public:
+	uint32_t getNFrames    ( void );
+	uint32_t getSamplerate ( void );
+	uint32_t getChannels   ( void );
+	SF_INFO  getInfo       ( void );
 
 private:
 	std::string filename;
-	SNDFILE* file;
-	SF_INFO info;
-
+	SNDFILE*    file;
+	SF_INFO     info;
 };
 
 

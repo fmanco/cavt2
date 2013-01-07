@@ -12,44 +12,48 @@
 
 //==============================================================================
 
+SFReader::SFReader( std::string _filename )
+	: filename(_filename)
+{  }
 
-SFReader::SFReader( std::string _filename ) 
-	: filename(_filename) {}
-
-SFReader::~SFReader() {
+SFReader::~SFReader (  )
+{
 	close();
 }
 
-int SFReader::open(){
+
+//==============================================================================
+
+int SFReader::open ( void )
+{
 	info.format = 0;
 	file = sf_open(filename.c_str(), SFM_READ, &info);
 
-	if (file == NULL){
-		fprintf(stderr, "Could not open file for reading: \"%s\"\n",
-		  filename.c_str());
-		sf_close(file);
-		return -1;
-	}
+	/// \todo Missing info validation
 
-	return 0;
+	return (file == NULL ? -1 : 0);
 }
 
-int SFReader::nextFrame(short* frame) {
+int SFReader::nextFrame ( int16_t frame[2] )
+{
+	int ret;
 
-	if (sf_readf_short(file, frame, 1) != 1){
-		// fprintf(stderr, "Error: Reached end of file\n");
-		// sf_close(soundFileIn);
-		return -1;
+	ret = sf_readf_short(file, frame, 1);
+
+	if (ret != 1) {
+		close();
 	}
 
-	return 0;
+	return (ret != 1 ? -1 : 0);
 }
 
-int SFReader::close(){
+int SFReader::close ( void )
+{
 	return sf_close(file);
 }
 
-void SFReader::printInfo(){
+void SFReader::printInfo ( void )
+{
 	printf("frames : %d\n", (int) info.frames);
 	printf("samplerate : %d\n", info.samplerate);
 	printf("channels : %d\n", info.channels);
@@ -58,11 +62,10 @@ void SFReader::printInfo(){
 	printf("seekable : %d\n\n", info.seekable);
 }
 
+uint32_t SFReader::getNFrames    ( void ) { return (uint32_t) info.frames;     };
+uint32_t SFReader::getSamplerate ( void ) { return (uint32_t) info.samplerate; };
+uint32_t SFReader::getChannels   ( void ) { return (uint32_t) info.channels;   };
+SF_INFO  SFReader::getInfo       ( void ) { return info; };
 
-int SFReader::getNFrames() { return (int)info.frames; }
-int SFReader::getSamplerate() { return info.samplerate; };
-int SFReader::getChannels() { return info.channels; };
-int SFReader::getFormat() { return info.format; };	
-SF_INFO SFReader::getInfo() { return info; };	
 
 // EOF =========================================================================

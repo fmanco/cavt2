@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 	SF_INFO soundInfoIn; /* Input sound file Info */
 
 
-	int i;
+	uint i;
 	short sample[2];
 	short tmp[2];
 
@@ -87,7 +87,8 @@ int main(int argc, char **argv)
 
 		Predictor p(100);
 
-		SFWriter sfWriter(fileOut, soundInfoIn);
+		SFWriter sfWriter(fileOut,
+			soundInfoIn.frames, soundInfoIn.samplerate, soundInfoIn.channels);
 
 		BitStream bs2 = BitStream(file, BitStream::READ);
 
