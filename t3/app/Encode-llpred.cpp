@@ -7,7 +7,7 @@
 
 #include "base.h"
 #include "SFReader.h"
-#include "Predictor.h"
+#include "PredCoder.h"
 #include "BitStream.h"
 #include "Golomb.h"
 #include <string>
@@ -47,7 +47,7 @@ int main ( int argc, char** argv )
 	SFReader sfr(finname);
 	BitStream bs(foutname, BitStream::WRITE);
 
-	Predictor p;
+	PredCoder pc;
 
 	if (sfr.open()) {
 		printf("Unable to open file %s for reading!\n", argv[1]);
@@ -71,15 +71,13 @@ int main ( int argc, char** argv )
 
 	for (uint32_t i = 0; i < sfr.getNFrames(); i++) {
 		int16_t sample[2];
-		int16_t pred[2];
+		int32_t diff[2];
 
-		p.predict(pred);
 		sfr.nextFrame(sample);
+		pc.encode(sample, diff);
 
-		Golomb::encode(golombM, pred[0] - sample[0], bs);
-		Golomb::encode(golombM, pred[1] - sample[1], bs);
-
-		p.update(sample);
+		Golomb::encode(golombM, diff[0], bs);
+		Golomb::encode(golombM, diff[1], bs);
 	}
 
 	sfr.close();

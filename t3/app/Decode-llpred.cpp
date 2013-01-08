@@ -7,7 +7,7 @@
 
 #include "base.h"
 #include "SFWriter.h"
-#include "Predictor.h"
+#include "PredCoder.h"
 #include "BitStream.h"
 #include "Golomb.h"
 #include <string>
@@ -32,7 +32,7 @@ int main ( int argc, char** argv )
 	std::string finname(argv[1]);
 	std::string foutname(argv[2]);
 
-	Predictor p;
+	PredCoder pc;
 
 	BitStream bs(finname, BitStream::READ);
 
@@ -59,24 +59,16 @@ int main ( int argc, char** argv )
 
 	while (true) {
 		int16_t sample[2];
-		int16_t pred[2];
-		int enc;
+		int32_t diff[2];
 
-		p.predict(pred);
-
-		if (Golomb::decode(golombM, &enc, bs))
+		if (Golomb::decode(golombM, &diff[0], bs))
 			break;
 
-		sample[0] = pred[0] - ((int16_t)enc);
-
-		if (Golomb::decode(golombM, &enc, bs))
+		if (Golomb::decode(golombM, &diff[1], bs))
 			break;
 
-		sample[1] = pred[1] - ((int16_t)enc);
-
+		pc.decode(diff, sample);
 		sfw.writeFrame(sample);
-
-		p.update(sample);
 	}
 
 	bs.close();
