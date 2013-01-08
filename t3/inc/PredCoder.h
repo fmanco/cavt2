@@ -21,7 +21,7 @@
 class PredCoder
 {
 public:
-	PredCoder  ( void );
+	PredCoder  ( int _quant = 1 );
 	~PredCoder (  );
 
 public:
@@ -30,6 +30,7 @@ public:
 
 private:
 	Predictor p;
+	int quant;
 
 };
 
