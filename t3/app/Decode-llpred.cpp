@@ -15,11 +15,6 @@
 
 //==============================================================================
 
-#define GOLOMB_ENC_M 1024
-
-
-//==============================================================================
-
 static void usage ( int argc, char** argv );
 
 
@@ -27,6 +22,8 @@ static void usage ( int argc, char** argv );
 
 int main ( int argc, char** argv )
 {
+	uint golombM;
+
 	if (argc != 3) {
 		usage(argc, argv);
 		return -1;
@@ -51,6 +48,7 @@ int main ( int argc, char** argv )
 	bs.readBits(32, &frames);
 	bs.readBits(32, &samplerate);
 	bs.readBits(32, &channels);
+	bs.readBits(32, (uint32_t*)&golombM);
 
 	SFWriter sfw(foutname, frames, samplerate, channels);
 
@@ -66,12 +64,12 @@ int main ( int argc, char** argv )
 
 		p.predict(pred);
 
-		if (Golomb::decode(GOLOMB_ENC_M, &enc, bs))
+		if (Golomb::decode(golombM, &enc, bs))
 			break;
 
 		sample[0] = pred[0] - ((int16_t)enc);
 
-		if (Golomb::decode(GOLOMB_ENC_M, &enc, bs))
+		if (Golomb::decode(golombM, &enc, bs))
 			break;
 
 		sample[1] = pred[1] - ((int16_t)enc);
