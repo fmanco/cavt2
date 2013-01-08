@@ -1,7 +1,11 @@
 # Applications
-TestCoder
-TestHist
 wavCopy
+Encode-llpred
+Decode-llpred
 Encode-ulaw
 Decode-ulaw
 sndHist
+resHist
+
+TestCoder
+TestHist
