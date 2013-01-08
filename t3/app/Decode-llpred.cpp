@@ -22,7 +22,8 @@ static void usage ( int argc, char** argv );
 
 int main ( int argc, char** argv )
 {
-	uint golombM;
+	int golombM;
+	int quant;
 
 	if (argc != 3) {
 		usage(argc, argv);
@@ -31,8 +32,6 @@ int main ( int argc, char** argv )
 
 	std::string finname(argv[1]);
 	std::string foutname(argv[2]);
-
-	PredCoder pc;
 
 	BitStream bs(finname, BitStream::READ);
 
@@ -49,8 +48,10 @@ int main ( int argc, char** argv )
 	bs.readBits(32, &samplerate);
 	bs.readBits(32, &channels);
 	bs.readBits(32, (uint32_t*)&golombM);
+	bs.readBits(32, (uint32_t*)&quant);
 
 	SFWriter sfw(foutname, frames, samplerate, channels);
+	PredCoder pc(quant);
 
 	if (sfw.open()) {
 		printf("Unable to open file %s for writing!\n", argv[2]);

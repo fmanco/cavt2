@@ -17,6 +17,7 @@
 //==============================================================================
 
 #define GOLOMB_ENC_M 1024
+#define QUANTIZATION 1
 
 
 //==============================================================================
@@ -28,17 +29,20 @@ static void usage ( int argc, char** argv );
 
 int main ( int argc, char** argv )
 {
-	uint golombM;
+	int golombM;
+	int quant;
 
-	if (argc != 3 && argc != 4) {
+	if (argc != 3 && argc != 5) {
 		usage(argc, argv);
 		return -1;
 	}
 
-	if (argc == 4) {
+	if (argc == 5) {
 		golombM = std::atoi(argv[3]);
+		quant = std::atoi(argv[4]);
 	} else {
 		golombM = GOLOMB_ENC_M;
+		quant = QUANTIZATION;
 	}
 
 	std::string finname(argv[1]);
@@ -47,7 +51,7 @@ int main ( int argc, char** argv )
 	SFReader sfr(finname);
 	BitStream bs(foutname, BitStream::WRITE);
 
-	PredCoder pc;
+	PredCoder pc(quant);
 
 	if (sfr.open()) {
 		printf("Unable to open file %s for reading!\n", argv[1]);
@@ -63,6 +67,7 @@ int main ( int argc, char** argv )
 	bs.writeBits((uint32_t)sfr.getSamplerate(), 32);
 	bs.writeBits((uint32_t)sfr.getChannels(),   32);
 	bs.writeBits((uint32_t)golombM,             32);
+	bs.writeBits((uint32_t)quant,               32);
 
 	if (sfr.open()) {
 		printf("Unable to open file %s for reading!\n", argv[1]);
@@ -89,8 +94,8 @@ int main ( int argc, char** argv )
 
 static void usage ( int argc, char** argv )
 {
-	printf("USAGE: %s <input.wav> <output.ll> [GolombM = %d]\n",
-		argv[0], GOLOMB_ENC_M);
+	printf("USAGE: %s <input.wav> <output.ll> [<GolombM = %d> <Quant = %d>]\n",
+		argv[0], GOLOMB_ENC_M, QUANTIZATION);
 }
 
 
