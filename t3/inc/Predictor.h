@@ -17,20 +17,18 @@
 
 //==============================================================================
 
-
 class Predictor {
 public:
-	Predictor(int mode);
-	~Predictor();
+	Predictor  ( int mode = 0 );
+	~Predictor (  );
 
-	void predict( int16_t* samples );
-	void update( int16_t* samples );
+	void predict ( int16_t samples[2] );
+	void update  ( int16_t samples[2] );
 
 private:
-	int mode;
-	int16_t* buffer;
+	int     mode;
+	int16_t buffer[2];
 };
-
 
 
 //==============================================================================

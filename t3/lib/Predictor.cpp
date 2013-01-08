@@ -11,24 +11,29 @@
 
 //==============================================================================
 
+Predictor::Predictor ( int _mode )
+	: mode(_mode)
+{
+	buffer[0] = buffer[1] = 0;
+}
 
-Predictor::Predictor(int _mode) : mode(_mode) {
-	 buffer = new int16_t[2];
-	 buffer[0] = buffer[1] = 0;
-};
+Predictor::~Predictor (  )
+{  }
 
-Predictor::~Predictor() {
-	delete[] buffer;
-};
 
-void Predictor::predict(int16_t* samples){
+//==============================================================================
+
+void Predictor::predict ( int16_t samples[2] )
+{
 	samples[0] = buffer[0];
 	samples[1] = buffer[1];
 }
 
-void Predictor::update(int16_t* samples){
+void Predictor::update (int16_t* samples )
+{
 	buffer[0] = samples[0];
 	buffer[1] = samples[1];
 }
+
 
 // EOF =========================================================================
