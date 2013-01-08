@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+
+snd_files   = [
+                'sounds/sample01.wav',
+                'sounds/sample02.wav',
+                'sounds/sample03.wav',
+                'sounds/sample04.wav',
+                'sounds/sample05.wav',
+                'sounds/sample06.wav',
+                'sounds/sample07.wav',
+              ]
+
+golomb_Ms   = [ 128, 256, 512, 1024, 2048, 4096 ]
+
+quant_vals  = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 ]
+
+
+output_ll   = 'output.ll'
+output_wav  = 'output.wav'
+
+result_file = 'results.csv'
+
+encode_cmd  = '../app/Encode-llpred'
+decode_cmd  = '../app/Decode-llpred'
+
+
+def millis():
+	import time as time_ #make sure we don't override time
+	return int(round(time_.time() * 1000))
+
+
+def encode(in_file, out_file, golomb_m, quant):
+	import subprocess, os
+	
+	cmd = [encode_cmd, in_file, out_file]
+	print(cmd)
+	
+	proc_time = millis()
+	output    = subprocess.check_output(cmd)
+	proc_time = millis() - proc_time
+
+	parts     = output.split(' ')
+	nframes   = int(parts[2])
+	
+	orig_size = os.path.getsize(in_file)
+	enc_size  = os.path.getsize(out_file)
+	
+	return [nframes, orig_size, enc_size, proc_time]
+
+
+def decode(in_file, out_file):
+	import subprocess, os
+	
+	cmd = [decode_cmd, in_file, out_file]
+	print(cmd)
+	
+	proc_time = millis()
+	output    = subprocess.check_output(cmd)
+	proc_time = millis() - proc_time
+	
+	return [proc_time]
+
+
+def test(in_wav, out_ll, golomb_m, quant, out_wav):
+	return encode(in_wav, out_ll, golomb_m, quant) + decode(out_ll, out_wav)
+
+
+def write_resuls(results):
+	f = open(result_file, 'w')
+	
+	print >> f, 'Sample, golomb_m, quant, nframes, orig_size, enc_size, enc_time, dec_time'
+	
+	for result in results:
+		for r in result:
+			f.write(str(r))
+			if (r != result[-1]):
+				f.write('%s' % (', '))		
+		print >> f
+	
+	f.close()
+
+
+def main():
+	import os
+	
+	results = []
+	
+	for golomb_m in golomb_Ms:
+		for sample in snd_files:
+			results.append([sample, golomb_m, 1] + test(sample, output_ll, golomb_m, 1, output_wav))
+	
+	for quant in quant_vals:
+		for sample in snd_files:
+			results.append([sample, 1024, quant] + test(sample, output_ll, 1024, quant, output_wav))
+	
+	write_resuls(results)
+	
+	os.remove(output_ll)
+	os.remove(output_wav)
+
+
+if __name__ == "__main__":
+    main()
