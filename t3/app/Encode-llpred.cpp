@@ -87,6 +87,8 @@ int main ( int argc, char** argv )
 
 	sfr.close();
 	bs.close();
+
+	printf("Done! Encoded %u frames.\n", sfr.getNFrames());
 }
 
 

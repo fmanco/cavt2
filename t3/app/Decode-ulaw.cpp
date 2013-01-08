@@ -70,6 +70,8 @@ int main ( int argc, char** argv )
 
 	bs.close();
 	sfw.close();
+
+	printf("Done! Decoded %u frames.\n", frames);
 }
 
 
