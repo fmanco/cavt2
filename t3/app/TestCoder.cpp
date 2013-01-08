@@ -18,26 +18,19 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	SNDFILE *soundFileIn; /* Pointer for input sound file */
-
 	SF_INFO soundInfoIn; /* Input sound file Info */
-
 
 	uint i;
 	short sample[2];
 	short tmp[2];
 
-	sf_count_t nSamples = 1;
-	int frames;
-	int samplerate;
-	int channels;
 	std::string file = "testfile";
 
 	std::string fileIn(argv[argc-2]);
 	std::string fileOut(argv[2]);
 
-	long valAvg = 0;
-	long diffAvg = 0;
+	// long valAvg = 0;
+	// long diffAvg = 0;
 
 	{
 		Predictor p(100);
