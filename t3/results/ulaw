@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+
+snd_files   = [
+                'sounds/sample01.wav',
+                'sounds/sample02.wav',
+                'sounds/sample03.wav',
+                'sounds/sample04.wav',
+                'sounds/sample05.wav',
+                'sounds/sample06.wav',
+                'sounds/sample07.wav',
+              ]
+
+output_ulaw = 'output.ulaw'
+output_wav  = 'output.wav'
+
+result_file = 'results.csv'
+
+encode_cmd  = '../app/Encode-ulaw'
+decode_cmd  = '../app/Decode-ulaw'
+
+
+def millis():
+	import time as time_ #make sure we don't override time
+	return int(round(time_.time() * 1000))
+
+
+def encode(in_file, out_file):
+	import subprocess, os
+	
+	cmd = [encode_cmd, in_file, out_file]
+	print(cmd)
+	
+	proc_time = millis()
+	subprocess.call(cmd)
+	proc_time = millis() - proc_time
+	
+	orig_size = os.path.getsize(in_file)
+	enc_size  = os.path.getsize(out_file)
+	
+	return [orig_size, enc_size, proc_time]
+
+
+def decode(in_file, out_file):
+	import subprocess, os
+	
+	cmd = [decode_cmd, in_file, out_file]
+	print(cmd)
+	
+	proc_time  = millis()
+	subprocess.call(cmd)
+	proc_time  = millis() - proc_time
+	
+	return [proc_time]
+
+
+def test(in_wav, out_ulaw, out_wav):
+	return encode(in_wav, out_ulaw) + decode(out_ulaw, out_wav)
+
+
+def write_resuls(results):
+	f = open(result_file, 'w')
+	
+	print >> f, 'Sample, orig_size, enc_size, enc_time, dec_time'
+	
+	for result in results:
+		for r in result:
+			f.write(str(r))
+			if (r != result[-1]):
+				f.write('%s' % (', '))		
+		print >> f
+	
+	f.close()
+
+
+def main():
+	import os
+	
+	results = []
+	
+	for sample in snd_files:
+		results.append([sample] + test(sample, output_ulaw, output_wav))
+		
+	write_resuls(results)
+	
+	os.remove(output_ulaw)
+	os.remove(output_wav)
+
+
+if __name__ == "__main__":
+    main()
