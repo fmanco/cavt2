@@ -23,7 +23,7 @@ public:
 	~Predictor (  );
 
 	void predict ( int16_t samples[2] );
-	void update  ( int16_t samples[2] );
+	void update  ( const int16_t samples[2] );
 
 private:
 	int     mode;

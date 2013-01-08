@@ -29,7 +29,7 @@ void Predictor::predict ( int16_t samples[2] )
 	samples[1] = buffer[1];
 }
 
-void Predictor::update (int16_t* samples )
+void Predictor::update ( const int16_t samples[2] )
 {
 	buffer[0] = samples[0];
 	buffer[1] = samples[1];
