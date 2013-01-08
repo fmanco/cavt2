@@ -9,6 +9,7 @@ APPS =
 APPS += wavCopy
 APPS += TestCoder
 APPS += TestHist
+APPS += sndHist
 APPS += Encode-ulaw Decode-ulaw
 
 LIBS =
