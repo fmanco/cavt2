@@ -9,6 +9,7 @@ APPS =
 APPS += wavCopy
 APPS += TestCoder
 APPS += TestHist
+APPS += Encode-ulaw Decode-ulaw
 
 LIBS =
 LIBS += BitStream.o
