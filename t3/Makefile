@@ -12,6 +12,7 @@ APPS += TestHist
 APPS += sndHist resHist
 APPS += Encode-llpred Decode-llpred
 APPS += Encode-ulaw Decode-ulaw
+APPS += CompSNR
 
 LIBS =
 LIBS += BitStream.o
