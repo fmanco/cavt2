@@ -13,7 +13,7 @@ snd_files   = [
 output_ulaw = 'output.ulaw'
 output_wav  = 'output.wav'
 
-result_file = 'results.csv-ulaw'
+result_file = 'results-ulaw.csv'
 
 encode_cmd  = '../app/Encode-ulaw'
 decode_cmd  = '../app/Decode-ulaw'
