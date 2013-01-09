@@ -105,7 +105,7 @@ def main():
 	
 	for quant in quant_vals:
 		for sample in snd_files:
-			results.append([sample, 1024, quant] + test(sample, output_ll, 1024, quant, output_wav))
+			results.append([sample, 16, quant] + test(sample, output_ll, 16, quant, output_wav))
 	
 	write_resuls(results)
 	
