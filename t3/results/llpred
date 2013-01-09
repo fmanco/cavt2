@@ -32,7 +32,7 @@ def millis():
 def encode(in_file, out_file, golomb_m, quant):
 	import subprocess, os
 	
-	cmd = [encode_cmd, in_file, out_file]
+	cmd = [encode_cmd, in_file, out_file, str(golomb_m), str(quant)]
 	print(cmd)
 	
 	proc_time = millis()
