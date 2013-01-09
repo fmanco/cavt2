@@ -18,10 +18,11 @@ quant_vals  = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 ]
 output_ll   = 'output.ll'
 output_wav  = 'output.wav'
 
-result_file = 'results.csv'
+result_file = 'results-llpred.csv'
 
 encode_cmd  = '../app/Encode-llpred'
 decode_cmd  = '../app/Decode-llpred'
+cmpsnr_cmd  = '../app/CompSNR'
 
 
 def millis():
@@ -38,7 +39,7 @@ def encode(in_file, out_file, golomb_m, quant):
 	proc_time = millis()
 	output    = subprocess.check_output(cmd)
 	proc_time = millis() - proc_time
-
+	
 	parts     = output.split(' ')
 	nframes   = int(parts[2])
 	
@@ -61,14 +62,27 @@ def decode(in_file, out_file):
 	return [proc_time]
 
 
+def snr(orig_file, enc_file):
+	import subprocess, os
+	
+	cmd = [cmpsnr_cmd, orig_file, enc_file]
+	print(cmd)
+	
+	output = subprocess.check_output(cmd)
+	parts  = output.split(' ')
+	snr    = float(parts[1])
+	
+	return [snr]
+
+
 def test(in_wav, out_ll, golomb_m, quant, out_wav):
-	return encode(in_wav, out_ll, golomb_m, quant) + decode(out_ll, out_wav)
+	return encode(in_wav, out_ll, golomb_m, quant) + decode(out_ll, out_wav) + snr(in_wav, output_wav)
 
 
 def write_resuls(results):
 	f = open(result_file, 'w')
 	
-	print >> f, 'Sample, golomb_m, quant, nframes, orig_size, enc_size, enc_time, dec_time'
+	print >> f, 'Sample, golomb_m, quant, nframes, orig_size, enc_size, enc_time, dec_time, snr'
 	
 	for result in results:
 		for r in result:

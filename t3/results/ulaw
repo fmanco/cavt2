@@ -13,10 +13,11 @@ snd_files   = [
 output_ulaw = 'output.ulaw'
 output_wav  = 'output.wav'
 
-result_file = 'results.csv'
+result_file = 'results.csv-ulaw'
 
 encode_cmd  = '../app/Encode-ulaw'
 decode_cmd  = '../app/Decode-ulaw'
+cmpsnr_cmd  = '../app/CompSNR'
 
 
 def millis():
@@ -55,15 +56,27 @@ def decode(in_file, out_file):
 	
 	return [proc_time]
 
+def snr(orig_file, enc_file):
+	import subprocess, os
+	
+	cmd = [cmpsnr_cmd, orig_file, enc_file]
+	print(cmd)
+	
+	output = subprocess.check_output(cmd)
+	parts  = output.split(' ')
+	snr    = float(parts[1])
+	
+	return [snr]
+
 
 def test(in_wav, out_ulaw, out_wav):
-	return encode(in_wav, out_ulaw) + decode(out_ulaw, out_wav)
+	return encode(in_wav, out_ulaw) + decode(out_ulaw, out_wav) + snr(in_wav, output_wav)
 
 
 def write_resuls(results):
 	f = open(result_file, 'w')
 	
-	print >> f, 'Sample, nframes, orig_size, enc_size, enc_time, dec_time'
+	print >> f, 'Sample, nframes, orig_size, enc_size, enc_time, dec_time, snr'
 	
 	for result in results:
 		for r in result:
