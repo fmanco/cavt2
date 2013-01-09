@@ -7,12 +7,12 @@ LIB_BASE_DIR = lib
 
 APPS =
 APPS += wavCopy
-APPS += TestCoder
-APPS += TestHist
 APPS += sndHist resHist
 APPS += Encode-llpred Decode-llpred
 APPS += Encode-ulaw Decode-ulaw
 APPS += CompSNR
+# APPS += TestCoder
+# APPS += TestHist
 
 LIBS =
 LIBS += BitStream.o
