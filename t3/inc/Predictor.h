@@ -27,7 +27,7 @@ public:
 
 private:
 	int     mode;
-	int16_t buffer[2];
+	int16_t buffer[2][2];
 };
 
 
