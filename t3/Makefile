@@ -23,6 +23,7 @@ LIBS += SFReader.o
 LIBS += SFWriter.o
 LIBS += MuLawCoder.o
 LIBS += PredCoder.o
+LIBS += MonkeyCoder.o
 
 HEADERS = $(shell find $(INC_BASE_DIR) -name '*.h' -type f)
 
