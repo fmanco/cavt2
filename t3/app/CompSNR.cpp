@@ -57,9 +57,6 @@ int main( int argc, char** argv ){
 
 		sqrSignalSum += sampleA[1]*sampleA[1];
 		sqrErrSum += (sampleA[1]-sampleB[1])*(sampleA[1]-sampleB[1]);
-
-		if (i>1000)
-			break;
 	}
 
 	sign = ((float) sqrSignalSum)/((float)nFrames);
