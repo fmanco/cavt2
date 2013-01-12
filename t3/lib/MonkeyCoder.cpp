@@ -56,7 +56,7 @@ void MonkeyCoder::decode ( const int32_t diff[2], int16_t frame[2] )
 	x = (pred[0] - (diff[0] * quant));
 	y = (pred[1] - (diff[1] * quant));
 
-	frame[0] = x-(y/2); // L = 2x-y
+	frame[0] = x-(y/2); // L = x-y/2
 	frame[1] = frame[0] - y; // R = L-y
 
 	p.update(frame);
