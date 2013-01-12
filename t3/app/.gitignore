@@ -5,6 +5,8 @@ Encode-llpred
 Decode-llpred
 Encode-ulaw
 Decode-ulaw
+Encode-monkey
+Decode-monkey
 sndHist
 resHist
 
