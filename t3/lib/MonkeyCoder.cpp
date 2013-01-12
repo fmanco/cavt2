@@ -7,6 +7,8 @@
 
 #include "base.h"
 #include "MonkeyCoder.h"
+// #include "stdio.h"
+#include <cstdio>
 
 
 //==============================================================================
@@ -35,6 +37,8 @@ void MonkeyCoder::encode ( const int16_t frame[2], int32_t diff[2] )
 
 	p.predict(pred);
 
+	// printf("pred{%d,%d}\n", pred[0], pred[1]);
+
 	diff[0] = (pred[0] - x) / quant;
 	diff[1] = (pred[1] - y) / quant;
 
@@ -48,8 +52,11 @@ void MonkeyCoder::decode ( const int32_t diff[2], int16_t frame[2] )
 {
 	int16_t pred[2];
 	int16_t x, y;
+	int16_t xy[2];
 
 	p.predict(pred);
+
+	// printf("pred{%d,%d}\n", pred[0], pred[1]);
 
 	x = (pred[0] - (diff[0] * quant));
 	y = (pred[1] - (diff[1] * quant));
@@ -57,7 +64,9 @@ void MonkeyCoder::decode ( const int32_t diff[2], int16_t frame[2] )
 	frame[0] = x+(y/2); // L = x+y/2
 	frame[1] = frame[0] - y; // R = L-y
 
-	p.update(frame);
+	xy[0] = x;
+	xy[1] = y;
+	p.update(xy);
 }
 
 // EOF =========================================================================
