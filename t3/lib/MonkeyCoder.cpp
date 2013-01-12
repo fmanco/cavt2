@@ -12,12 +12,10 @@
 //==============================================================================
 
 MonkeyCoder::MonkeyCoder ( int _quant )
-	: quant(_quant)
+	: p(1), quant(_quant)
 {
 	if (quant < 1)
 		quant = 1;
-
-	Predictor p(1);
 }
 
 MonkeyCoder::~MonkeyCoder (  )
