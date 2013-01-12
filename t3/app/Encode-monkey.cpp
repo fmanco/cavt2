@@ -96,7 +96,7 @@ int main ( int argc, char** argv )
 
 static void usage ( int argc, char** argv )
 {
-	printf("USAGE: %s <input.wav> <output.ll> [<GolombM = %d> <Quant = %d>]\n",
+	printf("USAGE: %s <input.wav> <output.mnk> [<GolombM = %d> <Quant = %d>]\n",
 		argv[0], GOLOMB_ENC_M, QUANTIZATION);
 }
 
