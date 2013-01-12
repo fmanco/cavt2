@@ -10,6 +10,7 @@ APPS += wavCopy
 APPS += sndHist resHist
 APPS += Encode-llpred Decode-llpred
 APPS += Encode-ulaw Decode-ulaw
+APPS += Encode-monkey Decode-monkey
 APPS += CompSNR
 # APPS += TestCoder
 # APPS += TestHist
