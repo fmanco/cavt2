@@ -1,0 +1,44 @@
+== Compilação:
+
+Para compilar o projecto basta, na raiz do projecto, executar
+
+        make
+
+As aplicações serão geradas no directório app
+
+
+== Utilização:
+
+Cada aplicação reporta o modo de utilização quando chamada sem argumentos.
+
+
+== Testes:
+
+Neste mesmo pacote são fornecidos scripts de teste (em python).
+Os scripts estão disponíveis na pasta results.
+
+Para a execução destes scripts deve colocado o directório 'sounds'
+dentro do directório 'results', com as seguintes amostras:
+
+* sample01.wav
+* sample02.wav
+* sample03.wav
+* sample04.wav
+* sample05.wav
+* sample06.wav
+* sample07.wav
+
+A execução dos testes pressupõe que a compilação já foi executada.
+Os resultados ficam disponíveis no directório 'results'
+
+
+== Estrutura do software:
+
+Em termos de distribuição por directórios o software
+está organizado da seguinte forma:
+
+.
+|-- app     : aplicações executáveis
+|-- inc     : cabeçalhos das biblitoecas
+|-- lib     : implementação das bibliotecas
+`-- results : scripts de teste
